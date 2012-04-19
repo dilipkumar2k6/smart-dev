@@ -1,9 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="src\BaseMonoBehaviour.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="src\RemoteDebug.cs">
     <Files>
-      <File FileName="src\BaseMonoBehaviour.cs" Line="50" Column="42" />
-      <File FileName="src\RemoteDebug.cs" Line="61" Column="22" />
+      <File FileName="src\BaseMonoBehaviour.cs" Line="96" Column="4" />
+      <File FileName="src\RemoteDebug.cs" Line="49" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

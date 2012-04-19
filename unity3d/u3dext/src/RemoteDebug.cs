@@ -45,19 +45,26 @@ public class RemoteDebug {
 	protected bool isStarting = false;
 	protected bool isStoped = false;
 	
-	public RemoteDebug() {
-		
+	private static RemoteDebug ins;
+	private RemoteDebug() {
+		this.msgQueue = new Queue ();
+		this.mainThread = null;
+	}
+	
+	public static RemoteDebug getInstance(LocalDebugCallback localDebugCallback) {
+		if(ins == null) {
+			ins = new RemoteDebug();
+			ins.localDebugCallback = localDebugCallback;
+			localDebugCallback ("RemoteDebug constructed");
+		}
+		return ins;
 	}
 	
 	/// <summary>
 	/// Initializes a new instance of the <see cref="RemoteDebug"/> class.
 	/// </summary>
-	public RemoteDebug (LocalDebugCallback localDebugCallback) {
-//		this.parentThread = parentThread;
+	private RemoteDebug (LocalDebugCallback localDebugCallback) {
 		this.localDebugCallback = localDebugCallback;
-		this.msgQueue = new Queue ();
-		this.mainThread = null;
-		localDebugCallback ("RemoteDebug constructed");
 	}
 	
 	public void startTcpListener () {
@@ -85,9 +92,9 @@ public class RemoteDebug {
 			// Test thread.
 			new Thread(new ThreadStart(delegate{
 				while (true) {
-					if (parentThread == null || !parentThread.IsAlive) {
-						break;
-					}
+//					if (parentThread == null || !parentThread.IsAlive) {
+//						break;
+//					}
 					localDebugCallback("Running...");
 					Thread.Sleep(1000);
 				}

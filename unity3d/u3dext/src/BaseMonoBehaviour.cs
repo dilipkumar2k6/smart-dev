@@ -77,7 +77,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	private string fpsLabel = "FPS: 0";
 	
 	// Remote debug shared instance.
-	protected static RemoteDebug remoteDebug ;
+	protected RemoteDebug remoteDebug ;
 	
 	// Screen debug.
 	protected static ScreenDebug screenDebug = new ScreenDebug();
@@ -102,7 +102,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 			
 			// Remote Debugger
 			if (remoteDebug == null) {
-				remoteDebug = new RemoteDebug(Debug.Log);
+				remoteDebug = RemoteDebug.getInstance(Debug.Log);
 			}
 
 			try {
@@ -179,7 +179,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 //			GUI.TextArea(new Rect(10, 100, 350, 17 * infos.Length), contatDebugInfo());
 //		}
 		
-		// Mouse press events on screen.
+		// Mouse events on screen.
 		for (int i = 0; i < 2; i++) {
 			if (isMousePreesedOnScreen == false && Input.GetMouseButtonDown (i)) {
 				mousePressedPositionOnScreen = Utils.convert3Dto2D (Input.mousePosition);
@@ -194,8 +194,10 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		}
 		
 		Vector2 thisFrameMousePos = Utils.convert3Dto2D (Input.mousePosition);
-		this.OnScreenMouseOver (thisFrameMousePos, thisFrameMousePos - mouseLastFramePositionOnScreen);
-		mouseLastFramePositionOnScreen = thisFrameMousePos;
+		if(thisFrameMousePos != mouseLastFramePositionOnScreen) {
+			this.OnScreenMouseOver (thisFrameMousePos, thisFrameMousePos - mouseLastFramePositionOnScreen);
+			mouseLastFramePositionOnScreen = thisFrameMousePos;
+		}
 
 		// Raise touch events or ray hits event for touch screen devices.
 		if (isMobilePlatform () == true) {
