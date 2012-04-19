@@ -12,7 +12,8 @@ using System.Threading;
 /// @Version: 0.1
 /// </summary>
 public class RemoteDebug {
-
+	protected int DEFAULT_PORT = 5000;
+	
 	protected int MAX_MSG_QUEUE_SIZE = 1000;
 
 	// Listener for clients.
@@ -33,8 +34,10 @@ public class RemoteDebug {
 	public delegate void ConnectionCallback();
 	protected ConnectionCallback connectedCallback;
 	
-	public delegate void LocalDebug(String msg);
-	LocalDebug localDebugCallback;
+	public delegate void LocalDebugCallback(String msg);
+	LocalDebugCallback localDebugCallback;
+	
+	protected Thread parentThread;
 	
 	// Waitter for incoming msg notification.
 	protected WaitHandle waitter;
@@ -49,7 +52,8 @@ public class RemoteDebug {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="RemoteDebug"/> class.
 	/// </summary>
-	public RemoteDebug (LocalDebug localDebugCallback) {
+	public RemoteDebug (LocalDebugCallback localDebugCallback) {
+//		this.parentThread = parentThread;
 		this.localDebugCallback = localDebugCallback;
 		this.msgQueue = new Queue ();
 		this.mainThread = null;
@@ -57,6 +61,7 @@ public class RemoteDebug {
 	}
 	
 	public void startTcpListener () {
+		// Avoid multi starting.
 		if (!isStarting) {
 			isStarting = true;
 			try {
@@ -66,13 +71,27 @@ public class RemoteDebug {
 					return;
 				}
 				
-				tcpListener = new TcpListener(hostEntry.AddressList[0], 5000);
+				tcpListener = new TcpListener(hostEntry.AddressList[0], DEFAULT_PORT);
 				tcpListener.Start();
 			} catch (Exception ex) {
-				Console.WriteLine(ex.Message + ex.StackTrace);
+				localDebugCallback(ex.Message + ex.StackTrace);
 				localDebugCallback("RemoteDebug construct failed");
 				return;
 			}
+			localDebugCallback("Remote debug listening on port " + DEFAULT_PORT);
+			
+			Thread parentThread = Thread.CurrentThread;
+			
+			// Test thread.
+			new Thread(new ThreadStart(delegate{
+				while (true) {
+					if (parentThread == null || !parentThread.IsAlive) {
+						break;
+					}
+					localDebugCallback("Running...");
+					Thread.Sleep(1000);
+				}
+			})).Start();
 		}
 	}
 
@@ -88,7 +107,7 @@ public class RemoteDebug {
 			localDebugCallback("Main thread " + mainThread.Name + " started");
 		} 
 		else {
-			// Debug.Log("The listener thread is already started.");
+			// localDebugCallback("The listener thread is already started.");
 		}
 	}
 
@@ -104,7 +123,7 @@ public class RemoteDebug {
 			log ("INIT", "Remote debug listen on: " + tcpListener.LocalEndpoint);
 			
 			// Only one client allowed, this single client instance take over remote connection, all debug info will be forward to new client console.
-			debugClient = tcpListener.AcceptTcpClient (); // ## Block here.
+			debugClient = tcpListener.AcceptTcpClient(); // ## Block here.
 			
 			log ("INIT", "A remote debug console connected: " + debugClient.Client.RemoteEndPoint);
 			if (connectedCallback != null) {
@@ -147,7 +166,7 @@ public class RemoteDebug {
 		}
 		msgQueue.Enqueue(logInfo);
 		if (waitter != null) {
-//			Debug.Log("Signal and wait");
+//			localDebugCallback("Signal and wait");
 			WaitHandle.SignalAndWait(waitter, waitter);
 		}
 	}
