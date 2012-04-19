@@ -3,8 +3,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 //using u3dext;
+using System.Threading;
 using UnityEngine;
-
 
 /// <summary>
 /// Provides:
@@ -85,9 +85,11 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// Use this for initialization
 	protected void Start () {
 		
+		Debug.Log("Script '" + this.GetType().Name + "' runs on thread " + Thread.CurrentThread.ManagedThreadId);
+		
 		System.Object[] attrs = this.GetType().GetCustomAttributes(true);
 		
-		Debug.Log("annotations:" + attrs);
+		Debug.Log("annotations:" + attrs.Length);
 		
 		if (debugMode) {
 			Debug.Log("This script" + this.GetType() + " runs on DEBUG mode");
@@ -110,7 +112,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 				});
 				debug(this.GetType() + " is ready to send debug info");
 			} catch (Exception e) {
-				Console.WriteLine(e.StackTrace);
+				Debug.Log(e.StackTrace);
 			}
 		}
 
