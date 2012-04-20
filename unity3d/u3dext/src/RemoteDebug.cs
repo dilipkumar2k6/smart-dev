@@ -45,6 +45,8 @@ public class RemoteDebug {
 	protected bool isStarting = false;
 	protected bool isStoped = false;
 	
+	private DateTime keepAliveTime;
+	
 	private static RemoteDebug ins;
 	private RemoteDebug() {
 		this.msgQueue = new Queue ();
@@ -86,8 +88,6 @@ public class RemoteDebug {
 				return;
 			}
 			localDebugCallback("Remote debug listening on port " + DEFAULT_PORT);
-			
-			Thread parentThread = Thread.CurrentThread;
 			
 			// Test thread.
 			new Thread(new ThreadStart(delegate{
