@@ -7,14 +7,14 @@ DNS Proxy使用Java语言编写，运行需要安装JRE1.6以上版本。
 注意：本程序只能解决DNS污染问题，但是不能帮助你访问被墙的网站。
 
 =功能=
-  过滤掉被GFW污染的IP地址解析。
-  保存已经解析的域名和IP地址。
-  给正常的域名提供解析加速（从缓存中获取IP地址）
-  提供hosts功能，无需再修改系统hosts文件。
-  可作为DNS服务器使用
+  * 过滤掉被GFW污染的IP地址解析。
+  * 保存已经解析的域名和IP地址。
+  * 给正常的域名提供解析加速（从缓存中获取IP地址）
+  * 提供hosts功能，无需再修改系统hosts文件。
+  * 可作为DNS服务器使用
 
 =安装=
-  *下载安装包：http://code.google.com/p/smart-dev/downloads/detail?name=dnsproxy_all_1.0.0_beta_b16.zip&can=2&q=
+  *下载安装包：http://code.google.com/p/smart-dev/downloads/detail?name=dnsproxy_all_1.0.0_beta_b19.zip&can=2&q=
   *解压缩并放置磁盘的某处即可。
 
 =使用=
