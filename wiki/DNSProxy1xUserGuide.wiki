@@ -20,7 +20,8 @@ DNS Proxy使用Java语言编写，运行需要安装JRE1.6以上版本。
   * 解压缩并放置磁盘的某处即可。
 
 =使用=
-  * 双击startup.bat启动DNS Proxy
+  * 双击startup.bat启动DNS Proxy(Linux则在命令行下执行
+{{{sudo ./startup.sh}}}
   * 修改你本机的网络配置，将主DNS服务器的地址改为127.0.0.1，也就是你的本机地址。
   * 启动（重启）浏览器，输入网址访问网站，若工作正常的话此时浏览器已经通过你本机启动的DNS Proxy来解析域名了。
   * 如果要使用hosts功能，只需要修改目录下面的dns.hosts文件即可，修改方法同系统hosts文件一样
