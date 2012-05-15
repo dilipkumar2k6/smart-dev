@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Collections.Generic;
 //using u3dext;
 using System.Threading;
 using UnityEngine;
@@ -11,8 +12,10 @@ using UnityEngine;
 /// 	Main menu displaying and handling.
 /// 	Screen touch pre-handling.
 /// 	Mouse events pre-handling.
-/// 	Displaying FPS.
+/// 	Displaying FPS, Screen Touch Points.
 ///		Debug (remote and local).
+/// Approaches:
+/// 	* Create menu: overide and implement method OnMenuCreated(windowId).
 /// @Author: Yuxing Wang
 /// @Version: 0.1
 /// </summary>
@@ -23,6 +26,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 
 	// ==== Settings in Unity Editor ==== 
 	public bool debugMode = false;
+	
+	public bool remoteDebugMode = false;
 	
 	public float turnSpeed = 20;
 	
@@ -40,6 +45,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// Show FPS in this rectangle.
 	protected Rect rectFPS;
 	protected Rect rectDebugInputConsole;
+	protected Rect rectDebugTouchPoint;
 	protected Rect rectDebugConsole;
 
 	// Control main menu.
@@ -70,18 +76,24 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// Screen button flags for left hand and right hand.
 	protected int leftHandBtnFlag = 0;
 	protected int rightHandBtnFlag = 0;
+	
+	// === DEBUGING ===
 
 	// 4 calculating FPS.
 	private System.DateTime lastFpsTime;
 	private int currentFPS = 0;
 	private string fpsLabel = "FPS: 0";
+	private int[] touchFlags = new int[5];
 	
 	// Remote debug shared instance.
-	protected RemoteDebug remoteDebug ;
+	protected RemoteDebug debugConsole ;
 	
 	// Screen debug.
 	protected static ScreenDebug screenDebug = new ScreenDebug();
-		
+	
+	protected Dictionary<String, Boolean> flagDebug = new Dictionary<String, Boolean>();
+	
+	// ===  ===	
 	// Use this for initialization
 	protected void Start () {
 		
@@ -98,25 +110,33 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 			
 			rectDebugInputConsole = new Rect(10, 10, 200, 30);
 			
-			rectFPS = new Rect(10, 50, 80, 30);
+			rectDebugTouchPoint = new Rect(10, 50, 200, 30);
+			
+			rectFPS = new Rect(10, 90, 80, 30);
+			
 			
 			// Remote Debugger
-			if (remoteDebug == null) {
-				remoteDebug = RemoteDebug.getInstance(Debug.Log);
+			if (debugConsole == null) {
+				debugConsole = RemoteDebug.getInstance(Debug.Log);
 			}
+			
+			if (remoteDebugMode) {
+				try {
+					debugConsole.startTcpListener();
+					debugConsole.fork(delegate {
+						Debug.Log("debug client connected");
+					});
+					debug(this.GetType() + " is ready to send debug info");
+				} catch (Exception e) {
+					Debug.Log(e.StackTrace);
+				}
+			}
+			
+			flagDebug.Add("MPS", isMousePreesedOnScreen);
+			flagDebug.Add("TS", isTouchingScreen);
 
-			try {
-				remoteDebug.startTcpListener();
-				remoteDebug.fork(delegate {
-					Debug.Log("debug client connected");
-				});
-				debug(this.GetType() + " is ready to send debug info");
-			} catch (Exception e) {
-				Debug.Log(e.StackTrace);
-			}
 		}
 
-		
 		sw = Screen.width;
 		sh = Screen.height;
 		
@@ -150,27 +170,50 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		
 		if (debugMode) {
 			// Show FPS.
-			GUI.Box (rectFPS, fpsLabel);
+			GUI.Box(rectFPS, fpsLabel);
 			
 			// User input debug.
-			String msg = "L: " + Convert.ToString (leftHandBtnFlag) + ", R: " + Convert.ToString (rightHandBtnFlag);
-			GUI.Box (rectDebugInputConsole, msg);
+			String msg = "L: " + Convert.ToString(leftHandBtnFlag) + ", R: " + Convert.ToString(rightHandBtnFlag);
+			GUI.Box(rectDebugInputConsole, msg);
 			
 			//  Screen debug console.
-			GUI.TextArea (new Rect (10, 100, 350, 17 * ScreenDebug.MESSAGE_LENGTH), screenDebug.contatDebugInfo ());
+//			GUI.TextArea(new Rect(10, 100, 350, 17 * ScreenDebug.MESSAGE_LENGTH), screenDebug.contatDebugInfo());
+			
+			// Show FLAGs
+			int left = 10;
+			foreach (KeyValuePair<String, Boolean> item in flagDebug) {
+				Rect rect = new Rect(left, sh - 30, 50, 20);
+				left += 60;
+				if (item.Value == true) {
+					GUI.Box(rect, item.Key);
+				} else {
+					GUI.Box(rect, "-");	
+				}
+			}
+			
+			// Show Touch Points
+			StringBuilder touchText = new StringBuilder();
+			for (int i = 0; i < 5; i++) {
+				if (touchFlags[i] == 1) {
+					touchText.Append("O");	
+				} else {
+					touchText.Append("x");
+				}
+			}
+			GUI.Box(rectDebugTouchPoint, touchText.ToString());
 		}
 
 		// ==== Menu Handling ====
 		if (isShowMenuButton) {
-			if (GUI.Button (new Rect (Screen.width - 90, 10, 80, 40), "MENU")) {
+			if (GUI.Button(new Rect(Screen.width - 90, 10, 80, 40), "MENU")) {
 				isMenuOpend = !isMenuOpend;
-				audio.PlayOneShot (beepMenu);
+				audio.PlayOneShot(beepMenu);
 			}
 		}
 
 		if (isMenuOpend == true) {
-			Rect menuRect = new Rect (Screen.width / 2 - 100, Screen.height / 2 - 100, 200, 200);
-			GUILayout.Window (0, menuRect, OnMenuCreated, "  == MENU == ");
+			Rect menuRect = new Rect(hsw - 100, hsh - 100, 200, 200);
+			GUILayout.Window(0, menuRect, OnMenuCreated, "  == MENU == ");
 		}
 
 		// ==== User Input Touch ====
@@ -181,57 +224,72 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		
 		// Mouse events on screen.
 		for (int i = 0; i < 2; i++) {
-			if (isMousePreesedOnScreen == false && Input.GetMouseButtonDown (i)) {
-				mousePressedPositionOnScreen = Utils.convert3Dto2D (Input.mousePosition);
+			if (isMousePreesedOnScreen == false && Input.GetMouseButtonDown(i)) {
+				mousePressedPositionOnScreen = Utils.convert3Dto2D(Input.mousePosition);
 				mouseLastFramePositionOnScreen = mousePressedPositionOnScreen;
 				isMousePreesedOnScreen = true;
-				this.OnScreenMouseDown (i, mousePressedPositionOnScreen);				
+				// Callback
+				this.OnScreenMouseDown(i, mousePressedPositionOnScreen);				
 			}
-			if (isMousePreesedOnScreen == true && Input.GetMouseButtonUp (i)) {
+			if (isMousePreesedOnScreen == true && Input.GetMouseButtonUp(i)) {
 				isMousePreesedOnScreen = false;
-				this.OnScreenMouseUp (i, Input.mousePosition);
+				// Callback
+				this.OnScreenMouseUp(i, Input.mousePosition);
 			}
 		}
 		
-		Vector2 thisFrameMousePos = Utils.convert3Dto2D (Input.mousePosition);
-		if(thisFrameMousePos != mouseLastFramePositionOnScreen) {
-			this.OnScreenMouseOver (thisFrameMousePos, thisFrameMousePos - mouseLastFramePositionOnScreen);
+		Vector2 thisFrameMousePos = Utils.convert3Dto2D(Input.mousePosition);
+		if (thisFrameMousePos != mouseLastFramePositionOnScreen) {
+			// Callback
+			this.OnScreenMouseOver(thisFrameMousePos, thisFrameMousePos - mouseLastFramePositionOnScreen);
 			mouseLastFramePositionOnScreen = thisFrameMousePos;
 		}
 
 		// Raise touch events or ray hits event for touch screen devices.
-		if (isMobilePlatform () == true) {
+		if (isMobilePlatform() == true) {
 			for (int i=0; i<Input.touches.Length; i++) {
-				Touch touch = Input.touches [i];
+				Touch touch = Input.touches[i];
 				Vector2 eachPos = touch.position;
 				if (isTouchingScreen == false && touch.phase == TouchPhase.Began) {
 					isTouchingScreen = true;
-					this.OnTouchDown (touch.fingerId, eachPos);
-				}
-				else if (isTouchingScreen == true && touch.phase == TouchPhase.Ended) {
-					this.OnTouchUp (touch.fingerId, eachPos);
+					// Detect ray hits from screen touch point.
+					String hitObjName = this.rayHitGameObjectAndCallback(touch.position);
+					if (hitObjName != null) {
+						this.OnGameObjectHitDown(hitObjName);
+					}
+					// Callback
+					this.OnTouchDown(touch.fingerId, eachPos);
+				} else if (isTouchingScreen == true && touch.phase == TouchPhase.Ended) {
+					// Callback
+					this.OnTouchUp(touch.fingerId, eachPos);
 					isTouchingScreen = false;
+					String hitObjName = this.rayHitGameObjectAndCallback(touch.position);
+					if (hitObjName != null) {
+						this.OnGameObjectHitUp(hitObjName);
+					}
+				} else if (touch.phase == TouchPhase.Moved) {
+					// Callback
+					this.OnTouchMove(touch.fingerId, eachPos, touch.deltaPosition);
 				}
-				else if (touch.phase == TouchPhase.Moved) {
-					this.OnTouchMove (touch.fingerId, eachPos, touch.deltaPosition);
-				}
-			}
-			// Detect ray hits from screen touch point.
-			for (int i=0; i<Input.touches.Length; i++) {
-				Touch touch = Input.touches [i];
-				this.rayHitGameObjectAndCallback (touch.position);
+
 			}
 		}
 		
 		// Raise ray hits event for mouse input.
-		if (isMousePressed == false && Input.GetMouseButtonDown (0)) {
+		if (isMousePressed == false && Input.GetMouseButtonDown(0)) {
 			isMousePressed = true;
-			screenDebug.log ("Press mouse on screen position " + Input.mousePosition);
-			this.rayHitGameObjectAndCallback (Input.mousePosition);
-		}
-		else if (isMousePressed == true && Input.GetMouseButtonUp (0)) {
-			screenDebug.log ("Release mouse on screen position " + Input.mousePosition);
+			screenDebug.log("Press mouse on screen position " + Input.mousePosition);
+			String hitObjName = this.rayHitGameObjectAndCallback(Input.mousePosition);
+			if (hitObjName != null) {
+				this.OnGameObjectHitDown(hitObjName);
+			}
+		} else if (isMousePressed == true && Input.GetMouseButtonUp(0)) {
+			screenDebug.log("Release mouse on screen position " + Input.mousePosition);
 			isMousePressed = false;
+			String hitObjName = this.rayHitGameObjectAndCallback(Input.mousePosition);
+			if (hitObjName != null) {
+				this.OnGameObjectHitUp(hitObjName);
+			}
 		}
 	}
 	
@@ -241,7 +299,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	/// </summary>
 	/// <param name="windowId"></param>
 	protected virtual void OnMenuCreated (int windowId) {
-		
+//		GUILayout.Label("Hello World");
 	}
 
 	protected void OnMouseDown () {
@@ -254,16 +312,43 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		mousePressedPosition = new Vector2 ();
 	}
 	
+	/// <summary>
+	/// Raises the screen mouse down event.
+	/// </summary>
+	/// <param name='button'>
+	/// Button.
+	/// </param>
+	/// <param name='mousePosition'>
+	/// Mouse position. Start from bottom to top.
+	/// </param>
 	protected virtual void OnScreenMouseDown (int button, Vector2 mousePosition) {
-		this.debug ("Button " + button + " pressed down at position " + mousePosition);
+		this.debug("Mouse Button " + button + " pressed down at position " + mousePosition);
 	}
 	
+	/// <summary>
+	/// Raises the screen mouse over event.
+	/// </summary>
+	/// <param name='mousePosition'>
+	/// Mouse position.
+	/// </param>
+	/// <param name='deltaPosition'>
+	/// Delta position. Start from bottom to top.
+	/// </param>
 	protected virtual void OnScreenMouseOver (Vector2 mousePosition, Vector2 deltaPosition) {
-		this.debug ("Mouse moved over " + deltaPosition + " to position " + mousePosition);
+		this.debug("Mouse moved over " + deltaPosition + " to position " + mousePosition);
 	}
 	
+	/// <summary>
+	/// Be called each time a mouse button up at screen position.
+	/// </summary>
+	/// <param name='button'>
+	/// Button.
+	/// </param>
+	/// <param name='mousePosition'>
+	/// Mouse position. Start from bottom to top.
+	/// </param>
 	protected virtual void OnScreenMouseUp(int button, Vector2 mousePosition) {
-		this.debug ("Button " + button + " released at position " + mousePosition);
+		this.debug ("Mouse Button " + button + " released at position " + mousePosition);
 	}
 	
 	/// <summary>
@@ -271,17 +356,9 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	/// </summary>
 	/// <param name="touchId"></param>
 	/// <param name="touchPosition"></param>
-	protected virtual void OnTouchDown(int touchId, Vector2 touchPosition){
-		this.debug (touchId + " touched down at position: " + touchPosition);
-	}
-
-	/// <summary>
-	/// Be called every time user released touching screen.
-	/// </summary>
-	/// <param name="touchId"></param>
-	/// <param name="touchPosition"></param>
-	protected virtual void OnTouchUp(int touchId, Vector2 touchPosition){
-		this.debug (touchId + " touched up at position: " + touchPosition + "  " + System.DateTime.Now.Ticks / 10000f * 1000f);
+	protected virtual void OnTouchDown (int touchId, Vector2 touchPosition) {
+		this.debug(touchId + " touched down at position: " + touchPosition);
+		touchFlags[touchId] = 1;
 	}
 
 	/// <summary>
@@ -292,29 +369,50 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	protected virtual void OnTouchMove(int touchId, Vector2 touchPosition, Vector2 deltaPosition){
 		this.debug (touchId + " touched move at position: " + touchPosition);
 	}
+	
+	/// <summary>
+	/// Be called every time user released touching screen.
+	/// </summary>
+	/// <param name="touchId"></param>
+	/// <param name="touchPosition"></param>
+	protected virtual void OnTouchUp (int touchId, Vector2 touchPosition) {
+		this.debug(touchId + " touched up at position: " + touchPosition + "  " + System.DateTime.Now.Ticks / 10000f * 1000f);
+		touchFlags[touchId] = 0;
+	}
 		
 	//
-	protected bool rayHitGameObjectAndCallback(Vector3 screenPos) {
+	protected String rayHitGameObjectAndCallback (Vector3 screenPos) {
 		// Detect by Ray
-		this.debug("Ray at position: " + screenPos);
+		this.debug("Ray at screen position: " + screenPos);
 		Ray ray = Camera.main.ScreenPointToRay(screenPos);
 		RaycastHit hit;
 		Debug.DrawRay(ray.origin, ray.direction, Color.red);
-		if(Physics.Raycast(ray.origin, ray.direction, out hit)) {
+		if (Physics.Raycast(ray.origin, ray.direction, out hit)) {
 			this.debug("Ray " + ray + " hits " + hit.collider);
-			return this.OnGameObjectTouchedOnScreen(hit.collider.name);
+			return hit.collider.name;
 		}
-		return false;
+		return null;
 	}
 	
 	/// <summary>
-	/// Be called when user touchs or clicks on screen with ray hit a game object.
+	/// Be called when touchs or clicks down on screen with ray hit a game object.
 	/// </summary>
 	/// <param name='objectName'>
 	/// Object name.
 	/// </param>
-	protected virtual bool OnGameObjectTouchedOnScreen(String objectName) {
-		this.debug ("Game object " + objectName + " be touched on screen");
+	protected virtual bool OnGameObjectHitDown (String objectName) {
+		this.debug("Game object " + objectName + " be hit down on screen");
+		return true;
+	}
+	
+	/// <summary>
+	/// Be called when touchs or clicks up on screen with ray hit a game object.
+	/// </summary>
+	/// <param name='objectName'>
+	/// If set to <c>true</c> object name.
+	/// </param>
+	protected virtual bool OnGameObjectHitUp (string objectName) {
+		this.debug("Game object " + objectName + " be hit up on screen");
 		return true;
 	}
 
@@ -331,7 +429,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		}
 	}
 	
-	protected void Destroy() {
+	protected void Destroy () {
 		Debug.Log("Destroying...");
 //		remoteDebug("Destroying...");
 //		if(debugMode) {
@@ -339,21 +437,21 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 //		}
 	}
 
-	public void debug(String msg) {
-		if(remoteDebug != null) {
-			remoteDebug.log(DateTime.Now.ToLongTimeString() + " DEBUG ", msg);
+	public void debug(System.Object msg) {
+		if(debugConsole != null) {
+			debugConsole.log(DateTime.Now.ToLongTimeString() + " DEBUG ", msg.ToString());
 		}
 	}	
 	
-	public void info(String msg) {
-		if(remoteDebug != null) {
-			remoteDebug.log(DateTime.Now.ToLongTimeString() + " INFO ", msg);
+	public void info(System.Object msg) {
+		if(debugConsole != null) {
+			debugConsole.log(DateTime.Now.ToLongTimeString() + " INFO ", msg.ToString());
 		}
 	}
 	
-	public void error(String msg) {
-		if(remoteDebug != null) {
-			remoteDebug.log(DateTime.Now.ToLongTimeString() + " ERROR ", msg);
+	public void error(System.Object msg) {
+		if(debugConsole != null) {
+			debugConsole.log(DateTime.Now.ToLongTimeString() + " ERROR ", msg.ToString());
 		}
 	}
 }

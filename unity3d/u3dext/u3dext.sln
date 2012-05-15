@@ -21,6 +21,6 @@ Global
 		{6A121C78-E4AE-4CA1-8461-9BDEB4ABB4A8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = u3dext.csproj
+		StartupItem = ..\u3dext_demo\u3dext_demo.csproj
 	EndGlobalSection
 EndGlobal

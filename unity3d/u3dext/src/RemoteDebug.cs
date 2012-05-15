@@ -48,11 +48,20 @@ public class RemoteDebug {
 	private DateTime keepAliveTime;
 	
 	private static RemoteDebug ins;
-	private RemoteDebug() {
-		this.msgQueue = new Queue ();
+	private RemoteDebug () {
+		this.msgQueue = new Queue();
 		this.mainThread = null;
 	}
 	
+	/// <summary>
+	/// Only one remote debug instance allowed.
+	/// </summary>
+	/// <returns>
+	/// The instance.
+	/// </returns>
+	/// <param name='localDebugCallback'>
+	/// Local debug callback.
+	/// </param>
 	public static RemoteDebug getInstance(LocalDebugCallback localDebugCallback) {
 		if(ins == null) {
 			ins = new RemoteDebug();
@@ -167,6 +176,11 @@ public class RemoteDebug {
 		// Callback log.
 		localDebugCallback(logInfo);
 		
+		// Not ready for remote debug.
+		if (tcpListener == null) {
+			return;
+		}
+		
 		// Log to queue for remote displaying.
 		if (msgQueue.Count > MAX_MSG_QUEUE_SIZE) {
 			msgQueue.Dequeue();
@@ -176,6 +190,10 @@ public class RemoteDebug {
 //			localDebugCallback("Signal and wait");
 			WaitHandle.SignalAndWait(waitter, waitter);
 		}
+	}
+	
+	public void logErr(String prefix, String msg) {
+		// TODO
 	}
 
 	public void stop() {
