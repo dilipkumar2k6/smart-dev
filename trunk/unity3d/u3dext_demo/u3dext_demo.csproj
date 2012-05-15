@@ -39,6 +39,9 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="src\DemoMain.cs" />
+    <Compile Include="src\MyStruct.cs" />
+    <Compile Include="src\DemoStruct.cs" />
+    <Compile Include="src\MyEntity.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
