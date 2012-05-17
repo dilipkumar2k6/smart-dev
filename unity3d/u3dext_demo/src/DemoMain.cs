@@ -58,6 +58,8 @@ public class DemoMain  {
 	public void testFloatNumber () {
 		Console.WriteLine(3 / 2);
 		Console.WriteLine(3.0f / 2.0f);
+		Console.WriteLine(3 / 2f);
+		Console.WriteLine(Math.PI / 4f);
 	}
 	
 	public void testObjectReferece () {
