@@ -6,6 +6,7 @@ using System.Collections.Generic;
 //using u3dext;
 using System.Threading;
 using UnityEngine;
+using u3dext;
 
 /// <summary>
 /// Provides:
@@ -34,6 +35,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	public bool debugMode = false;
 	
 	public bool remoteDebugMode = false;
+	
+	public bool profilingMode = false;
 	
 	public float turnSpeed = 20;
 	
@@ -105,6 +108,9 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	private int[] touchFlags = new int[5];
 	private bool[] mouseFlags = new bool[3];
 	
+	// Profiling
+	private float profileSummaryTime = 0;
+	
 	// Remote debug shared instance.
 	protected RemoteDebug debugConsole;
 	
@@ -121,16 +127,14 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		
 		System.Object[] attrs = this.GetType().GetCustomAttributes(true);
 		
-		Debug.Log("annotations:" + attrs.Length);
-		
 		if (debugMode) {
 			Debug.Log("This script" + this.GetType() + " runs on DEBUG mode");
 			
 			lastFpsTime = System.DateTime.Now;
 			
-			rectDebugInputConsole = new Rect(10, 10, 200, 30);
+			rectDebugInputConsole = new Rect(10, 10, 180, 30);
 			
-			rectDebugTouchPoint = new Rect(10, 50, 200, 30);
+			rectDebugTouchPoint = new Rect(10, 50, 180, 30);
 			
 			rectFPS = new Rect(10, 90, 80, 30);
 			
@@ -190,6 +194,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		return Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer;
 	}
 	
+	// === OnGUI Private ===
+	
 	protected void OnGUI () {
 		// === DEBUG ===
 		if (debugMode) {
@@ -216,7 +222,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 			}
 			
 			// Show Touch Points
-			StringBuilder touchText = new StringBuilder();
+			StringBuilder touchText = new StringBuilder();		
 			touchText.Append("M: ");
 			for (int i = 0; i < mouseFlags.Length; i++) {
 				touchText.Append(mouseFlags[i] == true ? "O" : "x");
@@ -256,6 +262,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		
 		// Mouse events on screen. (Mobile devices will get mouse event when touchs screen, so...)
 		if (isMobilePlatform() == false) {
+			u3dext.Profiler.getInstance().start("GUI.Mouse");
 			for (int i = 0; i < 2; i++) {
 				if (isMousePreesedOnScreen == false && Input.GetMouseButtonDown(i)) {
 					mousePressedPositionOnScreen = Utils.convert3Dto2D(Input.mousePosition);
@@ -281,25 +288,33 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 			}
 			
 			// Raise ray hits event for mouse input.
+			u3dext.Profiler.getInstance().start("GUI.Mouse.Ray");
 			if (isMousePressed == false && Input.GetMouseButtonDown(0)) {
 				isMousePressed = true;
 				screenDebug.log("Press mouse on screen position " + Input.mousePosition);
 				String hitObjName = this.rayHitGameObject(Input.mousePosition);
 				if (hitObjName != null) {
+					u3dext.Profiler.getInstance().start("GUI.Mouse.Ray.Down");
 					this.OnGameObjectHitDown(hitObjName);
+					u3dext.Profiler.getInstance().end("GUI.Mouse.Ray.Down");
 				}
 			} else if (isMousePressed == true && Input.GetMouseButtonUp(0)) {
 				screenDebug.log("Release mouse on screen position " + Input.mousePosition);
 				isMousePressed = false;
 				String hitObjName = this.rayHitGameObject(Input.mousePosition);
 				if (hitObjName != null) {
+					u3dext.Profiler.getInstance().start("GUI.Mouse.Ray.Up");
 					this.OnGameObjectHitUp(hitObjName);
+					u3dext.Profiler.getInstance().end("GUI.Mouse.Ray.Up");
 				}
 			}
+			u3dext.Profiler.getInstance().end("GUI.Mouse.Ray");
+			u3dext.Profiler.getInstance().end("GUI.Mouse");
 		}
 
 		// Raise touch events and ray hits events for touch screen devices.
 		if (isMobilePlatform() == true) {
+			u3dext.Profiler.getInstance().start("GUI.Touch");
 			for (int i=0; i<Input.touches.Length; i++) {
 				Touch touch = Input.touches[i];
 //				int touchId = touch.fingerId;
@@ -359,13 +374,13 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 						float delta = curDistance - preDistance;
 						float zoomDistance = (delta / 50) * Time.deltaTime;
 						this.OnZoomInAndOut(zoomDistance);
-					} 
-					else {
+					} else {
 						this.OnTouchMove(touch.fingerId, eachPos, touch.deltaPosition);						
 					}
 				}
 			}
-		}
+			u3dext.Profiler.getInstance().end("GUI.Touch");
+		}// Touch
 	}
 	
 	
@@ -516,15 +531,24 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	}
 
 	
-	protected void Update() {
+	protected void Update () {
 		// Calculating FPS.
 		if (System.DateTime.Now.Ticks - lastFpsTime.Ticks > 10000 * 1000) {
 			fpsLabel = "FPS: " + this.currentFPS;
 			this.currentFPS = 0;
 			lastFpsTime = System.DateTime.Now;
-		}
-		else {
+		} else {
 			this.currentFPS++;
+		}
+		
+		// Profiling
+		if (profilingMode == true) {
+			if (profileSummaryTime > 30) {
+				u3dext.Profiler.getInstance().print(debug);
+				profileSummaryTime = 0;
+			} else {
+				profileSummaryTime += Time.deltaTime; 
+			}
 		}
 	}
 	
