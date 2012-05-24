@@ -12,8 +12,8 @@ DNS Proxy使用Java语言编写，运行需要安装JRE1.6以上版本。
   * 过滤掉被GFW污染的IP地址解析。
   * 保存已经解析的域名和IP地址。
   * 给正常的域名提供解析加速（从缓存中获取IP地址）,在域名服务器故障的时候也可以保障常用域名可以正常解析。
-  * 提供hosts功能，无需再修改系统hosts文件。
-  * 可作为DNS服务器使用
+  * 提供更强的本地hosts功能，无需再修改系统hosts文件。支持通配符匹配，比如“x.x.x.x *.google.com”记录将会解析所有后缀为“google.com"域名为IP地址x.x.x.x
+  * 可作为局域网内DNS服务器使用，便于控制局域网的域名解析。
 
 =安装=
   * 下载安装包：http://code.google.com/p/smart-dev/downloads/detail?name=dnsproxy_all_1.0.0_beta_b19.zip&can=2&q=
