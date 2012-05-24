@@ -12,20 +12,21 @@ DNS Proxy使用Java语言编写，运行需要安装JRE1.6以上版本。
   * 过滤掉被GFW污染的IP地址解析。
   * 保存已经解析的域名和IP地址。
   * 给正常的域名提供解析加速（从缓存中获取IP地址）,在域名服务器故障的时候也可以保障常用域名可以正常解析。
-  * 提供更强的本地hosts功能，无需再修改系统hosts文件。支持通配符匹配，比如`74.125.71.94 *.google.com`记录将会解析所有后缀为“google.com"域名为IP地址74.125.71.94
+  * 提供更强的本地hosts功能，无需再修改系统hosts文件。支持通配符匹配，比如`"74.125.71.94 *.google.com"`记录将会解析所有后缀为“google.com"域名为IP地址74.125.71.94
   * 可作为局域网内DNS服务器使用，便于控制局域网的域名解析。
 
 =安装=
-  * 下载安装包：http://code.google.com/p/smart-dev/downloads/detail?name=dnsproxy_all_1.0.0_beta_b19.zip&can=2&q=
+  * 下载安装包：http://code.google.com/p/smart-dev/downloads/detail?name=dnsproxy_all_1.0.0_beta_b21.zip&can=2&q=
   * 解压缩并放置磁盘的某处即可。
 
 =使用=
-  * 双击startup.bat启动DNS Proxy,(Linux则在命令行下执行sudo ./startup.sh)
+  * 双击startup.bat启动DNS Proxy,(Linux则在命令行下执行`sudo ./startup.sh`)
   * 修改你本机的网络配置，将主DNS服务器的地址改为127.0.0.1，也就是你的本机地址。
   * 启动（重启）浏览器，输入网址访问网站，若工作正常的话此时浏览器已经通过你本机启动的DNS Proxy来解析域名了。
   * 如果要使用hosts功能，只需要修改目录下面的dns.hosts文件即可，修改方法同系统hosts文件一样
 
 =更新记录=
+
   * v1.0 beta 2012-04-22 初始版本
 
 =已知的问题==
