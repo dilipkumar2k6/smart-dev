@@ -4,11 +4,12 @@ using System.Net.Sockets;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using u3dext;
 
 /// <summary>
 /// Description of DemoMain.
 /// </summary>
-public class DemoMain  {
+public class DemoMain {
 	RemoteDebug remoteDebug;
 	
 	public DemoMain () {
@@ -21,30 +22,24 @@ public class DemoMain  {
 	}
 		
 	public static void Main (String[] args) {
-		Console.WriteLine("Start demo on thread: " + Thread.CurrentThread.Name);
-		Thread t = new Thread(new ThreadStart(delegate {
-			Console.WriteLine("Thread: " + Thread.CurrentThread.Name);
-			Console.WriteLine("Thread: " + Thread.CurrentThread.ManagedThreadId);
-		}
-		)
-		);
-		t.Name = "t-01";
-		t.Start();
-		
 		DemoMain ins = new DemoMain(Console.WriteLine);
 		
 		ins.testFloatNumber();
 		
 		ins.testObjectReferece();
 		
-		ins.startupDemo();
+//		ins.startupDemo();
+		
+		Profiler.getInstance().print(Console.WriteLine);
+		
 		Console.WriteLine("Demo stoped");
 	}
 		
 	public void startupDemo () {
-		remoteDebug.fork(delegate{
+		remoteDebug.fork(delegate {
 //			new Thread(new ThreadStart(processInbound)).Start();				
-		});
+		}
+		);
 		Console.WriteLine("debug");
 
 		for (;;) {
@@ -56,19 +51,32 @@ public class DemoMain  {
 	}
 	
 	public void testFloatNumber () {
+		Profiler.getInstance().start("Test");
 		Console.WriteLine(3 / 2);
 		Console.WriteLine(3.0f / 2.0f);
 		Console.WriteLine(3 / 2f);
 		Console.WriteLine(Math.PI / 4f);
+		
+		Thread.Sleep(260);
+		Profiler.getInstance().end("Test");
 	}
 	
 	public void testObjectReferece () {
+//		Profiler.getInstance().start("Test");
 		Console.WriteLine("======");
 		Boolean flag = false;
 		IList list = new ArrayList();
 		list.Add(flag);
 		flag = true;
 		Console.WriteLine(list[0]);
+		Thread.Sleep(1380);
+		Profiler.getInstance().end("Test");
+	}
+	
+	public void testProfiling () {
+		Profiler.getInstance().start("Test Profiling");
+		Thread.Sleep(2350);
+		Profiler.getInstance().end("Test Profiling");
 	}
 		
 // Comment Tempararily!!

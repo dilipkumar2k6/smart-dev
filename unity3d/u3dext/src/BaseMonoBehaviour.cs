@@ -59,22 +59,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// Control main menu.
 	protected bool isShowMenuButton = false;
 	protected bool isMenuOpend = false;
-	
-	// Is touching on screen for multi-fingers. Avoid unneccessary touch and mouse events on screen.
-	protected bool[] isTouchingScreen = new bool[5];
-	
-	protected bool zoomMode = false;
-	private int[] zoomTouchIds = new int[2]{-1, -1}; // First touch id and second touch id for zooming.
-	private Vector2[] zoomPoint = new Vector2[5];
-	private int nonZoomId; // A touch ID that doesn't be used for Zoom.
-	
-	protected bool isMousePreesedOnScreen = false; // Flag that mouse pressed on screen.
-	protected Vector2 mousePressedPositionOnScreen; // Mouse position when pressed down.
-	private Vector2 mouseLastFramePositionOnScreen; // 
-	
-	protected bool isMousePressed = false; // Mouse pressed on game object.
-	protected Vector2 mousePressedPosition; // Store the mouse position when mouse pressed on game object.
-	
+
 	// Character moving status 
 	protected bool isAccelerate = false;
 	
@@ -105,8 +90,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	private System.DateTime lastFpsTime;
 	private int currentFPS = 0;
 	private string fpsLabel = "FPS: 0";
-	private int[] touchFlags = new int[5];
-	private bool[] mouseFlags = new bool[3];
+//	private int[] touchFlags = new int[5];
+//	private bool[] mouseFlags = new bool[3];
 	
 	// Profiling
 	private float profileSummaryTime = 0;
@@ -115,7 +100,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	protected RemoteDebug debugConsole;
 	
 	// Screen debug.
-	protected static ScreenDebug screenDebug = new ScreenDebug();
+//	protected static ScreenDebug screenDebug = new ScreenDebug();
 	
 	protected Dictionary<String, Boolean> flagDebug = new Dictionary<String, Boolean>();
 	
@@ -128,15 +113,15 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		System.Object[] attrs = this.GetType().GetCustomAttributes(true);
 		
 		if (debugMode) {
-			Debug.Log("This script" + this.GetType() + " runs on DEBUG mode");
-			
+			Debug.Log("Script" + this.GetType() + " runs on DEBUG mode");
+
 			lastFpsTime = System.DateTime.Now;
 			
-			rectDebugInputConsole = new Rect(10, 10, 180, 30);
+			rectDebugInputConsole = new Rect(5, 5, 150, 25);
 			
-			rectDebugTouchPoint = new Rect(10, 50, 180, 30);
+			rectDebugTouchPoint = new Rect(5, 35, 150, 25);
 			
-			rectFPS = new Rect(10, 90, 80, 30);
+			rectFPS = new Rect(5, 65, 70, 25);
 			
 			
 			// Remote Debugger
@@ -170,7 +155,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		
 		controller = (CharacterController)this.GetComponent(typeof(CharacterController));
 
-		menuButtonRect = new Rect(Screen.width - 90, 10, 80, 40);
+		menuButtonRect = new Rect(Screen.width - 90, 5, 80, 40);
 		dialogRect = new Rect(hsw - 100, hsh - 100, 200, 200);
 		menuRect = new Rect(hsw - 100, hsh - 100, 200, 200);
 	}
@@ -224,12 +209,12 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 			// Show Touch Points
 			StringBuilder touchText = new StringBuilder();		
 			touchText.Append("M: ");
-			for (int i = 0; i < mouseFlags.Length; i++) {
-				touchText.Append(mouseFlags[i] == true ? "O" : "x");
+			for (int i = 0; i < BaseState.mouseFlags.Length; i++) {
+				touchText.Append(BaseState.mouseFlags[i] == true ? "O" : "x");
 			}
 			touchText.Append(", T: ");
-			for (int i = 0; i < touchFlags.Length; i++) {
-				touchText.Append(touchFlags[i] == 1 ? "O" : "x");
+			for (int i = 0; i < BaseState.touchFlags.Length; i++) {
+				touchText.Append(BaseState.touchFlags[i] == 1 ? "O" : "x");
 			}
 			GUI.Box(rectDebugTouchPoint, touchText.ToString());
 		}
@@ -263,122 +248,138 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		// Mouse events on screen. (Mobile devices will get mouse event when touchs screen, so...)
 		if (isMobilePlatform() == false) {
 			u3dext.Profiler.getInstance().start("GUI.Mouse");
-			for (int i = 0; i < 2; i++) {
-				if (isMousePreesedOnScreen == false && Input.GetMouseButtonDown(i)) {
-					mousePressedPositionOnScreen = Utils.convert3Dto2D(Input.mousePosition);
-					mouseLastFramePositionOnScreen = mousePressedPositionOnScreen;
-					isMousePreesedOnScreen = true;
-					mouseFlags[i] = true;
-					// Callback
-					this.OnScreenMouseDown(i, mousePressedPositionOnScreen);			
-				}
-				if (isMousePreesedOnScreen == true && Input.GetMouseButtonUp(i)) {
-					isMousePreesedOnScreen = false;
-					mouseFlags[i] = false;
-					// Callback
-					this.OnScreenMouseUp(i, Input.mousePosition);
-				}
-			}
-		
-			Vector2 thisFrameMousePos = Utils.convert3Dto2D(Input.mousePosition);
-			if (thisFrameMousePos != mouseLastFramePositionOnScreen) {
-				// Callback
-				this.OnScreenMouseOver(thisFrameMousePos, thisFrameMousePos - mouseLastFramePositionOnScreen);
-				mouseLastFramePositionOnScreen = thisFrameMousePos;
-			}
-			
-			// Raise ray hits event for mouse input.
-			u3dext.Profiler.getInstance().start("GUI.Mouse.Ray");
-			if (isMousePressed == false && Input.GetMouseButtonDown(0)) {
-				isMousePressed = true;
-				screenDebug.log("Press mouse on screen position " + Input.mousePosition);
-				String hitObjName = this.rayHitGameObject(Input.mousePosition);
-				if (hitObjName != null) {
-					u3dext.Profiler.getInstance().start("GUI.Mouse.Ray.Down");
-					this.OnGameObjectHitDown(hitObjName);
-					u3dext.Profiler.getInstance().end("GUI.Mouse.Ray.Down");
-				}
-			} else if (isMousePressed == true && Input.GetMouseButtonUp(0)) {
-				screenDebug.log("Release mouse on screen position " + Input.mousePosition);
-				isMousePressed = false;
-				String hitObjName = this.rayHitGameObject(Input.mousePosition);
-				if (hitObjName != null) {
-					u3dext.Profiler.getInstance().start("GUI.Mouse.Ray.Up");
-					this.OnGameObjectHitUp(hitObjName);
-					u3dext.Profiler.getInstance().end("GUI.Mouse.Ray.Up");
-				}
-			}
-			u3dext.Profiler.getInstance().end("GUI.Mouse.Ray");
+			BaseState.changedByMouseInput(
+				OnScreenMouseDown,
+				OnScreenMouseOver,
+				OnScreenMouseUp,
+				OnGameObjectHitDown,
+				OnGameObjectHitUp
+			);
 			u3dext.Profiler.getInstance().end("GUI.Mouse");
+
+//			for (int i = 0; i < 2; i++) {
+//				if (isMousePreesedOnScreen == false && Input.GetMouseButtonDown(i)) {
+//					mousePressedPositionOnScreen = Utils.convert3Dto2D(Input.mousePosition);
+//					mouseLastFramePositionOnScreen = mousePressedPositionOnScreen;
+//					isMousePreesedOnScreen = true;
+//					mouseFlags[i] = true;
+//					// Callback
+//					this.OnScreenMouseDown(i, mousePressedPositionOnScreen);			
+//				}
+//				if (isMousePreesedOnScreen == true && Input.GetMouseButtonUp(i)) {
+//					isMousePreesedOnScreen = false;
+//					mouseFlags[i] = false;
+//					// Callback
+//					this.OnScreenMouseUp(i, Input.mousePosition);
+//				}
+//			}
+//		
+//			Vector2 thisFrameMousePos = Utils.convert3Dto2D(Input.mousePosition);
+//			if (thisFrameMousePos != mouseLastFramePositionOnScreen) {
+//				// Callback
+//				this.OnScreenMouseOver(thisFrameMousePos, thisFrameMousePos - mouseLastFramePositionOnScreen);
+//				mouseLastFramePositionOnScreen = thisFrameMousePos;
+//			}
+//			
+//			// Raise ray hits event for mouse input.
+//			u3dext.Profiler.getInstance().start("GUI.Mouse.Ray");
+//			if (isMousePressed == false && Input.GetMouseButtonDown(0)) {
+//				isMousePressed = true;
+//				screenDebug.log("Press mouse on screen position " + Input.mousePosition);
+//				String hitObjName = this.rayHitGameObject(Input.mousePosition);
+//				if (hitObjName != null) {
+//					u3dext.Profiler.getInstance().start("GUI.Mouse.Ray.Down");
+//					this.OnGameObjectHitDown(hitObjName);
+//					u3dext.Profiler.getInstance().end("GUI.Mouse.Ray.Down");
+//				}
+//			} else if (isMousePressed == true && Input.GetMouseButtonUp(0)) {
+//				screenDebug.log("Release mouse on screen position " + Input.mousePosition);
+//				isMousePressed = false;
+//				String hitObjName = this.rayHitGameObject(Input.mousePosition);
+//				if (hitObjName != null) {
+//					u3dext.Profiler.getInstance().start("GUI.Mouse.Ray.Up");
+//					this.OnGameObjectHitUp(hitObjName);
+//					u3dext.Profiler.getInstance().end("GUI.Mouse.Ray.Up");
+//				}
+//			}
+//			u3dext.Profiler.getInstance().end("GUI.Mouse.Ray");
 		}
 
 		// Raise touch events and ray hits events for touch screen devices.
 		if (isMobilePlatform() == true) {
 			u3dext.Profiler.getInstance().start("GUI.Touch");
-			for (int i=0; i<Input.touches.Length; i++) {
-				Touch touch = Input.touches[i];
-//				int touchId = touch.fingerId;
-				//debug("##" + touch.fingerId + ", " + touch.phase);
-				Vector2 eachPos = touch.position;
-				if (touch.phase == TouchPhase.Began) {
-					// Callback(Run before everything to ensure being called)
-					if (isTouchingScreen[touch.fingerId] == false) {
-						
-						// Exclude some non-zoom(like button ) touch.
-						//this.OnTouchDown(touch.fingerId, eachPos);
-						if (this.OnTouchDown(touch.fingerId, eachPos) == false) {
-							nonZoomId = touch.fingerId;
-						} else {
-							if (zoomTouchIds[0] < 0 && zoomTouchIds[1] < 0) {
-								zoomTouchIds[0] = touch.fingerId;
-								zoomPoint[touch.fingerId] = touch.position;
-							} else {
-								zoomMode = true;
-								zoomTouchIds[1] = touch.fingerId;
-								zoomPoint[touch.fingerId] = touch.position;
-							}
-						}
-					}
-					isTouchingScreen[touch.fingerId] = true;
-					
-					// Detect ray hits from screen touch point.
-					String hitObjName = this.rayHitGameObject(touch.position);
-					if (hitObjName != null) {
-						this.OnGameObjectHitDown(hitObjName);
-					}
-					
-				} else if (touch.phase == TouchPhase.Ended) {
-					// Callback
-					if (isTouchingScreen[touch.fingerId] == true) {
-						this.OnTouchUp(touch.fingerId, eachPos);
-					}
-					isTouchingScreen[touch.fingerId] = false;
-					String hitObjName = this.rayHitGameObject(touch.position);
-					if (hitObjName != null) {
-						this.OnGameObjectHitUp(hitObjName);
-					}
-					
-				} else if (touch.phase == TouchPhase.Moved) {
-					// Callback
-					if (zoomMode == true) {
-						// Distance between 2 touch points at last frame.
-						float preDistance = Vector2.Distance(zoomPoint[zoomTouchIds[0]], zoomPoint[zoomTouchIds[1]]);
-			
-						float curDistance = 0f; 
-						if (touch.fingerId == zoomTouchIds[0]) {
-							curDistance = Vector2.Distance(touch.position, zoomPoint[zoomTouchIds[1]]);
-						} else if (touch.fingerId == zoomTouchIds[1]) {
-							curDistance = Vector2.Distance(zoomPoint[zoomTouchIds[0]], touch.position);
-						}
-
-						float delta = curDistance - preDistance;
-						float zoomDistance = (delta / 50) * Time.deltaTime;
-						this.OnZoomInAndOut(zoomDistance);
-					} else {
-						this.OnTouchMove(touch.fingerId, eachPos, touch.deltaPosition);						
-					}
-				}
-			}
+			BaseState.changedByTouch(
+				OnTouchDown,
+				OnTouchMove,
+				OnTouchUp,
+				OnGameObjectHitDown,
+				OnGameObjectHitUp,
+				OnZoomInAndOut
+			);
+//			for (int i=0; i<Input.touches.Length; i++) {
+//				Touch touch = Input.touches[i];
+////				int touchId = touch.fingerId;
+//				//debug("##" + touch.fingerId + ", " + touch.phase);
+//				Vector2 eachPos = touch.position;
+//				if (touch.phase == TouchPhase.Began) {
+//					// Callback(Run before everything to ensure being called)
+//					if (isTouchingScreen[touch.fingerId] == false) {
+//						
+//						// Exclude some non-zoom(like button ) touch.
+//						//this.OnTouchDown(touch.fingerId, eachPos);
+//						if (this.OnTouchDown(touch.fingerId, eachPos) == false) {
+//							BaseState.nonZoomId = touch.fingerId;
+//						} else {
+//							if (BaseState.zoomTouchIds[0] < 0 && BaseState.zoomTouchIds[1] < 0) {
+//								BaseState.zoomTouchIds[0] = touch.fingerId;
+//								BaseState.zoomPoint[touch.fingerId] = touch.position;
+//							} else {
+//								BaseState.zoomMode = true;
+//								BaseState.zoomTouchIds[1] = touch.fingerId;
+//								BaseState.zoomPoint[touch.fingerId] = touch.position;
+//							}
+//						}
+//					}
+//					isTouchingScreen[touch.fingerId] = true;
+//					
+//					// Detect ray hits from screen touch point.
+//					String hitObjName = this.rayHitGameObject(touch.position);
+//					if (hitObjName != null) {
+//						this.OnGameObjectHitDown(hitObjName);
+//					}
+//					
+//				} else if (touch.phase == TouchPhase.Ended) {
+//					// Callback
+//					if (isTouchingScreen[touch.fingerId] == true) {
+//						this.OnTouchUp(touch.fingerId, eachPos);
+//					}
+//					isTouchingScreen[touch.fingerId] = false;
+//					String hitObjName = this.rayHitGameObject(touch.position);
+//					if (hitObjName != null) {
+//						this.OnGameObjectHitUp(hitObjName);
+//					}
+//					
+//				} else if (touch.phase == TouchPhase.Moved) {
+//					// Callback
+//					if (BaseState.zoomMode == true) {
+//						// Distance between 2 touch points at last frame.
+//						float preDistance = BaseState.getZoomPointDistance();//Vector2.Distance(zoomPoint[zoomTouchIds[0]], zoomPoint[zoomTouchIds[1]]);
+//			
+//						float curDistance = 0f; 
+//						if (touch.fingerId == BaseState.zoomTouchIds[0]) {
+//							curDistance = Vector2.Distance(touch.position, BaseState.zoomPoint[BaseState.zoomTouchIds[1]]);
+//						} else if (touch.fingerId == BaseState.zoomTouchIds[1]) {
+//							curDistance = Vector2.Distance(BaseState.zoomPoint[BaseState.zoomTouchIds[0]], touch.position);
+//						}
+//
+//						float delta = curDistance - preDistance;
+//						float zoomDistance = (delta / 50) * Time.deltaTime;
+//						this.OnZoomInAndOut(zoomDistance);
+//					} else {
+//						this.OnTouchMove(touch.fingerId, eachPos, touch.deltaPosition);						
+//					}
+//				}
+//			}
 			u3dext.Profiler.getInstance().end("GUI.Touch");
 		}// Touch
 	}
@@ -396,14 +397,16 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	
 	protected virtual void OnLevelFailDialogCreated(int windowId) {}
 
+	// TBD?
 	protected void OnMouseDown () {
-		isMousePressed = true;
-		mousePressedPosition = Utils.convert3Dto2D(Input.mousePosition);
+		BaseState.isMousePressed = true;
+		BaseState.mousePressedPosition = Utils.convert3Dto2D(Input.mousePosition);
 	}
 	
+	// TBD?
 	protected void OnMouseUp () {
-		isMousePressed = false;
-		mousePressedPosition = new Vector2 ();
+		BaseState.isMousePressed = false;
+		BaseState.mousePressedPosition = new Vector2 ();
 	}
 	
 	/// <summary>
@@ -453,7 +456,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	/// <returns>True if touched down for zoom, false if not touched down for zoom</returns>
 	protected virtual bool OnTouchDown (int touchId, Vector2 touchPosition) {
 		this.debug("Finger " + touchId + " touched down at position: " + touchPosition);
-		touchFlags[touchId] = 1;
+		BaseState.touchFlags[touchId] = 1;
 		return true;
 	}
 
@@ -464,7 +467,6 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	/// <param name="touchPosition"></param>
 	protected virtual void OnTouchMove (int touchId, Vector2 touchPosition, Vector2 deltaPosition) {
 		this.debug("Finger " + touchId + " touched move at position: " + touchPosition);
-//		touchFlags[touchId] = 1;
 	}
 	
 	/// <summary>
@@ -474,18 +476,17 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	/// <param name="touchPosition"></param>
 	protected virtual void OnTouchUp (int touchId, Vector2 touchPosition) {
 		this.debug("Finger " + touchId + " touched up at position: " + touchPosition + "  " + System.DateTime.Now.Ticks / 10000f * 1000f);
-		touchFlags[touchId] = 0;
-		if (touchId == nonZoomId) {
-			nonZoomId = -1;
-		}
-		else {
-			if (zoomMode == true) {
-				zoomMode = false;
+		BaseState.touchFlags[touchId] = 0;
+		if (touchId == BaseState.nonZoomId) {
+			BaseState.nonZoomId = -1;
+		} else {
+			if (BaseState.zoomMode == true) {
+				BaseState.zoomMode = false;
 			} 
-			if (zoomTouchIds[0] == touchId) {
-				zoomTouchIds[0] = -1;
-			} else if (zoomTouchIds[1] == touchId) {
-				zoomTouchIds[1] = -1;
+			if (BaseState.zoomTouchIds[0] == touchId) {
+				BaseState.zoomTouchIds[0] = -1;
+			} else if (BaseState.zoomTouchIds[1] == touchId) {
+				BaseState.zoomTouchIds[1] = -1;
 			}
 		}
 	}
@@ -495,18 +496,18 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	}
 		
 	//
-	protected String rayHitGameObject (Vector3 screenPos) {
-		// Detect by Ray
-		//this.debug("Ray at screen position: " + screenPos);
-		Ray ray = Camera.main.ScreenPointToRay(screenPos);
-		RaycastHit hit;
-		Debug.DrawRay(ray.origin, ray.direction, Color.red);
-		if (Physics.Raycast(ray.origin, ray.direction, out hit)) {
-			//this.debug("Ray " + ray + " hits " + hit.collider);
-			return hit.collider.name;
-		}
-		return null;
-	}
+//	protected String rayHitGameObject (Vector3 screenPos) {
+//		// Detect by Ray
+//		//this.debug("Ray at screen position: " + screenPos);
+//		Ray ray = Camera.main.ScreenPointToRay(screenPos);
+//		RaycastHit hit;
+//		Debug.DrawRay(ray.origin, ray.direction, Color.red);
+//		if (Physics.Raycast(ray.origin, ray.direction, out hit)) {
+//			//this.debug("Ray " + ray + " hits " + hit.collider);
+//			return hit.collider.name;
+//		}
+//		return null;
+//	}
 	
 	/// <summary>
 	/// Be called when touchs or clicks down on screen with ray hit a game object.
