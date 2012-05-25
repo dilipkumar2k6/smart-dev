@@ -12,7 +12,11 @@ public class ScreenDebug {
 	
 	string[] messages = new string[MESSAGE_LENGTH];
 	
-	public ScreenDebug () {
+	private static ScreenDebug ins = new ScreenDebug();
+	private ScreenDebug () {
+	}
+	public static ScreenDebug getInstance () {
+		return ins;
 	}
 	
 	public void log(object msg) {

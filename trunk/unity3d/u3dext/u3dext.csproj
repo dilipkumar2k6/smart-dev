@@ -72,6 +72,7 @@
     <Compile Include="src\BaseAnimationBehaviour.cs" />
     <Compile Include="src\DelegateManager.cs" />
     <Compile Include="src\Profiler.cs" />
+    <Compile Include="src\BaseState.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>
