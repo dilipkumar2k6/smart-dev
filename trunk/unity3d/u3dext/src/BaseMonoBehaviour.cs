@@ -47,7 +47,6 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// Beep audio for menu operation.
 	public AudioClip beepMenu;
 	
-	
 	// Controller for current game object.
 	protected CharacterController controller;
 	
@@ -96,8 +95,12 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// Profiling
 	private float profileSummaryTime = 0;
 	
+	
+	protected BaseState state;
+	
 	// Remote debug shared instance.
 	protected RemoteDebug debugConsole;
+	
 	
 	// Screen debug.
 //	protected static ScreenDebug screenDebug = new ScreenDebug();
@@ -109,8 +112,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	protected void Start () {
 		
 		Debug.Log("Script '" + this.GetType().Name + "' runs on thread " + Thread.CurrentThread.ManagedThreadId);
-		
-		System.Object[] attrs = this.GetType().GetCustomAttributes(true);
+
+		state = new BaseState();
 		
 		if (debugMode) {
 			Debug.Log("Script" + this.GetType() + " runs on DEBUG mode");
@@ -239,149 +242,6 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 			GUILayout.Window(0, dialogRect, OnLevelFailDialogCreated, "  ==  == ");
 		}
 
-		// ==== User Input Touch ====
-//		if(isDebugTouch) {
-//			GUIStyle style = new GUIStyle();
-//			GUI.TextArea(new Rect(10, 100, 350, 17 * infos.Length), contatDebugInfo());
-//		}
-		
-		// Mouse events on screen. (Mobile devices will get mouse event when touchs screen, so...)
-		if (isMobilePlatform() == false) {
-			u3dext.Profiler.getInstance().start("GUI.Mouse");
-			BaseState.changedByMouseInput(
-				OnScreenMouseDown,
-				OnScreenMouseOver,
-				OnScreenMouseUp,
-				OnGameObjectHitDown,
-				OnGameObjectHitUp
-			);
-			u3dext.Profiler.getInstance().end("GUI.Mouse");
-
-//			for (int i = 0; i < 2; i++) {
-//				if (isMousePreesedOnScreen == false && Input.GetMouseButtonDown(i)) {
-//					mousePressedPositionOnScreen = Utils.convert3Dto2D(Input.mousePosition);
-//					mouseLastFramePositionOnScreen = mousePressedPositionOnScreen;
-//					isMousePreesedOnScreen = true;
-//					mouseFlags[i] = true;
-//					// Callback
-//					this.OnScreenMouseDown(i, mousePressedPositionOnScreen);			
-//				}
-//				if (isMousePreesedOnScreen == true && Input.GetMouseButtonUp(i)) {
-//					isMousePreesedOnScreen = false;
-//					mouseFlags[i] = false;
-//					// Callback
-//					this.OnScreenMouseUp(i, Input.mousePosition);
-//				}
-//			}
-//		
-//			Vector2 thisFrameMousePos = Utils.convert3Dto2D(Input.mousePosition);
-//			if (thisFrameMousePos != mouseLastFramePositionOnScreen) {
-//				// Callback
-//				this.OnScreenMouseOver(thisFrameMousePos, thisFrameMousePos - mouseLastFramePositionOnScreen);
-//				mouseLastFramePositionOnScreen = thisFrameMousePos;
-//			}
-//			
-//			// Raise ray hits event for mouse input.
-//			u3dext.Profiler.getInstance().start("GUI.Mouse.Ray");
-//			if (isMousePressed == false && Input.GetMouseButtonDown(0)) {
-//				isMousePressed = true;
-//				screenDebug.log("Press mouse on screen position " + Input.mousePosition);
-//				String hitObjName = this.rayHitGameObject(Input.mousePosition);
-//				if (hitObjName != null) {
-//					u3dext.Profiler.getInstance().start("GUI.Mouse.Ray.Down");
-//					this.OnGameObjectHitDown(hitObjName);
-//					u3dext.Profiler.getInstance().end("GUI.Mouse.Ray.Down");
-//				}
-//			} else if (isMousePressed == true && Input.GetMouseButtonUp(0)) {
-//				screenDebug.log("Release mouse on screen position " + Input.mousePosition);
-//				isMousePressed = false;
-//				String hitObjName = this.rayHitGameObject(Input.mousePosition);
-//				if (hitObjName != null) {
-//					u3dext.Profiler.getInstance().start("GUI.Mouse.Ray.Up");
-//					this.OnGameObjectHitUp(hitObjName);
-//					u3dext.Profiler.getInstance().end("GUI.Mouse.Ray.Up");
-//				}
-//			}
-//			u3dext.Profiler.getInstance().end("GUI.Mouse.Ray");
-		}
-
-		// Raise touch events and ray hits events for touch screen devices.
-		if (isMobilePlatform() == true) {
-			u3dext.Profiler.getInstance().start("GUI.Touch");
-			BaseState.changedByTouch(
-				OnTouchDown,
-				OnTouchMove,
-				OnTouchUp,
-				OnGameObjectHitDown,
-				OnGameObjectHitUp,
-				OnZoomInAndOut
-			);
-//			for (int i=0; i<Input.touches.Length; i++) {
-//				Touch touch = Input.touches[i];
-////				int touchId = touch.fingerId;
-//				//debug("##" + touch.fingerId + ", " + touch.phase);
-//				Vector2 eachPos = touch.position;
-//				if (touch.phase == TouchPhase.Began) {
-//					// Callback(Run before everything to ensure being called)
-//					if (isTouchingScreen[touch.fingerId] == false) {
-//						
-//						// Exclude some non-zoom(like button ) touch.
-//						//this.OnTouchDown(touch.fingerId, eachPos);
-//						if (this.OnTouchDown(touch.fingerId, eachPos) == false) {
-//							BaseState.nonZoomId = touch.fingerId;
-//						} else {
-//							if (BaseState.zoomTouchIds[0] < 0 && BaseState.zoomTouchIds[1] < 0) {
-//								BaseState.zoomTouchIds[0] = touch.fingerId;
-//								BaseState.zoomPoint[touch.fingerId] = touch.position;
-//							} else {
-//								BaseState.zoomMode = true;
-//								BaseState.zoomTouchIds[1] = touch.fingerId;
-//								BaseState.zoomPoint[touch.fingerId] = touch.position;
-//							}
-//						}
-//					}
-//					isTouchingScreen[touch.fingerId] = true;
-//					
-//					// Detect ray hits from screen touch point.
-//					String hitObjName = this.rayHitGameObject(touch.position);
-//					if (hitObjName != null) {
-//						this.OnGameObjectHitDown(hitObjName);
-//					}
-//					
-//				} else if (touch.phase == TouchPhase.Ended) {
-//					// Callback
-//					if (isTouchingScreen[touch.fingerId] == true) {
-//						this.OnTouchUp(touch.fingerId, eachPos);
-//					}
-//					isTouchingScreen[touch.fingerId] = false;
-//					String hitObjName = this.rayHitGameObject(touch.position);
-//					if (hitObjName != null) {
-//						this.OnGameObjectHitUp(hitObjName);
-//					}
-//					
-//				} else if (touch.phase == TouchPhase.Moved) {
-//					// Callback
-//					if (BaseState.zoomMode == true) {
-//						// Distance between 2 touch points at last frame.
-//						float preDistance = BaseState.getZoomPointDistance();//Vector2.Distance(zoomPoint[zoomTouchIds[0]], zoomPoint[zoomTouchIds[1]]);
-//			
-//						float curDistance = 0f; 
-//						if (touch.fingerId == BaseState.zoomTouchIds[0]) {
-//							curDistance = Vector2.Distance(touch.position, BaseState.zoomPoint[BaseState.zoomTouchIds[1]]);
-//						} else if (touch.fingerId == BaseState.zoomTouchIds[1]) {
-//							curDistance = Vector2.Distance(BaseState.zoomPoint[BaseState.zoomTouchIds[0]], touch.position);
-//						}
-//
-//						float delta = curDistance - preDistance;
-//						float zoomDistance = (delta / 50) * Time.deltaTime;
-//						this.OnZoomInAndOut(zoomDistance);
-//					} else {
-//						this.OnTouchMove(touch.fingerId, eachPos, touch.deltaPosition);						
-//					}
-//				}
-//			}
-			u3dext.Profiler.getInstance().end("GUI.Touch");
-		}// Touch
 	}
 	
 	
@@ -393,20 +253,72 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 //		GUILayout.Label("Hello World");
 	}
 	
+	/// <summary>
+	/// Be invoked when level pass dialog need to be created.
+	/// </summary>
+	/// <param name='windowId'>
+	/// Window identifier.
+	/// </param>
 	protected virtual void OnLevelPassDialogCreated(int windowId) {}
 	
+	/// <summary>
+	/// Be invoked when level fail dialog need to be created.
+	/// </summary>
+	/// <param name='windowId'>
+	/// Window identifier.
+	/// </param>
 	protected virtual void OnLevelFailDialogCreated(int windowId) {}
 
-	// TBD?
-	protected void OnMouseDown () {
-		BaseState.isMousePressed = true;
-		BaseState.mousePressedPosition = Utils.convert3Dto2D(Input.mousePosition);
-	}
 	
-	// TBD?
-	protected void OnMouseUp () {
-		BaseState.isMousePressed = false;
-		BaseState.mousePressedPosition = new Vector2 ();
+	protected void Update () {
+//		debug (this.GetType().Name + ".Update()");
+
+		// Mouse events and ray hits events on screen. (Mobile devices will get mouse event when touchs screen, so...)
+		if (isMobilePlatform() == false) {
+			u3dext.Profiler.getInstance().start("Mouse");
+			state.changedByMouseInput(
+				OnScreenMouseDown,
+				OnScreenMouseOver,
+				OnScreenMouseUp,
+				OnGameObjectHitDown,
+				OnGameObjectHitUp
+			);
+			u3dext.Profiler.getInstance().end("Mouse");
+		}
+		
+		// Raise touch events and ray hits events for touch screen devices.
+		if (isMobilePlatform() == true) {
+			u3dext.Profiler.getInstance().start("Touch");
+			state.changedByTouch(
+				OnTouchDown,
+				OnTouchMove,
+				OnTouchUp,
+				OnGameObjectHitDown,
+				OnGameObjectHitUp,
+				OnZoomInAndOut
+			);
+			u3dext.Profiler.getInstance().end("Touch");
+		}
+		
+		// Calculating FPS.
+		if (System.DateTime.Now.Ticks - lastFpsTime.Ticks > 10000 * 1000) {
+			fpsLabel = "FPS: " + this.currentFPS;
+			this.currentFPS = 0;
+			lastFpsTime = System.DateTime.Now;
+		} else {
+			this.currentFPS++;
+		}
+		
+		// Profiling
+		if (profilingMode == true) {
+			if (profileSummaryTime > 30) {
+				u3dext.Profiler.getInstance().print(debug);
+				profileSummaryTime = 0;
+			} else {
+				profileSummaryTime += Time.deltaTime; 
+			}
+		}
+
 	}
 	
 	/// <summary>
@@ -532,27 +444,6 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	}
 
 	
-	protected void Update () {
-		// Calculating FPS.
-		if (System.DateTime.Now.Ticks - lastFpsTime.Ticks > 10000 * 1000) {
-			fpsLabel = "FPS: " + this.currentFPS;
-			this.currentFPS = 0;
-			lastFpsTime = System.DateTime.Now;
-		} else {
-			this.currentFPS++;
-		}
-		
-		// Profiling
-		if (profilingMode == true) {
-			if (profileSummaryTime > 30) {
-				u3dext.Profiler.getInstance().print(debug);
-				profileSummaryTime = 0;
-			} else {
-				profileSummaryTime += Time.deltaTime; 
-			}
-		}
-	}
-	
 	protected void Destroy () {
 		Debug.Log("Destroying...");
 //		remoteDebug("Destroying...");
@@ -563,19 +454,19 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 
 	public void debug(System.Object msg) {
 		if(debugConsole != null) {
-			debugConsole.log(DateTime.Now.ToLongTimeString() + " DEBUG ", msg.ToString());
+			debugConsole.log(DateTime.Now.ToShortTimeString() + " DEBUG " + this.GetType().Name, msg.ToString());
 		}
 	}	
 	
 	public void info(System.Object msg) {
 		if(debugConsole != null) {
-			debugConsole.log(DateTime.Now.ToLongTimeString() + " INFO ", msg.ToString());
+			debugConsole.log(DateTime.Now.ToShortTimeString() + " INFO " + this.GetType().Name, msg.ToString());
 		}
 	}
 	
 	public void error(System.Object msg) {
 		if(debugConsole != null) {
-			debugConsole.log(DateTime.Now.ToLongTimeString() + " ERROR ", msg.ToString());
+			debugConsole.log(DateTime.Now.ToShortTimeString() + " ERROR " + this.GetType().Name, msg.ToString());
 		}
 	}
 }
