@@ -16,15 +16,17 @@ namespace u3dext {
 		
 //		private Stack samplePointStack;
 		private Dictionary<string, long> startTime;
-		private Dictionary<string, List<long>> profileTable;
+		
+		// Tag -> List( seq -> time)
+		private SortedDictionary<string, List<long>> profileTable;
 		
 		private Profiler () {
 //			samplePointStack = new Stack();
 			startTime = new Dictionary<string, long>();
-			profileTable = new Dictionary<string, List<long>>();
+			profileTable = new SortedDictionary<string, List<long>>();
 		}
 		
-		public static Profiler getInstance () {
+		public static Profiler getInstance () {	
 			return profiler;
 		}
 		

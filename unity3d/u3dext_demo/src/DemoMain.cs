@@ -30,6 +30,8 @@ public class DemoMain {
 		
 //		ins.startupDemo();
 		
+		ins.testDelegateVirtualMethod();
+		
 		Profiler.getInstance().print(Console.WriteLine);
 		
 		Console.WriteLine("Demo stoped");
@@ -78,6 +80,15 @@ public class DemoMain {
 		Thread.Sleep(2350);
 		Profiler.getInstance().end("Test Profiling");
 	}
+	
+	public void testDelegateVirtualMethod() {
+		SubClass ins = new SubClass();
+		ins.testDelegate();
+		SubClass2 ins2 = new SubClass2();
+		ins2.testDelegate();
+	}
+
+	
 		
 // Comment Tempararily!!
 //	private void processInbound () {

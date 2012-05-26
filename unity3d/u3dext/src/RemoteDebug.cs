@@ -172,7 +172,7 @@ public class RemoteDebug {
 	}
 
 	public void log (String prefix, String msg) {
-		String logInfo = prefix + " " + this.GetType().Name + ": " + msg + "\r\n";
+		String logInfo = prefix + " " + ": " + msg + "\r\n";
 		// Callback log.
 		localDebugCallback(logInfo);
 		

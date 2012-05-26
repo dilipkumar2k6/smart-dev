@@ -7,13 +7,13 @@ namespace u3dext {
 	public class BaseState {
 			
 		// Is touching on screen for multi-fingers. Avoid unneccessary touch and mouse events on screen.
-		public static  bool[] isTouchingScreen = new bool[5];
-		public static  bool isMousePreesedOnScreen = false; // Flag that mouse pressed on screen.
-		public static  Vector2 mousePressedPositionOnScreen; // Mouse position when pressed down.
-		public static  Vector2 mouseLastFramePositionOnScreen; // 
+		public bool[] isTouchingScreen = new bool[5];
+		public bool isMousePreesedOnScreen = false; // Flag that mouse pressed on screen.
+		public Vector2 mousePressedPositionOnScreen; // Mouse position when pressed down.
+		public Vector2 mouseLastFramePositionOnScreen; // 
 	
-		public static  bool isMousePressed = false; // Mouse pressed on game object.
-		public static  Vector2 mousePressedPosition; // Store the mouse position when mouse pressed on game object.
+		public bool isMousePressed = false; // Mouse pressed on game object.
+		public Vector2 mousePressedPosition; // Store the mouse position when mouse pressed on game object.
 		
 		public static int[] touchFlags = new int[5];
 		public static bool[] mouseFlags = new bool[3];
@@ -24,7 +24,7 @@ namespace u3dext {
 		public BaseState () {
 		}
 		
-		public static float getZoomPointDistance () {
+		public float getZoomPointDistance () {
 			return Vector2.Distance(
 				zoomPoint[zoomTouchIds[0]],
 				zoomPoint[zoomTouchIds[1]]
@@ -49,18 +49,22 @@ namespace u3dext {
 		/// <param name='orhuc'>
 		/// Orhuc.
 		/// </param>
-		public static void changedByMouseInput (MouseDownCallback mdc, MouseMoveCallback mmc, MouseUpCallback muc, 
+		public void changedByMouseInput (MouseDownCallback mdc, MouseMoveCallback mmc, MouseUpCallback muc, 
 			ObjectRayHitDownCallback orhdc, ObjectRayHitUpCallback orhuc) {
+			//Debug.Log("Callback to " + mdc.Target + "." + mdc.Method);
 			for (int i = 0; i < 2; i++) {
-				if (isMousePreesedOnScreen == false && Input.GetMouseButtonDown(i)) {
+//				if (isMousePreesedOnScreen == false && Input.GetMouseButtonDown(i)) {
+				if (Input.GetMouseButtonDown(i)) {
 					mousePressedPositionOnScreen = Utils.convert3Dto2D(Input.mousePosition);
 					mouseLastFramePositionOnScreen = mousePressedPositionOnScreen;
 					isMousePreesedOnScreen = true;
 					mouseFlags[i] = true;
 					// Callback
+
 					mdc(i, mousePressedPositionOnScreen);			
 				}
-				if (isMousePreesedOnScreen == true && Input.GetMouseButtonUp(i)) {
+				//if (isMousePreesedOnScreen == true && Input.GetMouseButtonUp(i)) {
+				if (Input.GetMouseButtonUp(i)) {
 					isMousePreesedOnScreen = false;
 					mouseFlags[i] = false;
 					// Callback
@@ -79,27 +83,29 @@ namespace u3dext {
 			}
 			
 			// Raise ray hits event for mouse input.
-			u3dext.Profiler.getInstance().start("GUI.Mouse.Ray");
-			if (isMousePressed == false && Input.GetMouseButtonDown(0)) {
+			u3dext.Profiler.getInstance().start("Mouse.Ray");
+//			if (isMousePressed == false && Input.GetMouseButtonDown(0)) {
+			if (Input.GetMouseButtonDown(0)) {
 				isMousePressed = true;
 				ScreenDebug.getInstance().log("Press mouse on screen position " + Input.mousePosition);
 				String hitObjName = rayHitGameObject(Input.mousePosition);
 				if (hitObjName != null) {
-					u3dext.Profiler.getInstance().start("GUI.Mouse.Ray.Down");
+					u3dext.Profiler.getInstance().start("Mouse.Ray.Down");
 					orhdc(hitObjName);
-					u3dext.Profiler.getInstance().end("GUI.Mouse.Ray.Down");
+					u3dext.Profiler.getInstance().end("Mouse.Ray.Down");
 				}
-			} else if (isMousePressed == true && Input.GetMouseButtonUp(0)) {
+//			} else if (isMousePressed == true && Input.GetMouseButtonUp(0)) {
+			} else if (Input.GetMouseButtonUp(0)) {
 				ScreenDebug.getInstance().log("Release mouse on screen position " + Input.mousePosition);
 				isMousePressed = false;
 				String hitObjName = rayHitGameObject(Input.mousePosition);
 				if (hitObjName != null) {
-					u3dext.Profiler.getInstance().start("GUI.Mouse.Ray.Up");
+					u3dext.Profiler.getInstance().start("Mouse.Ray.Up");
 					orhuc(hitObjName);
-					u3dext.Profiler.getInstance().end("GUI.Mouse.Ray.Up");
+					u3dext.Profiler.getInstance().end("Mouse.Ray.Up");
 				}
 			}
-			u3dext.Profiler.getInstance().end("GUI.Mouse.Ray");
+			u3dext.Profiler.getInstance().end("Mouse.Ray");
 		}
 		
 		/// <summary>
@@ -123,7 +129,7 @@ namespace u3dext {
 		/// <param name='zioc'>
 		/// Zioc.
 		/// </param>
-		public static void changedByTouch (TouchDownCallback tdc, TouchMoveCallback tmc, TouchUpCallback tuc,
+		public void changedByTouch (TouchDownCallback tdc, TouchMoveCallback tmc, TouchUpCallback tuc,
 		                                   ObjectRayHitDownCallback orhdc, ObjectRayHitUpCallback orhuc, ZoomInAndOutCallback zioc) {
 			for (int i=0; i<Input.touches.Length; i++) {
 				Touch touch = Input.touches[i];
@@ -172,7 +178,7 @@ namespace u3dext {
 					// Callback
 					if (BaseState.zoomMode == true) {
 						// Distance between 2 touch points at last frame.
-						float preDistance = BaseState.getZoomPointDistance();//Vector2.Distance(zoomPoint[zoomTouchIds[0]], zoomPoint[zoomTouchIds[1]]);
+						float preDistance = this.getZoomPointDistance();//Vector2.Distance(zoomPoint[zoomTouchIds[0]], zoomPoint[zoomTouchIds[1]]);
 			
 						float curDistance = 0f; 
 						if (touch.fingerId == BaseState.zoomTouchIds[0]) {
