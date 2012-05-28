@@ -21,7 +21,6 @@ namespace u3dext {
 		public GameObject playingScreen;
 		public Texture[] animTextures;
 		public Texture transparentTextrue;
-		
 		public bool isPlaying = false;
 		public bool uninterruptedly = false;
 
@@ -29,7 +28,8 @@ namespace u3dext {
 		protected int animIdx;
 //		protected Vector3 targetPosition;
 		
-		public delegate void AnimationDelegate(GameObject param);
+		public delegate void AnimationDelegate (GameObject param);
+
 		protected AnimationDelegate animationCallback;
 		
 		public BaseAnimationBehaviour () {
@@ -43,7 +43,6 @@ namespace u3dext {
 			this.isPlaying = true;
 			this.animationCallback = animationCallback;
 		}
-
 		
 		protected virtual void Update () {
 			if (isPlaying == true) {
@@ -59,8 +58,8 @@ namespace u3dext {
 					} else {
 						// Hide screen after animation completed.
 						playingScreen.renderer.materials[0].SetTexture(
-						"_MainTex",
-						transparentTextrue
+							"_MainTex",
+							transparentTextrue
 						);
 						animationCallback(playingScreen);
 						isPlaying = false;

@@ -44,6 +44,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	
 	public float runSpeed = 20;
 	
+	public float zoomSpeed = 10;
+	
 	// Beep audio for menu operation.
 	public AudioClip beepMenu;
 	
@@ -64,6 +66,9 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	
 	// For level-based game, 0=Playing, 1=Passed, 2=Failed
 	protected int levelPassStatus = 0;
+	
+	// Screen diagonal size
+	protected float sd;
 	
 	// Screen width and height.
 	protected float sw;
@@ -92,7 +97,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 //	private int[] touchFlags = new int[5];
 //	private bool[] mouseFlags = new bool[3];
 	
-	// Profiling
+	// How long it will print the profiling data.
 	private float profileSummaryTime = 0;
 	
 	
@@ -153,6 +158,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		sw = Screen.width;
 		sh = Screen.height;
 		
+		sd = (float)Math.Sqrt(sw * sw + sh * sh);
+		
 		hsw = Screen.width / 2;
 		hsh = Screen.height / 2;
 		
@@ -177,11 +184,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		}
 		return null;
 	}
-	
-	protected bool isMobilePlatform() {
-		return Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer;
-	}
-	
+
 	// === OnGUI Private ===
 	
 	protected void OnGUI () {
@@ -212,13 +215,16 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 			// Show Touch Points
 			StringBuilder touchText = new StringBuilder();		
 			touchText.Append("M: ");
-			for (int i = 0; i < BaseState.mouseFlags.Length; i++) {
-				touchText.Append(BaseState.mouseFlags[i] == true ? "O" : "x");
+			for (int i = 0; i < state.mouseFlags.Length; i++) {
+				touchText.Append(state.mouseFlags[i] == true ? "O" : "X");
 			}
-			touchText.Append(", T: ");
-			for (int i = 0; i < BaseState.touchFlags.Length; i++) {
-				touchText.Append(BaseState.touchFlags[i] == 1 ? "O" : "x");
+			touchText.Append(" T: ");
+			for (int i = 0; i < state.touchFlags.Length; i++) {
+				touchText.Append(state.touchFlags[i] == 1 ? "O" : "X");
 			}
+			touchText.Append(" Z: ");
+			touchText.Append(state.zoomMode?"O":"X");
+			
 			GUI.Box(rectDebugTouchPoint, touchText.ToString());
 		}
 
@@ -274,7 +280,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 //		debug (this.GetType().Name + ".Update()");
 
 		// Mouse events and ray hits events on screen. (Mobile devices will get mouse event when touchs screen, so...)
-		if (isMobilePlatform() == false) {
+		if (Utils.isMobilePlatform() == false) {
 			u3dext.Profiler.getInstance().start("Mouse");
 			state.changedByMouseInput(
 				OnScreenMouseDown,
@@ -287,7 +293,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		}
 		
 		// Raise touch events and ray hits events for touch screen devices.
-		if (isMobilePlatform() == true) {
+		if (Utils.isMobilePlatform() == true) {
 			u3dext.Profiler.getInstance().start("Touch");
 			state.changedByTouch(
 				OnTouchDown,
@@ -301,12 +307,14 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		}
 		
 		// Calculating FPS.
-		if (System.DateTime.Now.Ticks - lastFpsTime.Ticks > 10000 * 1000) {
-			fpsLabel = "FPS: " + this.currentFPS;
-			this.currentFPS = 0;
-			lastFpsTime = System.DateTime.Now;
-		} else {
-			this.currentFPS++;
+		if(debugMode) {
+			if (System.DateTime.Now.Ticks - lastFpsTime.Ticks > 10000 * 1000) {
+				fpsLabel = "FPS: " + this.currentFPS;
+				this.currentFPS = 0;
+				lastFpsTime = System.DateTime.Now;
+			} else {
+				this.currentFPS++;
+			}
 		}
 		
 		// Profiling
@@ -368,7 +376,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	/// <returns>True if touched down for zoom, false if not touched down for zoom</returns>
 	protected virtual bool OnTouchDown (int touchId, Vector2 touchPosition) {
 		this.debug("Finger " + touchId + " touched down at position: " + touchPosition);
-		BaseState.touchFlags[touchId] = 1;
+		state.touchFlags[touchId] = 1;
 		return true;
 	}
 
@@ -388,21 +396,27 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	/// <param name="touchPosition"></param>
 	protected virtual void OnTouchUp (int touchId, Vector2 touchPosition) {
 		this.debug("Finger " + touchId + " touched up at position: " + touchPosition + "  " + System.DateTime.Now.Ticks / 10000f * 1000f);
-		BaseState.touchFlags[touchId] = 0;
-		if (touchId == BaseState.nonZoomId) {
-			BaseState.nonZoomId = -1;
+		state.touchFlags[touchId] = 0;
+		if (touchId == state.nonZoomId) {
+			state.nonZoomId = -1;
 		} else {
-			if (BaseState.zoomMode == true) {
-				BaseState.zoomMode = false;
+			if (state.zoomMode == true) {
+				state.zoomMode = false;
 			} 
-			if (BaseState.zoomTouchIds[0] == touchId) {
-				BaseState.zoomTouchIds[0] = -1;
-			} else if (BaseState.zoomTouchIds[1] == touchId) {
-				BaseState.zoomTouchIds[1] = -1;
+			if (state.zoomTouchIds[0] == touchId) {
+				state.zoomTouchIds[0] = -1;
+			} else if (state.zoomTouchIds[1] == touchId) {
+				state.zoomTouchIds[1] = -1;
 			}
 		}
 	}
 	
+	/// <summary>
+	/// Be invoked every time Zoom In or Zoom out.
+	/// </summary>
+	/// <param name='delta'>
+	/// How many distance the 2 fingers totaly passed through.
+	/// </param>
 	protected virtual void OnZoomInAndOut (float delta) {
 		debug("ZOOM: " + delta);
 	}

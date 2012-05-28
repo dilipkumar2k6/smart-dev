@@ -82,10 +82,10 @@ public class DemoMain {
 	}
 	
 	public void testDelegateVirtualMethod() {
-		SubClass ins = new SubClass();
-		ins.testDelegate();
-		SubClass2 ins2 = new SubClass2();
-		ins2.testDelegate();
+//		SubClass ins = new SubClass();
+//		ins.testDelegate();
+//		SubClass2 ins2 = new SubClass2();
+//		ins2.testDelegate();
 	}
 
 	
