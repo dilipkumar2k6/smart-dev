@@ -72,7 +72,7 @@ namespace u3dext {
 					}
 					total += timeSpan;
 				}
-				average = total / tagData.Value.Count;
+				average = tagData.Value.Count==0? 0 : total / tagData.Value.Count;
 				StringBuilder buf = new StringBuilder(100);
 				buf.Append("= ").Append(tagData.Key).Append(" \t\t| ")
 					.Append(min / 10000f).Append("ms \t| ")

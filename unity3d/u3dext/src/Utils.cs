@@ -51,4 +51,8 @@ public class Utils	{
 	}
 
 	
+	public static bool isMobilePlatform() {
+		return Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer;
+	}
+	
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace u3dext {
+	
 	public class BaseState {
 			
 		// Is touching on screen for multi-fingers. Avoid unneccessary touch and mouse events on screen.
@@ -14,13 +15,15 @@ namespace u3dext {
 	
 		public bool isMousePressed = false; // Mouse pressed on game object.
 		public Vector2 mousePressedPosition; // Store the mouse position when mouse pressed on game object.
+		public bool[] mouseFlags = new bool[3];
 		
-		public static int[] touchFlags = new int[5];
-		public static bool[] mouseFlags = new bool[3];
-		public static bool zoomMode = false;
-		public static int[] zoomTouchIds = new int[2]{-1, -1}; // First touch id and second touch id for zooming.
-		public static Vector2[] zoomPoint = new Vector2[5];
-		public static int nonZoomId; // A touch ID that doesn't be used for Zoom.
+		
+		public int[] touchFlags = new int[5];
+		
+		public bool zoomMode = false;
+		public int[] zoomTouchIds = new int[2]{-1, -1}; // First touch id and second touch id for zooming.
+		public Vector2[] zoomPoint = new Vector2[5];
+		public int nonZoomId; // A touch ID that doesn't be used for Zoom.
 		public BaseState () {
 		}
 		
@@ -133,8 +136,6 @@ namespace u3dext {
 		                                   ObjectRayHitDownCallback orhdc, ObjectRayHitUpCallback orhuc, ZoomInAndOutCallback zioc) {
 			for (int i=0; i<Input.touches.Length; i++) {
 				Touch touch = Input.touches[i];
-//				int touchId = touch.fingerId;
-				//debug("##" + touch.fingerId + ", " + touch.phase);
 				Vector2 eachPos = touch.position;
 				if (touch.phase == TouchPhase.Began) {
 					// Callback(Run before everything to ensure being called)
@@ -143,25 +144,30 @@ namespace u3dext {
 						// Exclude some non-zoom(like button ) touch.
 						//this.OnTouchDown(touch.fingerId, eachPos);
 						if (tdc(touch.fingerId, eachPos) == false) {
-							BaseState.nonZoomId = touch.fingerId;
+							nonZoomId = touch.fingerId;
 						} else {
-							if (BaseState.zoomTouchIds[0] < 0 && BaseState.zoomTouchIds[1] < 0) {
-								BaseState.zoomTouchIds[0] = touch.fingerId;
-								BaseState.zoomPoint[touch.fingerId] = touch.position;
-							} else {
-								BaseState.zoomMode = true;
-								BaseState.zoomTouchIds[1] = touch.fingerId;
-								BaseState.zoomPoint[touch.fingerId] = touch.position;
+							// No touch yet.
+							if (zoomTouchIds[0] < 0 && zoomTouchIds[1] < 0) {
+								zoomTouchIds[0] = touch.fingerId;
+								zoomPoint[touch.fingerId] = touch.position;
+							} else { // Multi touches.
+								zoomMode = true;
+								zoomTouchIds[1] = touch.fingerId;
+								zoomPoint[touch.fingerId] = touch.position;
 							}
 						}
 					}
 					isTouchingScreen[touch.fingerId] = true;
 					
 					// Detect ray hits from screen touch point.
+					u3dext.Profiler.getInstance().start("Touch.Ray");
 					String hitObjName = rayHitGameObject(touch.position);
 					if (hitObjName != null) {
+						u3dext.Profiler.getInstance().start("Touch.Ray.Down");
 						orhdc(hitObjName);
+						u3dext.Profiler.getInstance().end("Touch.Ray.Down");
 					}
+					u3dext.Profiler.getInstance().end("Touch.Ray");
 					
 				} else if (touch.phase == TouchPhase.Ended) {
 					// Callback
@@ -169,35 +175,41 @@ namespace u3dext {
 						tuc(touch.fingerId, eachPos);
 					}
 					isTouchingScreen[touch.fingerId] = false;
+					u3dext.Profiler.getInstance().start("Touch.Ray");
 					String hitObjName = rayHitGameObject(touch.position);
 					if (hitObjName != null) {
+						u3dext.Profiler.getInstance().start("Touch.Ray.Up");
 						orhuc(hitObjName);
+						u3dext.Profiler.getInstance().end("Touch.Ray.Up");
 					}
+					u3dext.Profiler.getInstance().end("Touch.Ray");
 					
 				} else if (touch.phase == TouchPhase.Moved) {
 					// Callback
-					if (BaseState.zoomMode == true) {
+					if (zoomMode == true) {
+						u3dext.Profiler.getInstance().start("Touch.Zoom");
 						// Distance between 2 touch points at last frame.
 						float preDistance = this.getZoomPointDistance();//Vector2.Distance(zoomPoint[zoomTouchIds[0]], zoomPoint[zoomTouchIds[1]]);
 			
 						float curDistance = 0f; 
-						if (touch.fingerId == BaseState.zoomTouchIds[0]) {
+						if (touch.fingerId == zoomTouchIds[0]) {
 							curDistance = Vector2.Distance(
 								touch.position,
-								BaseState.zoomPoint[BaseState.zoomTouchIds[1]]
+								zoomPoint[zoomTouchIds[1]]
 							);
-						} else if (touch.fingerId == BaseState.zoomTouchIds[1]) {
+						} else if (touch.fingerId == zoomTouchIds[1]) {
 							curDistance = Vector2.Distance(
-								BaseState.zoomPoint[BaseState.zoomTouchIds[0]],
+								zoomPoint[zoomTouchIds[0]],
 								touch.position
 							);
 						}
-
 						float delta = curDistance - preDistance;
-						float zoomDistance = (delta / 50) * Time.deltaTime;
-						zioc(zoomDistance);
+						zioc(delta);
+						u3dext.Profiler.getInstance().end("Touch.Zoom");
 					} else {
-						tmc(touch.fingerId, eachPos, touch.deltaPosition);						
+						u3dext.Profiler.getInstance().start("Touch.Move");
+						tmc(touch.fingerId, eachPos, touch.deltaPosition);
+						u3dext.Profiler.getInstance().end("Touch.Move");
 					}
 				}
 			}
@@ -208,7 +220,7 @@ namespace u3dext {
 			//this.debug("Ray at screen position: " + screenPos);
 			Ray ray = Camera.main.ScreenPointToRay(screenPos);
 			RaycastHit hit;
-			Debug.DrawRay(ray.origin, ray.direction, Color.red);
+			//Debug.DrawRay(ray.origin, ray.direction, Color.red);
 			if (Physics.Raycast(ray.origin, ray.direction, out hit)) {
 				//this.debug("Ray " + ray + " hits " + hit.collider);
 				return hit.collider.name;
