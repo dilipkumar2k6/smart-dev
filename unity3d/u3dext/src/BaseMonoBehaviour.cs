@@ -59,7 +59,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 
 	// Control main menu.
 	protected bool isShowMenuButton = false;
-	protected bool isMenuOpend = false;
+	protected bool isMenuOpened = false;
 
 	// Character moving status 
 	protected bool isAccelerate = false;
@@ -231,12 +231,12 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		// ==== Menu Handling ====
 		if (isShowMenuButton) {
 			if (GUI.Button(menuButtonRect, "MENU")) {
-				isMenuOpend = !isMenuOpend;
+				isMenuOpened = !isMenuOpened;
 				audio.PlayOneShot(beepMenu);
 			}
 		}
 
-		if (isMenuOpend == true) {
+		if (isMenuOpened == true) {
 			GUILayout.Window(0, menuRect, OnMenuCreated, "  == MENU == ");
 		}
 		
