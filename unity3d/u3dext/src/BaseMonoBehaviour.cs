@@ -30,6 +30,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	
 	public const int DEFAULT_BUTTON_WIDTH = 60;
 	public const int DEFAULT_BUTTON_HEIGHT = 60;
+	public const int DEFAULT_LINE_HEIGHT = 25;
 
 	// ==== Settings in Unity Editor ==== 
 	public bool debugMode = false;
@@ -125,11 +126,11 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 
 			lastFpsTime = System.DateTime.Now;
 			
-			rectDebugInputConsole = new Rect(5, 5, 150, 25);
+			rectDebugInputConsole = new Rect(5, 5, 150, DEFAULT_LINE_HEIGHT);
 			
-			rectDebugTouchPoint = new Rect(5, 35, 150, 25);
+			rectDebugTouchPoint = new Rect(5, DEFAULT_LINE_HEIGHT + 5 * 2, 150, DEFAULT_LINE_HEIGHT);
 			
-			rectFPS = new Rect(5, 65, 70, 25);
+			rectFPS = new Rect(5, DEFAULT_LINE_HEIGHT * 2 + 5 * 3, 70, DEFAULT_LINE_HEIGHT);
 			
 			
 			// Remote Debugger
@@ -373,7 +374,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	/// </summary>
 	/// <param name="touchId"></param>
 	/// <param name="touchPosition"></param>
-	/// <returns>True if touched down for zoom, false if not touched down for zoom</returns>
+	/// <returns>True if touched down for zoom or rotate</returns>
 	protected virtual bool OnTouchDown (int touchId, Vector2 touchPosition) {
 		this.debug("Finger " + touchId + " touched down at position: " + touchPosition);
 		state.touchFlags[touchId] = 1;
@@ -385,8 +386,10 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	/// </summary>
 	/// <param name="touchId"></param>
 	/// <param name="touchPosition"></param>
-	protected virtual void OnTouchMove (int touchId, Vector2 touchPosition, Vector2 deltaPosition) {
+	/// <returns>True if touched down for zoom or rotate</returns>
+	protected virtual bool OnTouchMove (int touchId, Vector2 touchPosition, Vector2 deltaPosition) {
 		this.debug("Finger " + touchId + " touched move at position: " + touchPosition);
+		return true;
 	}
 	
 	/// <summary>
