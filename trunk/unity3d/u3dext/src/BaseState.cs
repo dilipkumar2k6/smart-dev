@@ -11,9 +11,9 @@ namespace u3dext {
 		public bool[] isTouchingScreen = new bool[5];
 		public bool isMousePreesedOnScreen = false; // Flag that mouse pressed on screen.
 		public Vector2 mousePressedPositionOnScreen; // Mouse position when pressed down.
-		public Vector2 mouseLastFramePositionOnScreen; // 
+		public Vector2 lastFramePositionOnScreen; // For both mouse and touch to calculate movement delta.
 	
-		public bool isMousePressed = false; // Mouse pressed on game object.
+		//public bool isMousePressed = false; // Mouse pressed on game object.
 		public Vector2 mousePressedPosition; // Store the mouse position when mouse pressed on game object.
 		public bool[] mouseFlags = new bool[3];
 		
@@ -33,6 +33,15 @@ namespace u3dext {
 				zoomPoint[zoomTouchIds[1]]
 			);
 		}
+		
+		// TODO
+//		public static int traverseAllFlags(Callback callback) {
+//			callback(0, "BEAT", operateBeat);
+//			callback(1, "BEAT", operateBeat);
+//			callback(2, "BEAT", operateBeat);
+//		}
+//		
+//		public delegate void Callback(int idx, string name, object flag);
 		
 		/// <summary>
 		/// Changeds the by mouse input.
@@ -59,7 +68,7 @@ namespace u3dext {
 //				if (isMousePreesedOnScreen == false && Input.GetMouseButtonDown(i)) {
 				if (Input.GetMouseButtonDown(i)) {
 					mousePressedPositionOnScreen = Utils.convert3Dto2D(Input.mousePosition);
-					mouseLastFramePositionOnScreen = mousePressedPositionOnScreen;
+					lastFramePositionOnScreen = mousePressedPositionOnScreen;
 					isMousePreesedOnScreen = true;
 					mouseFlags[i] = true;
 					// Callback
@@ -76,20 +85,20 @@ namespace u3dext {
 			}
 		
 			Vector2 thisFrameMousePos = Utils.convert3Dto2D(Input.mousePosition);
-			if (thisFrameMousePos != mouseLastFramePositionOnScreen) {
-				// Callback
+			if (thisFrameMousePos != lastFramePositionOnScreen) {
+				// Callback Mouse Move
 				mmc(
 					thisFrameMousePos,
-					thisFrameMousePos - mouseLastFramePositionOnScreen
+					thisFrameMousePos - lastFramePositionOnScreen
 				);
-				mouseLastFramePositionOnScreen = thisFrameMousePos;
+				lastFramePositionOnScreen = thisFrameMousePos;
 			}
 			
 			// Raise ray hits event for mouse input.
 			u3dext.Profiler.getInstance().start("Mouse.Ray");
 //			if (isMousePressed == false && Input.GetMouseButtonDown(0)) {
 			if (Input.GetMouseButtonDown(0)) {
-				isMousePressed = true;
+//				isMousePressed = true;
 				ScreenDebug.getInstance().log("Press mouse on screen position " + Input.mousePosition);
 				String hitObjName = rayHitGameObject(Input.mousePosition);
 				if (hitObjName != null) {
@@ -100,7 +109,7 @@ namespace u3dext {
 //			} else if (isMousePressed == true && Input.GetMouseButtonUp(0)) {
 			} else if (Input.GetMouseButtonUp(0)) {
 				ScreenDebug.getInstance().log("Release mouse on screen position " + Input.mousePosition);
-				isMousePressed = false;
+//				isMousePressed = false;
 				String hitObjName = rayHitGameObject(Input.mousePosition);
 				if (hitObjName != null) {
 					u3dext.Profiler.getInstance().start("Mouse.Ray.Up");
@@ -141,33 +150,36 @@ namespace u3dext {
 					// Callback(Run before everything to ensure being called)
 					if (isTouchingScreen[touch.fingerId] == false) {
 						
-						// Exclude some non-zoom(like button ) touch.
-						//this.OnTouchDown(touch.fingerId, eachPos);
+						// Exclude some non-screen(like button ) touch.
 						if (tdc(touch.fingerId, eachPos) == false) {
 							nonZoomId = touch.fingerId;
 						} else {
-							// No touch yet.
+							// 1st zoom(or rotate) finger.
 							if (zoomTouchIds[0] < 0 && zoomTouchIds[1] < 0) {
 								zoomTouchIds[0] = touch.fingerId;
 								zoomPoint[touch.fingerId] = touch.position;
-							} else { // Multi touches.
+							} else { // 2nd finger
 								zoomMode = true;
 								zoomTouchIds[1] = touch.fingerId;
 								zoomPoint[touch.fingerId] = touch.position;
 							}
+							lastFramePositionOnScreen = eachPos; // Omit non-screen position.
 						}
+						
 					}
 					isTouchingScreen[touch.fingerId] = true;
 					
+					
 					// Detect ray hits from screen touch point.
-					u3dext.Profiler.getInstance().start("Touch.Ray");
+					u3dext.Profiler.getInstance().start("Touch.RayCast");
 					String hitObjName = rayHitGameObject(touch.position);
+					u3dext.Profiler.getInstance().end("Touch.RayCast");
+					
 					if (hitObjName != null) {
 						u3dext.Profiler.getInstance().start("Touch.Ray.Down");
 						orhdc(hitObjName);
 						u3dext.Profiler.getInstance().end("Touch.Ray.Down");
 					}
-					u3dext.Profiler.getInstance().end("Touch.Ray");
 					
 				} else if (touch.phase == TouchPhase.Ended) {
 					// Callback
@@ -175,19 +187,25 @@ namespace u3dext {
 						tuc(touch.fingerId, eachPos);
 					}
 					isTouchingScreen[touch.fingerId] = false;
-					u3dext.Profiler.getInstance().start("Touch.Ray");
+					
+					u3dext.Profiler.getInstance().start("Touch.RayCast");
 					String hitObjName = rayHitGameObject(touch.position);
+					u3dext.Profiler.getInstance().end("Touch.RayCast");
+					
 					if (hitObjName != null) {
 						u3dext.Profiler.getInstance().start("Touch.Ray.Up");
+						// Callback ray up
 						orhuc(hitObjName);
 						u3dext.Profiler.getInstance().end("Touch.Ray.Up");
 					}
-					u3dext.Profiler.getInstance().end("Touch.Ray");
+					
 					
 				} else if (touch.phase == TouchPhase.Moved) {
+					
 					// Callback
 					if (zoomMode == true) {
 						u3dext.Profiler.getInstance().start("Touch.Zoom");
+						
 						// Distance between 2 touch points at last frame.
 						float preDistance = this.getZoomPointDistance();//Vector2.Distance(zoomPoint[zoomTouchIds[0]], zoomPoint[zoomTouchIds[1]]);
 			
@@ -205,10 +223,18 @@ namespace u3dext {
 						}
 						float delta = curDistance - preDistance;
 						zioc(delta);
+						
 						u3dext.Profiler.getInstance().end("Touch.Zoom");
 					} else {
+						
 						u3dext.Profiler.getInstance().start("Touch.Move");
-						tmc(touch.fingerId, eachPos, touch.deltaPosition);
+						
+						if (tmc(touch.fingerId, eachPos, eachPos - lastFramePositionOnScreen) == true) {
+							if (touch.position != lastFramePositionOnScreen) {
+								lastFramePositionOnScreen = eachPos;
+							}
+						}
+					
 						u3dext.Profiler.getInstance().end("Touch.Move");
 					}
 				}
@@ -240,7 +266,7 @@ namespace u3dext {
 		
 		public delegate bool TouchDownCallback (int touchId,Vector2 touchPosition);
 		
-		public delegate void TouchMoveCallback (int touchId,Vector2 touchPosition,Vector2 deltaPosition);
+		public delegate bool TouchMoveCallback (int touchId,Vector2 touchPosition, Vector2 deltaPosition);
 		
 		public delegate void TouchUpCallback (int touchId,Vector2 touchPosition);
 		
