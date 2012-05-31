@@ -234,7 +234,7 @@ namespace u3dext {
 								lastFramePositionOnScreen = eachPos;
 							}
 						}
-					
+
 						u3dext.Profiler.getInstance().end("Touch.Move");
 					}
 				}

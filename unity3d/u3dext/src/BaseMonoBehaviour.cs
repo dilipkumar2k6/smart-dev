@@ -54,11 +54,18 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	protected CharacterController controller;
 	
 	// === GUI ===
-	protected Rect dialogRect;
-	protected Rect menuRect;
-	protected Rect menuButtonRect;
+	protected Rect rectMainMenuWindow;
+	protected Rect rectStageWindow;
+	protected Rect rectLevelWindow;
+	protected Rect rectDialog;
+	protected Rect rectMenu;
+	protected Rect rectMenuButton;
 
 	// Control main menu.
+	protected bool isShowMainMenu = false;
+	protected bool isShowSettingWindow = false;
+	protected bool isShowStageWindows = false;
+	protected bool isShowLevelWindows = false;
 	protected bool isShowMenuButton = false;
 	protected bool isMenuOpened = false;
 
@@ -166,9 +173,13 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		
 		controller = (CharacterController)this.GetComponent(typeof(CharacterController));
 
-		menuButtonRect = new Rect(Screen.width - 90, 5, 80, 40);
-		dialogRect = new Rect(hsw - 100, hsh - 100, 200, 200);
-		menuRect = new Rect(hsw - 100, hsh - 100, 200, 200);
+		rectMainMenuWindow = new Rect(5, 5, sw - 10, sh - 10);
+		rectStageWindow = new Rect(5, 5, sw - 10, sh - 10);
+		rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
+		rectMenuButton = new Rect(Screen.width - 90, 5, 80, 40);
+		rectMenu = new Rect(hsw - 100, hsh - 100, 200, 200);
+		rectDialog = new Rect(hsw - 100, hsh - 100, 200, 200);
+		
 	}
 	
 	protected Camera getCamera(String name) {
@@ -224,31 +235,57 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 				touchText.Append(state.touchFlags[i] == 1 ? "O" : "X");
 			}
 			touchText.Append(" Z: ");
-			touchText.Append(state.zoomMode?"O":"X");
+			touchText.Append(state.zoomMode ? "O" : "X");
 			
 			GUI.Box(rectDebugTouchPoint, touchText.ToString());
+		}
+		
+		// ==== Main Menu ====
+		if(isShowMainMenu == true) {
+			GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, "Main Menu");
+		}
+		
+		// ==== First Stage and Level Choosing ====
+		if (isShowStageWindows == true) {
+			GUILayout.Window(10, rectStageWindow, OnStageWindowCreated, " == Choose Stage == ");
+		}
+		
+		if (isShowLevelWindows == true) {
+			GUILayout.Window(11, rectLevelWindow, OnLevelWindowCreated, " == Choose Level == ");
 		}
 
 		// ==== Menu Handling ====
 		if (isShowMenuButton) {
-			if (GUI.Button(menuButtonRect, "MENU")) {
+			if (GUI.Button(rectMenuButton, "MENU")) {
 				isMenuOpened = !isMenuOpened;
 				audio.PlayOneShot(beepMenu);
 			}
 		}
 
 		if (isMenuOpened == true) {
-			GUILayout.Window(0, menuRect, OnMenuCreated, "  == MENU == ");
+			GUILayout.Window(20, rectMenu, OnMenuCreated, "  == MENU == ");
 		}
 		
 		// Show level pass dialog.
 		if (levelPassStatus == 1) {
-			GUILayout.Window(0, dialogRect, OnLevelPassDialogCreated, "  ==  == ");
+			GUILayout.Window(21, rectDialog, OnLevelPassDialogCreated, "  ==  == ");
 		} else if (levelPassStatus == 2) {
 			// Show level fail dialog. 
-			GUILayout.Window(0, dialogRect, OnLevelFailDialogCreated, "  ==  == ");
+			GUILayout.Window(22, rectDialog, OnLevelFailDialogCreated, "  ==  == ");
 		}
 
+	}
+	
+	protected virtual void OnMainMenuCreated(int winId) {
+		
+	}
+	
+	protected virtual void OnStageWindowCreated(int winId) {
+		
+	}
+	
+	protected virtual void OnLevelWindowCreated(int winId) {
+		
 	}
 	
 	
