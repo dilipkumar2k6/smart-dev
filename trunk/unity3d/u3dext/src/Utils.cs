@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using UnityEngine;
 
 /// <summary>
@@ -53,6 +54,27 @@ public class Utils	{
 	
 	public static bool isMobilePlatform() {
 		return Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer;
+	}
+	
+	/// <summary>
+	/// Create file and it's directory in path if not exists.
+	/// </summary>
+	/// <returns>
+	/// The and create file.
+	/// </returns>
+	/// <param name='filePath'>
+	/// File path.
+	/// </param>
+	public static FileInfo checkAndCreateFile(string filePath) {
+		//
+		FileInfo fi = new FileInfo(filePath);
+		if(fi.Directory.Exists == false) {
+			Directory.CreateDirectory(fi.DirectoryName);
+		}
+		if(fi.Exists == false) {
+			File.Create(fi.FullName);
+		}
+		return new FileInfo(filePath);
 	}
 	
 }
