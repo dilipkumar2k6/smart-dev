@@ -242,7 +242,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		
 		// ==== Main Menu ====
 		if(isShowMainMenu == true) {
-			GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, "Main Menu");
+			GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, " == Main Menu ==");
 		}
 		
 		// ==== First Stage and Level Choosing ====
