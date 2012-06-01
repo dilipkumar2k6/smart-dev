@@ -12,7 +12,8 @@ Unity3D是一款优秀的跨平台3D游戏引擎和开发工具，它可以使�
 
 =使用方法=
 
-u3dext最主要的一个脚本类是BaseMonoBehaviour.cs，它提供的大部分要扩展的功能，在Unity3D编辑器中创建你自己的脚本类，并把他继承的父类从MonoBehaviour改为BaseMonoBehaviour:
+u3dext最主要的一个脚本类是`BaseMonoBehaviour.cs`，它提供的大部分要扩展的功能，在Unity3D编辑器中创建你自己的脚本类，并把他继承的父类从`MonoBehaviour`改为`BaseMonoBehaviour`:
+
 {{{
 public class MyScript : BaseMonoBehaviour{
 
