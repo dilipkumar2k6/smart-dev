@@ -50,7 +50,34 @@ public class Utils	{
 		buf.Remove(buf.Length - 1);
 		return buf + "]";
 	}
-
+	
+	public static string paddingLeft (object txt, int length) {
+		char[] after = new char[length];
+		char[] before = txt.ToString().ToCharArray();
+		int i = 0;
+		int center = Math.Min(length - before.Length, length);
+		for (; i< center; i++) {
+			after[i] = ' ';
+		}
+		for (int j = 0; i< length; i++, j++) {
+			after[i] = before[j];
+		}
+		return new string(after);
+	}
+	
+	public static string paddingRight (object txt, int length) {
+		char[] after = new char[length];
+		char[] before = txt.ToString().ToCharArray();
+		int i = 0;
+		int center = Math.Min(before.Length, length);
+		for (; i< center; i++) {
+			after[i] = before[i];
+		}
+		for (; i< length; i++) {
+			after[i] = ' ';
+		}
+		return new string(after);
+	}
 	
 	public static bool isMobilePlatform() {
 		return Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer;
