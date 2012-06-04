@@ -59,7 +59,12 @@ namespace u3dext {
 		
 		public void print (RemoteDebug.LocalDebugCallback printDelegate) {
 			printDelegate("==========  PROFILING ==========\r\n");
-			printDelegate("= TAG \t\t| MIN \t\t| MAX \t\t| AVERAGE \t| TOTAL \r\n");
+			printDelegate("=" + Utils.paddingRight(" TAG ", 16) 
+				+ Utils.paddingRight(" | MAX ", 12)
+				+ Utils.paddingRight(" | MIN ", 12)
+				+ Utils.paddingRight(" | AVERAGE ", 12)
+				+ Utils.paddingRight(" | TOTAL \r\n", 10)
+			);
 			foreach (KeyValuePair<String, List<long>> tagData in profileTable) {
 				long min, max, average, total;
 				min = max = average = total = 0;
@@ -72,13 +77,14 @@ namespace u3dext {
 					}
 					total += timeSpan;
 				}
-				average = tagData.Value.Count==0? 0 : total / tagData.Value.Count;
+				average = tagData.Value.Count == 0 ? 0 : total / tagData.Value.Count;
 				StringBuilder buf = new StringBuilder(100);
-				buf.Append("= ").Append(tagData.Key).Append(" \t\t| ")
-					.Append(min / 10000f).Append("ms \t| ")
-					.Append(max / 10000f).Append("ms \t| ")
-					.Append(average / 10000f).Append("ms \t| ")
-					.Append(total / (float)(10000 * 1000)).Append("s \r\n");
+				buf.Append("=").Append(Utils.paddingRight(tagData.Key, 16))
+					.Append(" | ")
+					.Append(Utils.paddingLeft(max / 10000f, 7)).Append("ms | ")
+					.Append(Utils.paddingLeft(min / 10000f, 7)).Append("ms | ")
+					.Append(Utils.paddingLeft(average / 10000f, 7)).Append("ms | ")
+					.Append(Utils.paddingLeft(total / (float)(10000 * 1000), 7)).Append("s \r\n");
 				printDelegate(buf.ToString());
 			}
 			printDelegate("==========  PROFILING ==========\r\n");
