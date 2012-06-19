@@ -18,7 +18,7 @@ namespace u3dext {
 	public abstract class BaseAnimationBehaviour : MonoBehaviour {
 		
 		// === Public ===
-		public GameObject playingScreen;
+//		public GameObject playingScreen;
 		public Texture[] animTextures;
 		public Texture transparentTextrue;
 		public bool isPlaying = false;
@@ -47,7 +47,7 @@ namespace u3dext {
 		protected virtual void Update () {
 			if (isPlaying == true) {
 				if (animIdx < animTextures.Length) {
-					playingScreen.renderer.materials[0].SetTexture(
+					gameObject.renderer.materials[0].SetTexture(
 						"_MainTex",
 						animTextures[animIdx++]
 					);
@@ -57,11 +57,11 @@ namespace u3dext {
 						
 					} else {
 						// Hide screen after animation completed.
-						playingScreen.renderer.materials[0].SetTexture(
+						gameObject.renderer.materials[0].SetTexture(
 							"_MainTex",
 							transparentTextrue
 						);
-						animationCallback(playingScreen);
+						animationCallback(gameObject);
 						isPlaying = false;
 					}
 					animIdx = 0;

@@ -24,6 +24,8 @@ public class DemoMain {
 	public static void Main (String[] args) {
 		DemoMain ins = new DemoMain(Console.WriteLine);
 		
+		ins.testInteger();
+		
 		ins.testFloatNumber();
 		
 		ins.testObjectReferece();
@@ -50,6 +52,20 @@ public class DemoMain {
 				remoteDebug.log("demo", inbound);					
 			}
 		}
+	}
+	
+	public void testInteger () {
+		Console.WriteLine("testInteger");
+		long large = DateTime.Now.Ticks;
+		int small = 7;
+		
+		Console.WriteLine(large);
+		Console.WriteLine(large / small);
+		
+		Console.WriteLine(large % small);
+		int n = (int)(large % small);
+		Console.WriteLine(n);
+		
 	}
 	
 	public void testFloatNumber () {

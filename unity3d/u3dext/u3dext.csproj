@@ -35,11 +35,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <WarningLevel>4</WarningLevel>
-    <OutputPath>..\..\..\..\unity3d\PixCross3D\trunk\Assets\CommonAssets\lib</OutputPath>
+    <OutputPath>..\..\..\..\unity3d\PixCross3D\trunk\Assets\lib</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <WarningLevel>4</WarningLevel>
-    <OutputPath>..\..\..\..\unity3d\PixCross3D\trunk\Assets\CommonAssets\lib</OutputPath>
+    <OutputPath>..\..\..\..\unity3d\PixCross3D\trunk\Assets\lib</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

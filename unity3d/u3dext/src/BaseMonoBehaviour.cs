@@ -35,6 +35,9 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// ==== Settings in Unity Editor ==== 
 	public bool debugMode = false;
 	
+	// 0 is left, 1 is top.
+	public int[] debugDisplayPosition = new int[]{0, 60};
+	
 	public bool remoteDebugMode = false;
 	
 	public bool profilingMode = false;
@@ -133,11 +136,15 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 
 			lastFpsTime = System.DateTime.Now;
 			
-			rectDebugInputConsole = new Rect(5, 5, 150, DEFAULT_LINE_HEIGHT);
+			rectDebugInputConsole = new Rect(debugDisplayPosition[0] + 5, debugDisplayPosition[1] + 5, 150, DEFAULT_LINE_HEIGHT);
 			
-			rectDebugTouchPoint = new Rect(5, DEFAULT_LINE_HEIGHT + 5 * 2, 150, DEFAULT_LINE_HEIGHT);
+			rectDebugTouchPoint = new Rect(
+				debugDisplayPosition[0] + 5,
+				debugDisplayPosition[1] + DEFAULT_LINE_HEIGHT + 5 * 2, 150, DEFAULT_LINE_HEIGHT);
 			
-			rectFPS = new Rect(5, DEFAULT_LINE_HEIGHT * 2 + 5 * 3, 70, DEFAULT_LINE_HEIGHT);
+			rectFPS = new Rect(
+				debugDisplayPosition[0] + 5,
+				debugDisplayPosition[1] +DEFAULT_LINE_HEIGHT * 2 + 5 * 3, 70, DEFAULT_LINE_HEIGHT);
 			
 			
 			// Remote Debugger
@@ -176,10 +183,9 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		rectMainMenuWindow = new Rect(5, 5, sw - 10, sh - 10);
 		rectStageWindow = new Rect(5, 5, sw - 10, sh - 10);
 		rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
-		rectMenuButton = new Rect(Screen.width - 90, 5, 80, 40);
+		rectMenuButton = new Rect(10, 5, 80, 40);
 		rectMenu = new Rect(hsw - 100, hsh - 100, 200, 200);
 		rectDialog = new Rect(hsw - 100, hsh - 100, 200, 200);
-		
 	}
 	
 	protected Camera getCamera(String name) {
@@ -273,6 +279,23 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 			// Show level fail dialog. 
 			GUILayout.Window(22, rectDialog, OnLevelFailDialogCreated, "  ==  == ");
 		}
+
+				
+		if(Input.GetKey("escape") == true) {
+			OnDeviceBackButtonPressed();
+		}
+
+		if(Input.GetKey(KeyCode.Menu) == true){
+			OnDeviceMenuButtonPressed();
+		}
+
+	}
+
+	protected virtual void OnDeviceBackButtonPressed() {
+
+	}
+
+	protected virtual void OnDeviceMenuButtonPressed() {
 
 	}
 	
