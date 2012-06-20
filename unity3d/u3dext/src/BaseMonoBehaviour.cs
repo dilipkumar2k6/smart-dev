@@ -8,6 +8,7 @@ using System.Threading;
 using UnityEngine;
 using u3dext;
 
+namespace u3dext {
 /// <summary>
 /// Provides:
 /// 	Main menu displaying and handling.
@@ -34,10 +35,10 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 
 	// ==== Settings in Unity Editor ==== 
 	public bool debugMode = false;
-	
+
 	// 0 is left, 1 is top.
 	public int[] debugDisplayPosition = new int[]{0, 60};
-	
+
 	public bool remoteDebugMode = false;
 	
 	public bool profilingMode = false;
@@ -71,6 +72,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	protected bool isShowLevelWindows = false;
 	protected bool isShowMenuButton = false;
 	protected bool isMenuOpened = false;
+	protected bool isShowQuitDialog = false;
 
 	// Character moving status 
 	protected bool isAccelerate = false;
@@ -92,21 +94,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// Screen button flags for left hand and right hand.
 	protected int leftHandBtnFlag = 0;
 	protected int rightHandBtnFlag = 0;
-	
-	// === DEBUGING ===
-	
-	// Show FPS in this rectangle.
-	protected Rect rectFPS;
-	protected Rect rectDebugInputConsole;
-	protected Rect rectDebugTouchPoint;
-	protected Rect rectDebugConsole;
-	
-	// 4 calculating FPS.
-	private System.DateTime lastFpsTime;
-	private int currentFPS = 0;
-	private string fpsLabel = "FPS: 0";
-//	private int[] touchFlags = new int[5];
-//	private bool[] mouseFlags = new bool[3];
+
 	
 	// How long it will print the profiling data.
 	private float profileSummaryTime = 0;
@@ -134,18 +122,6 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		if (debugMode) {
 			Debug.Log("Script" + this.GetType() + " runs on DEBUG mode");
 
-			lastFpsTime = System.DateTime.Now;
-			
-			rectDebugInputConsole = new Rect(debugDisplayPosition[0] + 5, debugDisplayPosition[1] + 5, 150, DEFAULT_LINE_HEIGHT);
-			
-			rectDebugTouchPoint = new Rect(
-				debugDisplayPosition[0] + 5,
-				debugDisplayPosition[1] + DEFAULT_LINE_HEIGHT + 5 * 2, 150, DEFAULT_LINE_HEIGHT);
-			
-			rectFPS = new Rect(
-				debugDisplayPosition[0] + 5,
-				debugDisplayPosition[1] +DEFAULT_LINE_HEIGHT * 2 + 5 * 3, 70, DEFAULT_LINE_HEIGHT);
-			
 			
 			// Remote Debugger
 			if (debugConsole == null) {
@@ -180,12 +156,6 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		
 		controller = (CharacterController)this.GetComponent(typeof(CharacterController));
 
-		rectMainMenuWindow = new Rect(5, 5, sw - 10, sh - 10);
-		rectStageWindow = new Rect(5, 5, sw - 10, sh - 10);
-		rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
-		rectMenuButton = new Rect(10, 5, 80, 40);
-		rectMenu = new Rect(hsw - 100, hsh - 100, 200, 200);
-		rectDialog = new Rect(hsw - 100, hsh - 100, 200, 200);
 	}
 	
 	protected Camera getCamera(String name) {
@@ -206,110 +176,9 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// === OnGUI Private ===
 	
 	protected void OnGUI () {
-		// === DEBUG ===
-		if (debugMode) {
-			// Show FPS.
-			GUI.Box(rectFPS, fpsLabel);
-			
-			// User input debug.
-			String msg = "L: " + Convert.ToString(leftHandBtnFlag) + ", R: " + Convert.ToString(rightHandBtnFlag);
-			GUI.Box(rectDebugInputConsole, msg);
-			
-			//  Screen debug console.
-//			GUI.TextArea(new Rect(10, 100, 350, 17 * ScreenDebug.MESSAGE_LENGTH), screenDebug.contatDebugInfo());
-			
-			// Show FLAGs
-			int left = 10;
-			foreach (KeyValuePair<String, Boolean> item in flagDebug) {
-				Rect rect = new Rect(left, sh - 30, 50, 20);
-				left += 60;
-				if (item.Value == true) {
-					GUI.Box(rect, item.Key);
-				} else {
-					GUI.Box(rect, "-");	
-				}
-			}
-			
-			// Show Touch Points
-			StringBuilder touchText = new StringBuilder();		
-			touchText.Append("M: ");
-			for (int i = 0; i < state.mouseFlags.Length; i++) {
-				touchText.Append(state.mouseFlags[i] == true ? "O" : "X");
-			}
-			touchText.Append(" T: ");
-			for (int i = 0; i < state.touchFlags.Length; i++) {
-				touchText.Append(state.touchFlags[i] == 1 ? "O" : "X");
-			}
-			touchText.Append(" Z: ");
-			touchText.Append(state.zoomMode ? "O" : "X");
-			
-			GUI.Box(rectDebugTouchPoint, touchText.ToString());
-		}
-		
-		// ==== Main Menu ====
-		if(isShowMainMenu == true) {
-			GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, " == Main Menu ==");
-		}
-		
-		// ==== First Stage and Level Choosing ====
-		if (isShowStageWindows == true) {
-			GUILayout.Window(10, rectStageWindow, OnStageWindowCreated, " == Choose Stage == ");
-		}
-		
-		if (isShowLevelWindows == true) {
-			GUILayout.Window(11, rectLevelWindow, OnLevelWindowCreated, " == Choose Level == ");
-		}
-
-		// ==== Menu Handling ====
-		if (isShowMenuButton) {
-			if (GUI.Button(rectMenuButton, "MENU")) {
-				isMenuOpened = !isMenuOpened;
-				audio.PlayOneShot(beepMenu);
-			}
-		}
-
-		if (isMenuOpened == true) {
-			GUILayout.Window(20, rectMenu, OnMenuCreated, "  == MENU == ");
-		}
-		
-		// Show level pass dialog.
-		if (levelPassStatus == 1) {
-			GUILayout.Window(21, rectDialog, OnLevelPassDialogCreated, "  ==  == ");
-		} else if (levelPassStatus == 2) {
-			// Show level fail dialog. 
-			GUILayout.Window(22, rectDialog, OnLevelFailDialogCreated, "  ==  == ");
-		}
-
-				
-		if(Input.GetKey("escape") == true) {
-			OnDeviceBackButtonPressed();
-		}
-
-		if(Input.GetKey(KeyCode.Menu) == true){
-			OnDeviceMenuButtonPressed();
-		}
 
 	}
 
-	protected virtual void OnDeviceBackButtonPressed() {
-
-	}
-
-	protected virtual void OnDeviceMenuButtonPressed() {
-
-	}
-	
-	protected virtual void OnMainMenuCreated(int winId) {
-		
-	}
-	
-	protected virtual void OnStageWindowCreated(int winId) {
-		
-	}
-	
-	protected virtual void OnLevelWindowCreated(int winId) {
-		
-	}
 	
 	
 	/// <summary>
@@ -366,17 +235,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 			);
 			u3dext.Profiler.getInstance().end("Touch");
 		}
-		
-		// Calculating FPS.
-		if(debugMode) {
-			if (System.DateTime.Now.Ticks - lastFpsTime.Ticks > 10000 * 1000) {
-				fpsLabel = "FPS: " + this.currentFPS;
-				this.currentFPS = 0;
-				lastFpsTime = System.DateTime.Now;
-			} else {
-				this.currentFPS++;
-			}
-		}
+
 		
 		// Profiling
 		if (profilingMode == true) {
@@ -548,3 +407,4 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	}
 }
 
+}
