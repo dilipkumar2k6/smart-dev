@@ -10,6 +10,7 @@ namespace u3dext {
 		// Is touching on screen for multi-fingers. Avoid unneccessary touch and mouse events on screen.
 		public bool[] isTouchingScreen = new bool[5];
 		public bool isMousePreesedOnScreen = false; // Flag that mouse pressed on screen.
+//		public bool isKeyPressed = false;
 		public Vector2 mousePressedPositionOnScreen; // Mouse position when pressed down.
 		public Vector2 lastFramePositionOnScreen; // For both mouse and touch to calculate movement delta.
 	
@@ -44,7 +45,7 @@ namespace u3dext {
 //		public delegate void Callback(int idx, string name, object flag);
 		
 		/// <summary>
-		/// Changeds the by mouse input.
+		/// Detect mouse input and callback.
 		/// </summary>
 		/// <param name='mdc'>
 		/// Mdc.
@@ -121,7 +122,7 @@ namespace u3dext {
 		}
 		
 		/// <summary>
-		/// Changeds the by touch.
+		/// Detect touch and callback.
 		/// </summary>
 		/// <param name='tdc'>
 		/// Tdc.
@@ -240,7 +241,7 @@ namespace u3dext {
 				}
 			}
 		}
-		
+
 		protected static String rayHitGameObject (Vector3 screenPos) {
 			// Detect by Ray
 			//this.debug("Ray at screen position: " + screenPos);
@@ -253,6 +254,16 @@ namespace u3dext {
 			}
 			return null;
 		}
+
+//		public void changedByKeyboard(KeyCallback callback) {
+//			if (Input.GetKey("escape") == true) {
+//
+//			}
+//
+//			if (Input.GetKey(KeyCode.Menu) == true) {
+//
+//			}
+//		}
 		
 		public delegate void MouseDownCallback (int button,Vector2 mousePosition);
 		
@@ -271,6 +282,8 @@ namespace u3dext {
 		public delegate void TouchUpCallback (int touchId,Vector2 touchPosition);
 		
 		public delegate void ZoomInAndOutCallback(float delta);
+
+//		public delegate void KeyCallback(KeyCode key);
 	}
 }
 
