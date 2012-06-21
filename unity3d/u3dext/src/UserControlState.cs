@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace u3dext {
 	
-	public class BaseState {
+	public class UserControlState {
 			
 		// Is touching on screen for multi-fingers. Avoid unneccessary touch and mouse events on screen.
 		public bool[] isTouchingScreen = new bool[5];
@@ -25,7 +25,7 @@ namespace u3dext {
 		public int[] zoomTouchIds = new int[2]{-1, -1}; // First touch id and second touch id for zooming.
 		public Vector2[] zoomPoint = new Vector2[5];
 		public int nonZoomId; // A touch ID that doesn't be used for Zoom.
-		public BaseState () {
+		public UserControlState () {
 		}
 		
 		public float getZoomPointDistance () {
