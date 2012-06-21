@@ -19,6 +19,23 @@ namespace u3dext {
 		protected Rect rectDebugTouchPoint;
 		protected Rect rectDebugConsole;
 
+			// === GUI ===
+		protected Rect rectMainMenuWindow;
+		protected Rect rectStageWindow;
+		protected Rect rectLevelWindow;
+		protected Rect rectDialog;
+		protected Rect rectMenu;
+		protected Rect rectPauseButton;
+
+		// Control main menu.
+		protected bool isShowMainMenu = false;
+		protected bool isShowSettingWindow = false;
+		protected bool isShowStageWindows = false;
+		protected bool isShowLevelWindows = false;
+		protected bool isShowMenuButton = false;
+		protected bool isMenuOpened = false;
+		protected bool isShowQuitDialog = false;
+
 		// 4 calculating FPS.
 		private System.DateTime lastFpsTime;
 		private int currentFPS = 0;
@@ -49,7 +66,7 @@ namespace u3dext {
 			rectMainMenuWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectStageWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
-			rectMenuButton = new Rect(10, 5, 80, 40);
+			rectPauseButton = new Rect(10, 5, 80, 40);
 			rectMenu = new Rect(hsw - 100, hsh - 100, 200, 200);
 			rectDialog = new Rect(hsw - 100, hsh - 100, 200, 200);
 		}
@@ -110,14 +127,14 @@ namespace u3dext {
 
 			// ==== Menu Handling ====
 			if (isShowMenuButton) {
-				if (GUI.Button(rectMenuButton, "MENU")) {
+				if (GUI.Button(rectPauseButton, "PAUSE")) {
 					isMenuOpened = !isMenuOpened;
 					audio.PlayOneShot(beepMenu);
 				}
 			}
 
 			if (isMenuOpened == true) {
-				GUILayout.Window(20, rectMenu, OnMenuCreated, "  == MENU == ");
+				GUILayout.Window(20, rectMenu, OnMenuCreated, "  == PAUSE == ");
 			}
 		
 			// Show level pass dialog.

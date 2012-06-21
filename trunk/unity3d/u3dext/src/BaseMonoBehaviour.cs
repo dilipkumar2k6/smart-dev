@@ -56,23 +56,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	
 	// Controller for current game object.
 	protected CharacterController controller;
-	
-	// === GUI ===
-	protected Rect rectMainMenuWindow;
-	protected Rect rectStageWindow;
-	protected Rect rectLevelWindow;
-	protected Rect rectDialog;
-	protected Rect rectMenu;
-	protected Rect rectMenuButton;
 
-	// Control main menu.
-	protected bool isShowMainMenu = false;
-	protected bool isShowSettingWindow = false;
-	protected bool isShowStageWindows = false;
-	protected bool isShowLevelWindows = false;
-	protected bool isShowMenuButton = false;
-	protected bool isMenuOpened = false;
-	protected bool isShowQuitDialog = false;
 
 	// Character moving status 
 	protected bool isAccelerate = false;
@@ -100,7 +84,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	private float profileSummaryTime = 0;
 	
 	
-	protected BaseState state;
+	protected UserControlState state;
 	
 	// Remote debug shared instance.
 	protected RemoteDebug debugConsole;
@@ -117,7 +101,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		
 		Debug.Log("Script '" + this.GetType().Name + "' runs on thread " + Thread.CurrentThread.ManagedThreadId);
 
-		state = new BaseState();
+		state = new UserControlState();
 		
 		if (debugMode) {
 			Debug.Log("Script" + this.GetType() + " runs on DEBUG mode");
@@ -209,6 +193,10 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	protected void Update () {
 //		debug (this.GetType().Name + ".Update()");
 
+		if(GameState.isGamePausing == true) {
+			return;
+		}
+
 		// Mouse events and ray hits events on screen. (Mobile devices will get mouse event when touchs screen, so...)
 		if (Utils.isMobilePlatform() == false) {
 			u3dext.Profiler.getInstance().start("Mouse");
@@ -235,7 +223,6 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 			);
 			u3dext.Profiler.getInstance().end("Touch");
 		}
-
 		
 		// Profiling
 		if (profilingMode == true) {
