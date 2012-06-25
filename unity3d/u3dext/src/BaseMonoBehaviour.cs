@@ -37,7 +37,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	public bool debugMode = false;
 
 	// 0 is left, 1 is top.
-	public int[] debugDisplayPosition = new int[]{0, 60};
+	public int[] debugDisplayPosition = new int[]{0, 150};
 
 	public bool remoteDebugMode = false;
 	
@@ -163,33 +163,6 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 
 	}
 
-	
-	
-	/// <summary>
-	/// Be called after user clicked the "MENU" button.
-	/// </summary>
-	/// <param name="windowId"></param>
-	protected virtual void OnMenuCreated (int windowId) {
-//		GUILayout.Label("Hello World");
-	}
-	
-	/// <summary>
-	/// Be invoked when level pass dialog need to be created.
-	/// </summary>
-	/// <param name='windowId'>
-	/// Window identifier.
-	/// </param>
-	protected virtual void OnLevelPassDialogCreated(int windowId) {}
-	
-	/// <summary>
-	/// Be invoked when level fail dialog need to be created.
-	/// </summary>
-	/// <param name='windowId'>
-	/// Window identifier.
-	/// </param>
-	protected virtual void OnLevelFailDialogCreated(int windowId) {}
-
-	
 	protected void Update () {
 //		debug (this.GetType().Name + ".Update()");
 

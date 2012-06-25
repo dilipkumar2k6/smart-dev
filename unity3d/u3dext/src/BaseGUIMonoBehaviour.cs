@@ -10,6 +10,11 @@ namespace u3dext {
 	/// </summary>
 	public class BaseGUIMonoBehaviour : BaseMonoBehaviour {
 
+		// Use customized GUI skin.
+		public GUISkin userGUISkin;
+
+		public Texture btnPauseTex;
+		public Texture bgMainMenuTex;
 	
 		// === DEBUGING ===
 	
@@ -19,12 +24,12 @@ namespace u3dext {
 		protected Rect rectDebugTouchPoint;
 		protected Rect rectDebugConsole;
 
-			// === GUI ===
+		// === GUI ===
 		protected Rect rectMainMenuWindow;
 		protected Rect rectStageWindow;
 		protected Rect rectLevelWindow;
 		protected Rect rectDialog;
-		protected Rect rectMenu;
+		protected Rect rectPauseMenu;
 		protected Rect rectPauseButton;
 
 		// Control main menu.
@@ -33,7 +38,7 @@ namespace u3dext {
 		protected bool isShowStageWindows = false;
 		protected bool isShowLevelWindows = false;
 		protected bool isShowMenuButton = false;
-		protected bool isMenuOpened = false;
+		protected bool isPauseMenuOpened = false;
 		protected bool isShowQuitDialog = false;
 
 		// 4 calculating FPS.
@@ -48,27 +53,27 @@ namespace u3dext {
 			base.Start();
 
 			if (debugMode) {
-
 				lastFpsTime = System.DateTime.Now;
-				
 				rectDebugInputConsole = new Rect(debugDisplayPosition[0] + 5, debugDisplayPosition[1] + 5, 150, DEFAULT_LINE_HEIGHT);
-				
+
 				rectDebugTouchPoint = new Rect(
-					debugDisplayPosition[0] + 5,
-					debugDisplayPosition[1] + DEFAULT_LINE_HEIGHT + 5 * 2, 150, DEFAULT_LINE_HEIGHT);
-				
+					debugDisplayPosition[0] + 5, debugDisplayPosition[1] + DEFAULT_LINE_HEIGHT + 5 * 2, 
+					150, DEFAULT_LINE_HEIGHT);
+
 				rectFPS = new Rect(
-					debugDisplayPosition[0] + 5,
-					debugDisplayPosition[1] + DEFAULT_LINE_HEIGHT * 2 + 5 * 3, 70, DEFAULT_LINE_HEIGHT);
-				
+					debugDisplayPosition[0] + 5, debugDisplayPosition[1] + DEFAULT_LINE_HEIGHT * 2 + (5 * 3), 
+					70, DEFAULT_LINE_HEIGHT);
 			}
 
-			rectMainMenuWindow = new Rect(5, 5, sw - 10, sh - 10);
+			rectMainMenuWindow = new Rect(0, 0, sw, sh);
 			rectStageWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectPauseButton = new Rect(10, 5, 80, 40);
-			rectMenu = new Rect(hsw - 100, hsh - 100, 200, 200);
+
 			rectDialog = new Rect(hsw - 100, hsh - 100, 200, 200);
+
+			rectPauseMenu = new Rect(hsw - 100, hsh - 100, 200, 200);
+
 		}
 
 		protected new void OnGUI () {
@@ -113,7 +118,9 @@ namespace u3dext {
 		
 			// ==== Main Menu ====
 			if (isShowMainMenu == true) {
-				GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, " == Main Menu ==");
+				GUI.Box(new Rect(0,0, sw, sh), bgMainMenuTex, userGUISkin.box);
+//				GUILayout.Box(new Rect(0,0, sw, sh),bgMainMenuTex, userGUISkin.box);
+				GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, " == Main Menu == ", userGUISkin.box);
 			}
 		
 			// ==== First Stage and Level Choosing ====
@@ -125,16 +132,23 @@ namespace u3dext {
 				GUILayout.Window(11, rectLevelWindow, OnLevelWindowCreated, " == Choose Level == ");
 			}
 
-			// ==== Menu Handling ====
+			// ==== Pause Button ====
 			if (isShowMenuButton) {
-				if (GUI.Button(rectPauseButton, "PAUSE")) {
-					isMenuOpened = !isMenuOpened;
-					audio.PlayOneShot(beepMenu);
+				if (btnPauseTex == null) {
+					if (GUI.Button(rectPauseButton, "PAUSE")) {
+						isPauseMenuOpened = !isPauseMenuOpened;
+						audio.PlayOneShot(beepMenu);
+					}
+				} else {
+					if (GUI.Button(rectPauseButton, btnPauseTex)) {
+						isPauseMenuOpened = !isPauseMenuOpened;
+						audio.PlayOneShot(beepMenu);
+					}
 				}
 			}
 
-			if (isMenuOpened == true) {
-				GUILayout.Window(20, rectMenu, OnMenuCreated, "  == PAUSE == ");
+			if (isPauseMenuOpened == true) {
+				GUILayout.Window(20, rectPauseMenu, OnPauseMenuCreated, "  == PAUSE == ");
 			}
 		
 			// Show level pass dialog.
@@ -178,6 +192,32 @@ namespace u3dext {
 		protected virtual void OnLevelWindowCreated (int winId) {
 		
 		}
+	
+		/// <summary>
+		/// Be called after user clicked the "MENU" button.
+		/// </summary>
+		/// <param name="windowId"></param>
+		protected virtual void OnPauseMenuCreated (int windowId) {
+//		GUILayout.Label("Hello World");
+		}
+	
+		/// <summary>
+		/// Be invoked when level pass dialog need to be created.
+		/// </summary>
+		/// <param name='windowId'>
+		/// Window identifier.
+		/// </param>
+		protected virtual void OnLevelPassDialogCreated (int windowId) {
+		}
+	
+		/// <summary>
+		/// Be invoked when level fail dialog need to be created.
+		/// </summary>
+		/// <param name='windowId'>
+		/// Window identifier.
+		/// </param>
+		protected virtual void OnLevelFailDialogCreated (int windowId) {
+		}
 
 		protected new void Update () {
 			base.Update();
@@ -198,7 +238,7 @@ namespace u3dext {
 				isShowQuitDialog = !isShowQuitDialog;
 				OnDeviceBackButtonPressed();
 			} else if (Input.GetKeyDown(KeyCode.Menu) == true) {
-				isMenuOpened = !isMenuOpened;
+				isPauseMenuOpened = !isPauseMenuOpened;
 				OnDeviceMenuButtonPressed();
 			}
 		}
