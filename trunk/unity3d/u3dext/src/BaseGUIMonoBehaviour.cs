@@ -13,8 +13,10 @@ namespace u3dext {
 		// Use customized GUI skin.
 		public GUISkin userGUISkin;
 
-		public Texture btnPauseTex;
+		public Texture logoTex;
+		public Texture bgMainTex;
 		public Texture bgMainMenuTex;
+		public Texture btnPauseTex;
 	
 		// === DEBUGING ===
 	
@@ -26,11 +28,12 @@ namespace u3dext {
 
 		// === GUI ===
 		protected Rect rectMainMenuWindow;
+		protected Rect rectLogo;
 		protected Rect rectStageWindow;
 		protected Rect rectLevelWindow;
-		protected Rect rectDialog;
-		protected Rect rectPauseMenu;
 		protected Rect rectPauseButton;
+		protected Rect rectPauseMenu;
+		protected Rect rectDialog;
 
 		// Control main menu.
 		protected bool isShowMainMenu = false;
@@ -63,9 +66,12 @@ namespace u3dext {
 				rectFPS = new Rect(
 					debugDisplayPosition[0] + 5, debugDisplayPosition[1] + DEFAULT_LINE_HEIGHT * 2 + (5 * 3), 
 					70, DEFAULT_LINE_HEIGHT);
+
+				debug("The screen resolution is : " + sw + " X " + sh);
 			}
 
 			rectMainMenuWindow = new Rect(0, 0, sw, sh);
+			rectLogo = new Rect(0, 0, sw, 0);
 			rectStageWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectPauseButton = new Rect(10, 5, 80, 40);
@@ -116,20 +122,17 @@ namespace u3dext {
 			}
 
 		
-			// ==== Main Menu ====
-			if (isShowMainMenu == true) {
-				GUI.Box(new Rect(0,0, sw, sh), bgMainMenuTex, userGUISkin.box);
-//				GUILayout.Box(new Rect(0,0, sw, sh),bgMainMenuTex, userGUISkin.box);
-				GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, " == Main Menu == ", userGUISkin.box);
-			}
-		
-			// ==== First Stage and Level Choosing ====
+			// ==== Select Stage ====
 			if (isShowStageWindows == true) {
-				GUILayout.Window(10, rectStageWindow, OnStageWindowCreated, " == Choose Stage == ");
+				// Background
+				GUI.Box(new Rect(0, 0, sw, sh), bgMainTex, userGUISkin.customStyles[2]);
+				GUILayout.Window(10, rectStageWindow, OnStageWindowCreated, " == Choose Stage == ", userGUISkin.box);
 			}
 		
+			// == Select Level == 
 			if (isShowLevelWindows == true) {
-				GUILayout.Window(11, rectLevelWindow, OnLevelWindowCreated, " == Choose Level == ");
+				GUI.Box(new Rect(0, 0, sw, sh), bgMainTex, userGUISkin.customStyles[2]);
+				GUILayout.Window(11, rectLevelWindow, OnLevelWindowCreated, " == Choose Level == ", userGUISkin.box);
 			}
 
 			// ==== Pause Button ====
@@ -137,26 +140,38 @@ namespace u3dext {
 				if (btnPauseTex == null) {
 					if (GUI.Button(rectPauseButton, "PAUSE")) {
 						isPauseMenuOpened = !isPauseMenuOpened;
+						GameState.isGamePausing = isPauseMenuOpened;
 						audio.PlayOneShot(beepMenu);
 					}
 				} else {
 					if (GUI.Button(rectPauseButton, btnPauseTex)) {
 						isPauseMenuOpened = !isPauseMenuOpened;
+						GameState.isGamePausing = isPauseMenuOpened;
 						audio.PlayOneShot(beepMenu);
 					}
 				}
 			}
 
 			if (isPauseMenuOpened == true) {
-				GUILayout.Window(20, rectPauseMenu, OnPauseMenuCreated, "  == PAUSE == ");
+				GUILayout.Window(20, rectPauseMenu, OnPauseMenuCreated, "  == PAUSE == ", userGUISkin.box);
 			}
 		
 			// Show level pass dialog.
-			if (levelPassStatus == 1) {
+			if (GameState.levelPassStatus == 1) {
 				GUILayout.Window(21, rectDialog, OnLevelPassDialogCreated, "  == Pass == ");
-			} else if (levelPassStatus == 2) {
+			} else if (GameState.levelPassStatus == 2) {
 				// Show level fail dialog. 
 				GUILayout.Window(22, rectDialog, OnLevelFailDialogCreated, "  == Fail == ");
+			}
+
+			// ==== Main Menu ====
+			if (isShowMainMenu == true) {
+				// Background
+				GUI.Box(new Rect(0, 0, sw, sh), bgMainTex, userGUISkin.customStyles[2]);
+				// LOGO
+				GUI.Box(rectLogo, logoTex, userGUISkin.box);
+				// Main Menu Window
+				GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, bgMainMenuTex, userGUISkin.box);
 			}
 
 			if (isShowQuitDialog == true) {

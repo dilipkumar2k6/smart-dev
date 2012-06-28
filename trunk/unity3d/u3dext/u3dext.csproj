@@ -75,6 +75,7 @@
     <Compile Include="src\BaseGUIMonoBehaviour.cs" />
     <Compile Include="src\UserControlState.cs" />
     <Compile Include="src\GameState.cs" />
+    <Compile Include="src\Closure.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
 </Project>
