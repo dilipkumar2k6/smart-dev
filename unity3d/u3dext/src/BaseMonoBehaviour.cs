@@ -60,9 +60,7 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 
 	// Character moving status 
 	protected bool isAccelerate = false;
-	
-	// For level-based game, 0=Playing, 1=Passed, 2=Failed
-	protected int levelPassStatus = 0;
+
 	
 	// Screen diagonal size
 	protected float sd;
@@ -88,6 +86,11 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	
 	// Remote debug shared instance.
 	protected RemoteDebug debugConsole;
+
+
+	protected delegate void Closure0();
+
+	protected delegate void Closure1(System.Object param);
 	
 	
 	// Screen debug.
