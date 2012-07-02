@@ -13,10 +13,21 @@ namespace u3dext {
 		// Use customized GUI skin.
 		public GUISkin userGUISkin;
 
+		// == User customized GUI textures ==
 		public Texture logoTex;
 		public Texture bgMainTex;
 		public Texture bgMainMenuTex;
+		public Texture bgLevelFinishTex;
+		public Texture levelPassTex;
+		public Texture levelFailTex;
+		public Texture[] levelPassStars;
+		public Texture levelFailImageTex;
+
 		public Texture btnPauseTex;
+		public Texture btnLevelFinishRestartTex;
+		public Texture btnLevelFinishMenuTex;
+		public Texture btnLevelFinishNextTex;
+		public Texture btnLevelFinishShopTex;
 	
 		// === DEBUGING ===
 	
@@ -33,7 +44,7 @@ namespace u3dext {
 		protected Rect rectLevelWindow;
 		protected Rect rectPauseButton;
 		protected Rect rectPauseMenu;
-		protected Rect rectDialog;
+		protected Rect rectLevelFinishWindow;
 
 		// Control main menu.
 		protected bool isShowMainMenu = false;
@@ -44,10 +55,14 @@ namespace u3dext {
 		protected bool isPauseMenuOpened = false;
 		protected bool isShowQuitDialog = false;
 
+		protected GUIStyle midCenterBox ;
+
 		// 4 calculating FPS.
 		private System.DateTime lastFpsTime;
 		private int currentFPS = 0;
 		private string fpsLabel = "FPS: 0";
+
+
 
 		public BaseGUIMonoBehaviour () {
 		}
@@ -76,10 +91,11 @@ namespace u3dext {
 			rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectPauseButton = new Rect(10, 5, 80, 40);
 
-			rectDialog = new Rect(hsw - 100, hsh - 100, 200, 200);
+			rectLevelFinishWindow = new Rect(hsw - 150, hsh - 175, 300, 350);
 
 			rectPauseMenu = new Rect(hsw - 100, hsh - 100, 200, 200);
 
+			midCenterBox = userGUISkin.customStyles[1];
 		}
 
 		protected new void OnGUI () {
@@ -106,7 +122,7 @@ namespace u3dext {
 				}
 			
 				// Show Touch Points
-				StringBuilder touchText = new StringBuilder();		
+				StringBuilder touchText = new StringBuilder();
 				touchText.Append("M: ");
 				for (int i = 0; i < state.mouseFlags.Length; i++) {
 					touchText.Append(state.mouseFlags[i] == true ? "O" : "X");
@@ -158,10 +174,10 @@ namespace u3dext {
 		
 			// Show level pass dialog.
 			if (GameState.levelPassStatus == 1) {
-				GUILayout.Window(21, rectDialog, OnLevelPassDialogCreated, "  == Pass == ");
+				GUILayout.Window(21, rectLevelFinishWindow, OnLevelPassDialogCreated, bgLevelFinishTex, userGUISkin.box);
 			} else if (GameState.levelPassStatus == 2) {
 				// Show level fail dialog. 
-				GUILayout.Window(22, rectDialog, OnLevelFailDialogCreated, "  == Fail == ");
+				GUILayout.Window(22, rectLevelFinishWindow, OnLevelFailDialogCreated, bgLevelFinishTex, userGUISkin.box);
 			}
 
 			// ==== Main Menu ====
