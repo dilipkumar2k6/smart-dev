@@ -38,6 +38,7 @@ namespace u3dext {
 		protected Rect rectDebugConsole;
 
 		// === GUI ===
+		protected Rect rectFullscreen;
 		protected Rect rectMainMenuWindow;
 		protected Rect rectLogo;
 		protected Rect rectStageWindow;
@@ -55,20 +56,21 @@ namespace u3dext {
 		protected bool isPauseMenuOpened = false;
 		protected bool isShowQuitDialog = false;
 
-		protected GUIStyle midCenterBox ;
+		protected Theme theme;
+		protected GUIStyle midCenterBoxStyle ;
 
 		// 4 calculating FPS.
 		private System.DateTime lastFpsTime;
 		private int currentFPS = 0;
 		private string fpsLabel = "FPS: 0";
 
-
-
 		public BaseGUIMonoBehaviour () {
 		}
 
 		protected new void Start () {
 			base.Start();
+
+			theme = new Theme480x320();
 
 			if (debugMode) {
 				lastFpsTime = System.DateTime.Now;
@@ -85,8 +87,12 @@ namespace u3dext {
 				debug("The screen resolution is : " + sw + " X " + sh);
 			}
 
-			rectMainMenuWindow = new Rect(0, 0, sw, sh);
-			rectLogo = new Rect(0, 0, sw, 0);
+			rectFullscreen = new Rect(0, 0, sw, sh);
+
+			rectMainMenuWindow = new Rect(hsw - theme.makeWidth(bgMainMenuTex.width)/2, 120,
+					theme.makeWidth(bgMainMenuTex.width), theme.makeHeight(bgMainMenuTex.height));
+
+			rectLogo = new Rect(0, 0, theme.makeWidth(logoTex.width), theme.makeHeight(logoTex.height));
 			rectStageWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectPauseButton = new Rect(10, 5, 80, 40);
@@ -95,7 +101,7 @@ namespace u3dext {
 
 			rectPauseMenu = new Rect(hsw - 100, hsh - 100, 200, 200);
 
-			midCenterBox = userGUISkin.customStyles[1];
+			midCenterBoxStyle = userGUISkin.customStyles[1];
 		}
 
 		protected new void OnGUI () {
@@ -137,18 +143,29 @@ namespace u3dext {
 				GUI.Box(rectDebugTouchPoint, touchText.ToString());
 			}
 
+			// ==== Main Menu ====
+			if (isShowMainMenu == true) {
+				// Background
+				GUI.Box(rectFullscreen, bgMainTex, userGUISkin.customStyles[2]);
+				// LOGO
+				GUI.BeginGroup(new Rect(hsw - rectLogo.width/2, 0, rectLogo.width, rectLogo.height));
+				GUI.Box(rectLogo, logoTex, userGUISkin.box);
+				GUI.EndGroup();
+				// Main Menu Window
+				GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, bgMainMenuTex, userGUISkin.box);
+			}
 		
 			// ==== Select Stage ====
 			if (isShowStageWindows == true) {
 				// Background
-				GUI.Box(new Rect(0, 0, sw, sh), bgMainTex, userGUISkin.customStyles[2]);
-				GUILayout.Window(10, rectStageWindow, OnStageWindowCreated, " == Choose Stage == ", userGUISkin.box);
+				GUI.Box(rectFullscreen, bgMainTex, userGUISkin.customStyles[2]);
+				GUILayout.Window(10, rectFullscreen, OnStageWindowCreated, " == Choose Stage == ", userGUISkin.box);
 			}
 		
 			// == Select Level == 
 			if (isShowLevelWindows == true) {
-				GUI.Box(new Rect(0, 0, sw, sh), bgMainTex, userGUISkin.customStyles[2]);
-				GUILayout.Window(11, rectLevelWindow, OnLevelWindowCreated, " == Choose Level == ", userGUISkin.box);
+				GUI.Box(rectFullscreen, bgMainTex, userGUISkin.customStyles[2]);
+				GUILayout.Window(11, rectFullscreen, OnLevelWindowCreated, " == Choose Level == ", userGUISkin.box);
 			}
 
 			// ==== Pause Button ====
@@ -168,28 +185,22 @@ namespace u3dext {
 				}
 			}
 
+			// Pause Menu
 			if (isPauseMenuOpened == true) {
 				GUILayout.Window(20, rectPauseMenu, OnPauseMenuCreated, "  == PAUSE == ", userGUISkin.box);
 			}
 		
 			// Show level pass dialog.
 			if (GameState.levelPassStatus == 1) {
-				GUILayout.Window(21, rectLevelFinishWindow, OnLevelPassDialogCreated, bgLevelFinishTex, userGUISkin.box);
+				GUILayout.Window(31, rectLevelFinishWindow, OnLevelPassDialogCreated, bgLevelFinishTex, userGUISkin.box);
 			} else if (GameState.levelPassStatus == 2) {
 				// Show level fail dialog. 
-				GUILayout.Window(22, rectLevelFinishWindow, OnLevelFailDialogCreated, bgLevelFinishTex, userGUISkin.box);
+				GUILayout.Window(32, rectLevelFinishWindow, OnLevelFailDialogCreated, bgLevelFinishTex, userGUISkin.box);
 			}
 
-			// ==== Main Menu ====
-			if (isShowMainMenu == true) {
-				// Background
-				GUI.Box(new Rect(0, 0, sw, sh), bgMainTex, userGUISkin.customStyles[2]);
-				// LOGO
-				GUI.Box(rectLogo, logoTex, userGUISkin.box);
-				// Main Menu Window
-				GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, bgMainMenuTex, userGUISkin.box);
-			}
 
+
+			// === Quit Dialog ===
 			if (isShowQuitDialog == true) {
 				GUILayout.Window(90, new Rect(hsw - 100, hsh - 80, 200, 160), delegate(int id) {
 					GUILayout.Label("Are you sure to quit?", GUILayout.Width(180));
@@ -205,7 +216,7 @@ namespace u3dext {
 		}
 		
 		protected virtual void OnDeviceBackButtonPressed () {
-
+			isShowQuitDialog = !isShowQuitDialog;
 		}
 
 		protected virtual void OnDeviceMenuButtonPressed () {
@@ -266,7 +277,7 @@ namespace u3dext {
 
 			if (Input.GetKeyDown("escape") == true) {
 				debug("Pressed Key Escape");
-				isShowQuitDialog = !isShowQuitDialog;
+
 				OnDeviceBackButtonPressed();
 			} else if (Input.GetKeyDown(KeyCode.Menu) == true) {
 				isPauseMenuOpened = !isPauseMenuOpened;
