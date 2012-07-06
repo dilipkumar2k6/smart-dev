@@ -12,6 +12,8 @@ namespace u3dext {
 		// Game timer for each level.
 		public static Timer gameTimer;
 
+		// Elapse time for level
+		public static float levelElapseTime;
 
 		public GameState () {
 		}

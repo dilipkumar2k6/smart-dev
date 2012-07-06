@@ -33,6 +33,8 @@ public class DemoMain {
 //		ins.startupDemo();
 		
 		ins.testDelegateVirtualMethod();
+
+		ins.testTheme();
 		
 		Profiler.getInstance().print(Console.WriteLine);
 		
@@ -104,6 +106,13 @@ public class DemoMain {
 //		ins2.testDelegate();
 	}
 
+
+	public void testTheme(){
+		Theme theme = new Theme480x320();
+		Console.WriteLine(theme.makeWidth(320));
+		Console.WriteLine(theme.makeHeight(480));
+		Console.WriteLine(theme.makeWidth(481));
+	}
 	
 		
 // Comment Tempararily!!
