@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common_yes">是</string>
+    <string name="common_no">否</string>
+    <string name="common_setting">设置</string>
+    <string name="common_import">导入</string>
+    <string name="common_export">导出</string>
+    <string name="common_refresh">刷新</string>
+    <string name="common_loading">加载中</string>
+    <string name="common_actions">操作</string>
+    
+    <string name="common_crud_add">添加</string>
+	<string name="common_crud_delete">删除</string>
+	<string name="common_crud_remove">移除</string>
+	<string name="common_crud_edit">编辑</string>
+	<string name="common_crud_search">搜索</string>
+    
+	<string name="common_dialog_progress_title">进行中...</string>
+	<string name="common_dialog_confirm_title">确定?</string>
+</resources>

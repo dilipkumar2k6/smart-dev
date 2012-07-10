@@ -6,11 +6,13 @@ namespace u3dext {
 
 		public static bool isGamePausing = true;
 
+		public static bool isShowPauseButton = false;
+
 		// For level-based game, 0=Playing, 1=Passed, 2=Failed
 		public static  int levelPassStatus = 0;
 
 		// Game timer for each level.
-		public static Timer gameTimer;
+//		public static Timer gameTimer;
 
 		// Elapse time for level
 		public static float levelElapseTime;
@@ -18,16 +20,16 @@ namespace u3dext {
 		public GameState () {
 		}
 
-		public static void startGameTimer(long intevalInSecond) {
-			gameTimer = new Timer((double)intevalInSecond * 1000);
-			gameTimer.Elapsed += delegate(object source, System.Timers.ElapsedEventArgs e){
-				levelPassStatus = 2;
-			};
-		}
-
-		public static void stopGameTimer() {
-			gameTimer.Stop();
-		}
+//		public static void startGameTimer(long intevalInSecond) {
+//			gameTimer = new Timer((double)intevalInSecond * 1000);
+//			gameTimer.Elapsed += delegate(object source, System.Timers.ElapsedEventArgs e){
+//				levelPassStatus = 2;
+//			};
+//		}
+//
+//		public static void stopGameTimer() {
+//			gameTimer.Stop();
+//		}
 	}
 }
 

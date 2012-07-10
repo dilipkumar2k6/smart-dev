@@ -14,10 +14,14 @@ namespace u3dext {
 		public GUISkin userGUISkin;
 
 		// == User customized GUI textures ==
+
+		// Log and background
 		public Texture logoTex;
 		public Texture bgMainTex;
 		public Texture bgMainMenuTex;
 		public Texture bgLevelFinishTex;
+
+
 		public Texture levelPassTex;
 		public Texture levelFailTex;
 		public Texture[] levelPassStars;
@@ -52,8 +56,8 @@ namespace u3dext {
 		protected bool isShowSettingWindow = false;
 		protected bool isShowStageWindows = false;
 		protected bool isShowLevelWindows = false;
-		protected bool isShowMenuButton = false;
-		protected bool isPauseMenuOpened = false;
+//		protected bool isShowMenuButton = false;
+		protected bool isShowPauseMenu = false;
 		protected bool isShowQuitDialog = false;
 
 		protected Theme theme;
@@ -97,7 +101,9 @@ namespace u3dext {
 			rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectPauseButton = new Rect(10, 5, 80, 40);
 
-			rectLevelFinishWindow = new Rect(hsw - 150, hsh - 175, 300, 350);
+			int wfw = theme.makeWidth(bgLevelFinishTex.width);
+			int hfw = theme.makeHeight(bgLevelFinishTex.height);
+			rectLevelFinishWindow = new Rect(hsw - wfw /2 , hsh - hfw/2, wfw, hfw);
 
 			rectPauseMenu = new Rect(hsw - 100, hsh - 100, 200, 200);
 
@@ -152,41 +158,41 @@ namespace u3dext {
 				GUI.Box(rectLogo, logoTex, userGUISkin.box);
 				GUI.EndGroup();
 				// Main Menu Window
-				GUILayout.Window(0, rectMainMenuWindow, OnMainMenuCreated, bgMainMenuTex, userGUISkin.box);
+				GUILayout.Window(0, rectMainMenuWindow, OnCreateMainMenu, bgMainMenuTex, userGUISkin.box);
 			}
 		
 			// ==== Select Stage ====
 			if (isShowStageWindows == true) {
 				// Background
 				GUI.Box(rectFullscreen, bgMainTex, userGUISkin.customStyles[2]);
-				GUILayout.Window(10, rectFullscreen, OnStageWindowCreated, " == Choose Stage == ", userGUISkin.box);
+				GUILayout.Window(10, rectFullscreen, OnCreateStageWindow, " == Choose Stage == ", userGUISkin.box);
 			}
 		
 			// == Select Level == 
 			if (isShowLevelWindows == true) {
 				GUI.Box(rectFullscreen, bgMainTex, userGUISkin.customStyles[2]);
-				GUILayout.Window(11, rectFullscreen, OnLevelWindowCreated, " == Choose Level == ", userGUISkin.box);
+				GUILayout.Window(11, rectFullscreen, OnCreateLevelWindow, " == Choose Level == ", userGUISkin.box);
 			}
 
 			// ==== Pause Button ====
-			if (isShowMenuButton) {
+			if (GameState.isShowPauseButton) {
 				if (btnPauseTex == null) {
 					if (GUI.Button(rectPauseButton, "PAUSE")) {
-						isPauseMenuOpened = !isPauseMenuOpened;
-						GameState.isGamePausing = isPauseMenuOpened;
+						isShowPauseMenu = !isShowPauseMenu;
+						GameState.isGamePausing = isShowPauseMenu;
 						audio.PlayOneShot(beepMenu);
 					}
 				} else {
 					if (GUI.Button(rectPauseButton, btnPauseTex)) {
-						isPauseMenuOpened = !isPauseMenuOpened;
-						GameState.isGamePausing = isPauseMenuOpened;
+						isShowPauseMenu = !isShowPauseMenu;
+						GameState.isGamePausing = isShowPauseMenu;
 						audio.PlayOneShot(beepMenu);
 					}
 				}
 			}
 
 			// Pause Menu
-			if (isPauseMenuOpened == true) {
+			if (isShowPauseMenu == true) {
 				GUILayout.Window(20, rectPauseMenu, OnPauseMenuCreated, "  == PAUSE == ", userGUISkin.box);
 			}
 		
@@ -223,15 +229,15 @@ namespace u3dext {
 
 		}
 	
-		protected virtual void OnMainMenuCreated (int winId) {
+		protected virtual void OnCreateMainMenu (int winId) {
 		
 		}
 	
-		protected virtual void OnStageWindowCreated (int winId) {
+		protected virtual void OnCreateStageWindow (int winId) {
 		
 		}
 	
-		protected virtual void OnLevelWindowCreated (int winId) {
+		protected virtual void OnCreateLevelWindow (int winId) {
 		
 		}
 	
@@ -280,9 +286,25 @@ namespace u3dext {
 
 				OnDeviceBackButtonPressed();
 			} else if (Input.GetKeyDown(KeyCode.Menu) == true) {
-				isPauseMenuOpened = !isPauseMenuOpened;
+				isShowPauseMenu = !isShowPauseMenu;
 				OnDeviceMenuButtonPressed();
 			}
+		}
+
+		// Push "PAUSE" button, Game Pass, Game Fail will all pause the game.
+		protected virtual void PauseGame() {
+			isShowPauseMenu = false;
+
+			GameState.isGamePausing = true;
+		}
+
+		// Resume game from : "PAUSE" menu, Game Pass, Game Fail.
+		protected virtual void ResumeGame() {
+			GameState.isGamePausing = false;
+			GameState.levelPassStatus = 0;
+			isShowPauseMenu = false;
+
+			GameState.isShowPauseButton = true;
 		}
 	}
 }
