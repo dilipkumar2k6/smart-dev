@@ -1,5 +1,7 @@
 package androidx;
 
+import org.androidx.R;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -31,8 +33,6 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-
-import com.easytime.android.common.R;
 
 /**
  * 提供常用功能的基础Activity类<td/>
