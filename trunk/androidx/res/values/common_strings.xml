@@ -9,6 +9,7 @@
     <string name="common_refresh">Refresh</string>
     <string name="common_loading">Loading</string>
     <string name="common_actions">Actions</string>
+    <string name="common_about">About</string>
     
     <string name="common_crud_add">Add</string>
 	<string name="common_crud_delete">Delete</string>
