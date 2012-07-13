@@ -204,8 +204,6 @@ namespace u3dext {
 				GUILayout.Window(32, rectLevelFinishWindow, OnLevelFailDialogCreated, bgLevelFinishTex, userGUISkin.box);
 			}
 
-
-
 			// === Quit Dialog ===
 			if (isShowQuitDialog == true) {
 				GUILayout.Window(90, new Rect(hsw - 100, hsh - 80, 200, 160), delegate(int id) {
