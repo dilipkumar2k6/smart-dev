@@ -5,6 +5,9 @@ import org.androidx.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -376,6 +379,22 @@ public abstract class BaseActivity extends Activity {
 		dBuilder.setView(fileActionView);
 		listSelectDialog = dBuilder.create();
 		listSelectDialog .show();
+	}
+	
+	/**
+	 * 
+	 * @param icon
+	 * @param msg
+	 * @param activity
+	 */
+	protected void showNotification(int icon, String msg, Class activity) {
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		Notification notification = new Notification(icon,
+				msg, System.currentTimeMillis());
+		Intent notificationIntent = new Intent(context, activity);
+		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+		notification.setLatestEventInfo(context, msg, "", contentIntent);
+		notificationManager.notify(1, notification);
 	}
 	
 	
