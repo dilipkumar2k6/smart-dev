@@ -19,6 +19,7 @@ namespace u3dext {
 		public Texture logoTex;
 		public Texture bgMainTex;
 		public Texture bgMainMenuTex;
+		public Texture bgPauseMenuTex;
 		public Texture bgLevelFinishTex;
 
 
@@ -49,18 +50,21 @@ namespace u3dext {
 		protected Rect rectLevelWindow;
 		protected Rect rectPauseButton;
 		protected Rect rectPauseMenu;
+		protected Rect rectPauseWindow;
 		protected Rect rectLevelFinishWindow;
 
 		// Control main menu.
 		protected bool isShowMainMenu = false;
 		protected bool isShowSettingWindow = false;
-		protected bool isShowStageWindows = false;
-		protected bool isShowLevelWindows = false;
+		protected bool isShowStageWindow = false;
+		protected bool isShowLevelWindow = false;
 //		protected bool isShowMenuButton = false;
 		protected bool isShowPauseMenu = false;
 		protected bool isShowQuitDialog = false;
-
+		
+		// Theme
 		protected Theme theme;
+		protected const int defaultBtnMargin = 10;
 		protected GUIStyle midCenterBoxStyle ;
 
 		// 4 calculating FPS.
@@ -74,7 +78,31 @@ namespace u3dext {
 		protected new void Start () {
 			base.Start();
 
-			theme = new Theme480x320();
+//			if(Screen.orientation == ScreenOrientation.Portrait) {
+				if(sw == 320) {
+					theme = new Theme480x320();
+				}
+				else if(sw == 400) {
+					theme = new Theme800x400();
+				}
+				else if(sw == 480) {
+					theme = new Theme800x480();
+				}
+				else if(sw == 640) {
+					theme = new Theme960x640();
+				}
+				else {
+					theme = new Theme480x320();
+				}
+//			}
+//			else if(Screen.orientation == ScreenOrientation.Landscape) {
+//				debug("Not supporte yet");
+//			}
+			debug("Apply Theme: " + theme.GetType());
+			debug("How is 640 width?" + theme.W(640));
+			debug("How is 960 height?" + theme.W(960));
+			
+
 
 			if (debugMode) {
 				lastFpsTime = System.DateTime.Now;
@@ -93,19 +121,22 @@ namespace u3dext {
 
 			rectFullscreen = new Rect(0, 0, sw, sh);
 
-			rectMainMenuWindow = new Rect(hsw - theme.makeWidth(bgMainMenuTex.width)/2, 120,
-					theme.makeWidth(bgMainMenuTex.width), theme.makeHeight(bgMainMenuTex.height));
+			rectMainMenuWindow = new Rect(hsw - theme.W(bgMainMenuTex.width)/2, 120,
+					theme.W(bgMainMenuTex.width), theme.H(bgMainMenuTex.height));
 
-			rectLogo = new Rect(0, 0, theme.makeWidth(logoTex.width), theme.makeHeight(logoTex.height));
+			rectLogo = new Rect(0, 0, theme.W(logoTex.width), theme.H(logoTex.height));
 			rectStageWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
-			rectPauseButton = new Rect(10, 5, 80, 40);
+			rectPauseButton = new Rect(20, 10, theme.W(btnPauseTex.width), theme.H(btnPauseTex.height));
 
-			int wfw = theme.makeWidth(bgLevelFinishTex.width);
-			int hfw = theme.makeHeight(bgLevelFinishTex.height);
+			int wfw = theme.W(bgLevelFinishTex.width);
+			int hfw = theme.H(bgLevelFinishTex.height);
 			rectLevelFinishWindow = new Rect(hsw - wfw /2 , hsh - hfw/2, wfw, hfw);
 
-			rectPauseMenu = new Rect(hsw - 100, hsh - 100, 200, 200);
+			int wpm = theme.W(bgPauseMenuTex.width);
+			int hpm = theme.H(bgPauseMenuTex.height);
+//			rectPauseMenu = new Rect(hsw - wpm/2, hsh - hpm/2, wpm, hpm);
+			rectPauseWindow = new Rect(hsw - wpm/2, hsh - hpm/2, wpm, hpm);
 
 			midCenterBoxStyle = userGUISkin.customStyles[1];
 		}
@@ -155,35 +186,36 @@ namespace u3dext {
 				GUI.Box(rectFullscreen, bgMainTex, userGUISkin.customStyles[2]);
 				// LOGO
 				GUI.BeginGroup(new Rect(hsw - rectLogo.width/2, 0, rectLogo.width, rectLogo.height));
-				GUI.Box(rectLogo, logoTex, userGUISkin.box);
+				GUI.Box(rectLogo, logoTex, midCenterBoxStyle);
 				GUI.EndGroup();
 				// Main Menu Window
-				GUILayout.Window(0, rectMainMenuWindow, OnCreateMainMenu, bgMainMenuTex, userGUISkin.box);
+				OnCreateMainMenu(0);
+//				GUILayout.Window(0, rectMainMenuWindow, OnCreateMainMenu, bgMainMenuTex, userGUISkin.box);
 			}
 		
 			// ==== Select Stage ====
-			if (isShowStageWindows == true) {
+			if (isShowStageWindow == true) {
 				// Background
 				GUI.Box(rectFullscreen, bgMainTex, userGUISkin.customStyles[2]);
-				GUILayout.Window(10, rectFullscreen, OnCreateStageWindow, " == Choose Stage == ", userGUISkin.box);
+				GUILayout.Window(10, rectFullscreen, OnCreateStageWindow, " == Choose Stage == ", midCenterBoxStyle);
 			}
 		
-			// == Select Level == 
-			if (isShowLevelWindows == true) {
+			// ==== Select Level ====
+			if (isShowLevelWindow == true) {
 				GUI.Box(rectFullscreen, bgMainTex, userGUISkin.customStyles[2]);
-				GUILayout.Window(11, rectFullscreen, OnCreateLevelWindow, " == Choose Level == ", userGUISkin.box);
+				GUILayout.Window(11, rectFullscreen, OnCreateLevelWindow, " == Choose Level == ", midCenterBoxStyle);
 			}
 
 			// ==== Pause Button ====
 			if (GameState.isShowPauseButton) {
 				if (btnPauseTex == null) {
-					if (GUI.Button(rectPauseButton, "PAUSE")) {
+					if (GUI.Button(rectPauseButton, "PAUSE", midCenterBoxStyle)) {
 						isShowPauseMenu = !isShowPauseMenu;
 						GameState.isGamePausing = isShowPauseMenu;
 						audio.PlayOneShot(beepMenu);
 					}
 				} else {
-					if (GUI.Button(rectPauseButton, btnPauseTex)) {
+					if (GUI.Button(rectPauseButton, btnPauseTex, midCenterBoxStyle)) {
 						isShowPauseMenu = !isShowPauseMenu;
 						GameState.isGamePausing = isShowPauseMenu;
 						audio.PlayOneShot(beepMenu);
@@ -191,17 +223,20 @@ namespace u3dext {
 				}
 			}
 
-			// Pause Menu
-			if (isShowPauseMenu == true) {
-				GUILayout.Window(20, rectPauseMenu, OnPauseMenuCreated, "  == PAUSE == ", userGUISkin.box);
+			// == Pause Menu ==
+			if (isShowPauseMenu) {
+				GUI.Box(rectPauseWindow, bgPauseMenuTex, midCenterBoxStyle);
+				GUILayout.Window(20, rectPauseMenu, OnCreatePauseMenuWindow, "", midCenterBoxStyle);
 			}
 		
-			// Show level pass dialog.
+			// == Show level pass dialog. ==
 			if (GameState.levelPassStatus == 1) {
-				GUILayout.Window(31, rectLevelFinishWindow, OnLevelPassDialogCreated, bgLevelFinishTex, userGUISkin.box);
+				GUI.Box(rectLevelFinishWindow, bgLevelFinishTex, midCenterBoxStyle);
+				GUILayout.Window(31, rectLevelFinishWindow, OnLevelPassDialogCreated, "Pass", midCenterBoxStyle);
 			} else if (GameState.levelPassStatus == 2) {
 				// Show level fail dialog. 
-				GUILayout.Window(32, rectLevelFinishWindow, OnLevelFailDialogCreated, bgLevelFinishTex, userGUISkin.box);
+				GUI.Box(rectLevelFinishWindow, bgLevelFinishTex, midCenterBoxStyle);
+				GUILayout.Window(32, rectLevelFinishWindow, OnLevelFailDialogCreated, "Fail", midCenterBoxStyle);
 			}
 
 			// === Quit Dialog ===
@@ -243,7 +278,7 @@ namespace u3dext {
 		/// Be called after user clicked the "MENU" button.
 		/// </summary>
 		/// <param name="windowId"></param>
-		protected virtual void OnPauseMenuCreated (int windowId) {
+		protected virtual void OnCreatePauseMenuWindow (int windowId) {
 //		GUILayout.Label("Hello World");
 		}
 	
@@ -281,9 +316,9 @@ namespace u3dext {
 
 			if (Input.GetKeyDown("escape") == true) {
 				debug("Pressed Key Escape");
-
 				OnDeviceBackButtonPressed();
-			} else if (Input.GetKeyDown(KeyCode.Menu) == true) {
+			} 
+			else if (Input.GetKeyDown(KeyCode.Menu) == true) {
 				isShowPauseMenu = !isShowPauseMenu;
 				OnDeviceMenuButtonPressed();
 			}
@@ -292,7 +327,6 @@ namespace u3dext {
 		// Push "PAUSE" button, Game Pass, Game Fail will all pause the game.
 		protected virtual void PauseGame() {
 			isShowPauseMenu = false;
-
 			GameState.isGamePausing = true;
 		}
 
@@ -301,7 +335,6 @@ namespace u3dext {
 			GameState.isGamePausing = false;
 			GameState.levelPassStatus = 0;
 			isShowPauseMenu = false;
-
 			GameState.isShowPauseButton = true;
 		}
 	}

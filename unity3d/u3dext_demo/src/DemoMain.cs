@@ -108,10 +108,10 @@ public class DemoMain {
 
 
 	public void testTheme(){
-		Theme theme = new Theme480x320();
-		Console.WriteLine(theme.makeWidth(320));
-		Console.WriteLine(theme.makeHeight(480));
-		Console.WriteLine(theme.makeWidth(481));
+		Theme theme = new Theme800x480();
+		Console.WriteLine(theme.W(320));
+		Console.WriteLine(theme.H(480));
+		Console.WriteLine(theme.W(481));
 	}
 	
 		

@@ -10,6 +10,10 @@ namespace u3dext {
 		// Ratio to calculate actual width and height for specific devices.
 		protected float zoomingRatioWidth;
 		protected float zoomingRatioHeight;
+
+		public Theme() {
+
+		}
 	
 		/// <summary>
 		/// Makes the width.
@@ -20,7 +24,7 @@ namespace u3dext {
 		/// <param name='oWidth'>
 		/// O width.
 		/// </param>
-		public abstract int makeWidth (int oWidth);
+		public abstract int W (int oWidth);
 	
 		/// <summary>
 		/// Makes the height.
@@ -31,7 +35,7 @@ namespace u3dext {
 		/// <param name='oHeight'>
 		/// O height.
 		/// </param>
-		public abstract int makeHeight (int oHeight);
+		public abstract int H (int oHeight);
 	
 	}
 

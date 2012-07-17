@@ -1,10 +1,11 @@
 using System;
 
 namespace u3dext {
-	public class Theme800x400:Theme {
-		public Theme800x400 ():base() {
-			zoomingRatioWidth = 400f / STANDARD_WIDTH;
-			zoomingRatioHeight = 800f / STANDARD_HEIGHT;
+	public class Theme960x640:Theme {
+
+		public Theme960x640 ():base() {
+			zoomingRatioWidth = 640f / STANDARD_WIDTH;
+			zoomingRatioHeight = 960f / STANDARD_HEIGHT;
 		}
 	
 		public override int W (int oWidth) {
