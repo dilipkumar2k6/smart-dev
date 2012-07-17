@@ -1,9 +1,9 @@
 using System;
 
 namespace u3dext {
-	public class Theme800x400:Theme {
-		public Theme800x400 ():base() {
-			zoomingRatioWidth = 400f / STANDARD_WIDTH;
+	public class Theme800x480:Theme {
+		public Theme800x480 ():base() {
+			zoomingRatioWidth = 480f / STANDARD_WIDTH;
 			zoomingRatioHeight = 800f / STANDARD_HEIGHT;
 		}
 	

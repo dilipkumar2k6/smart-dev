@@ -79,6 +79,8 @@
     <Compile Include="src\theme\Theme.cs" />
     <Compile Include="src\theme\Theme480x320.cs" />
     <Compile Include="src\theme\Theme800x400.cs" />
+    <Compile Include="src\theme\Theme960x640.cs" />
+    <Compile Include="src\theme\Theme800x480.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>

@@ -86,6 +86,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// Remote debug shared instance.
 	protected RemoteDebug debugConsole;
 
+	protected Profiler profiler;
+
 
 	protected delegate void Closure0();
 
@@ -102,6 +104,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	protected void Start () {
 		
 		Debug.Log("Script '" + this.GetType().Name + "' runs on thread " + Thread.CurrentThread.ManagedThreadId);
+
+		profiler = u3dext.Profiler.getInstance();
 
 		state = new UserControlState();
 		
