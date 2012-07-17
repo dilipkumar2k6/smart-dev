@@ -18,4 +18,5 @@
     
 	<string name="common_dialog_progress_title">进行中...</string>
 	<string name="common_dialog_confirm_title">确定?</string>
+	<string name="common_dialog_confirm_title_2">确定要{0}{1}吗?</string>
 </resources>

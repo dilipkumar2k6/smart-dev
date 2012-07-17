@@ -121,7 +121,6 @@ public abstract class BaseActivity extends Activity {
 		// DO NOTHING
 	}
 
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -138,7 +137,6 @@ public abstract class BaseActivity extends Activity {
 		dm = context.getApplicationContext().getResources().getDisplayMetrics();
 		sw = dm.widthPixels;
 		sh = dm.heightPixels;
-
 	}
 
 	public void startActivityByName(String actName) {
@@ -355,10 +353,10 @@ public abstract class BaseActivity extends Activity {
 	}
 	
 	/**
-	 * 显示一个列表对话框，比如“对话框式弹出菜单“。
+	 * 显示一个列表对话框，比如“对话框式弹出菜单“。不自动关闭对话框，需要调用者手动关闭。
 	 * @param title
 	 * @param items
-	 * @param callback 列表选中一项时调用，参数为选项ID。
+	 * @param callback 列表选中一项时调用，参数为选项位置。
 	 */
 	protected void showListSelectDialog(final String title, final String[] items, final DialogCallback callback) {
 		View fileActionView = LayoutInflater.from(context).inflate(R.layout.common_dialog_list_select, null);
@@ -367,7 +365,7 @@ public abstract class BaseActivity extends Activity {
 		listSelect.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
+			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 				callback.onPositive(position);
 			}
 			
@@ -396,7 +394,6 @@ public abstract class BaseActivity extends Activity {
 		notification.setLatestEventInfo(context, msg, "", contentIntent);
 		notificationManager.notify(1, notification);
 	}
-	
 	
 	/**
 	 * 
@@ -455,6 +452,25 @@ public abstract class BaseActivity extends Activity {
 	 */
 	protected Button getButton(int resourceId) {
 		return (Button)this.findViewById(resourceId);
+	}
+	
+	/**
+	 * 取出并处理嵌入式的字符资源，嵌入格式: {编号}
+	 * @param sentence
+	 * @param words
+	 * @return
+	 */
+	protected String getNestedString(int sentence, Object... words){
+		String resource = rs.getString(sentence);
+		for (int i = 0; i < words.length; i++) {
+			if(words[i] instanceof Integer) {
+				resource = resource.replace("{" + i + "}", rs.getString((Integer)words[i]));	
+			}
+			else if(words[i] instanceof String) {
+				resource = resource.replace("{" + i + "}", (String)words[i]);
+			}
+		}
+		return resource;
 	}
 
 
