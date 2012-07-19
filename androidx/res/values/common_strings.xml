@@ -20,5 +20,7 @@
 	<string name="common_dialog_progress_title">In progress...</string>
 	<string name="common_dialog_confirm_title">Are you sure?</string>
 	<string name="common_dialog_confirm_title_2">Are you sure to {0} {1}?</string>
+	
+	<string name="common_dialog_unable_to_read_from_sdcard">Failed to read from SD card.</string>
 
 </resources>
