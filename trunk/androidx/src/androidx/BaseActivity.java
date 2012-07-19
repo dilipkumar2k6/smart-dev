@@ -349,6 +349,7 @@ public abstract class BaseActivity extends Activity {
 		});
 		infoDialog = dBuilder.create();
 		infoDialog.setTitle(android.R.string.dialog_alert_title);
+		infoDialog.setIcon(android.R.drawable.ic_menu_info_details);
 		infoDialog.show();
 	}
 	

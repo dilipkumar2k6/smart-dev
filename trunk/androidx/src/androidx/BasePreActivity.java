@@ -11,7 +11,7 @@ import android.telephony.SmsManager;
  * @author yxwang
  * 
  */
-public class BasePreActivity extends BaseActivity {
+public abstract class BasePreActivity extends BaseActivity {
 
 	private static final String SETTING_KEY_APP_ACTIVE_KEY = "app_active_key";
 	private static final String SETTING_KEY_APP_ACTIVED = "app_actived";
