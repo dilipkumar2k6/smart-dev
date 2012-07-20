@@ -6,9 +6,8 @@ using UnityEngine;
 namespace u3dext {
 	
 	public class UserControlState {
-			
-		// Is touching on screen for multi-fingers. Avoid unneccessary touch and mouse events on screen.
-		public bool[] isTouchingScreen = new bool[5];
+
+
 		public bool isMousePreesedOnScreen = false; // Flag that mouse pressed on screen.
 //		public bool isKeyPressed = false;
 		public Vector2 mousePressedPositionOnScreen; // Mouse position when pressed down.
@@ -17,14 +16,22 @@ namespace u3dext {
 		//public bool isMousePressed = false; // Mouse pressed on game object.
 		public Vector2 mousePressedPosition; // Store the mouse position when mouse pressed on game object.
 		public bool[] mouseFlags = new bool[3];
-		
-		
+
+
+		// Is touching on screen for multi-fingers. Avoid unneccessary touch and mouse events on screen.
+		public bool[] isTouchingScreen = new bool[5];
+		public Vector2[] touchDownPosition = new Vector2[5];
+
+		// from first finger to 5th finger.
 		public int[] touchFlags = new int[5];
-		
+
+
+		// Zoom
 		public bool zoomMode = false;
 		public int[] zoomTouchIds = new int[2]{-1, -1}; // First touch id and second touch id for zooming.
 		public Vector2[] zoomPoint = new Vector2[5];
 		public int nonZoomId; // A touch ID that doesn't be used for Zoom.
+
 		public UserControlState () {
 		}
 		
@@ -169,6 +176,7 @@ namespace u3dext {
 						
 					}
 					isTouchingScreen[touch.fingerId] = true;
+					touchDownPosition[touch.fingerId] = eachPos;
 					
 					
 					// Detect ray hits from screen touch point.
@@ -199,11 +207,9 @@ namespace u3dext {
 						orhuc(hitObjName);
 						u3dext.Profiler.getInstance().end("Touch.Ray.Up");
 					}
-					
-					
+
 				} else if (touch.phase == TouchPhase.Moved) {
 					
-					// Callback
 					if (zoomMode == true) {
 						u3dext.Profiler.getInstance().start("Touch.Zoom");
 						
@@ -229,8 +235,10 @@ namespace u3dext {
 					} else {
 						
 						u3dext.Profiler.getInstance().start("Touch.Move");
+
+						Vector2 touchDownPos = touchDownPosition[touch.fingerId];
 						
-						if (tmc(touch.fingerId, eachPos, eachPos - lastFramePositionOnScreen) == true) {
+						if (tmc(touch.fingerId, eachPos, eachPos - lastFramePositionOnScreen, eachPos - touchDownPos) == true) {
 							if (touch.position != lastFramePositionOnScreen) {
 								lastFramePositionOnScreen = eachPos;
 							}
@@ -277,7 +285,7 @@ namespace u3dext {
 		
 		public delegate bool TouchDownCallback (int touchId,Vector2 touchPosition);
 		
-		public delegate bool TouchMoveCallback (int touchId,Vector2 touchPosition, Vector2 deltaPosition);
+		public delegate bool TouchMoveCallback (int touchId,Vector2 touchPosition, Vector2 lastFrameDeltaPos, Vector2 touchDownDeltaPos);
 		
 		public delegate void TouchUpCallback (int touchId,Vector2 touchPosition);
 		

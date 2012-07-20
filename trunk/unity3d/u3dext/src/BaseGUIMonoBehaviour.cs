@@ -45,7 +45,7 @@ namespace u3dext {
 		// === GUI ===
 		protected Rect rectFullscreen;
 		protected Rect rectMainMenuWindow;
-		protected Rect rectLogo;
+		protected Rect rectGameLogo;
 		protected Rect rectStageWindow;
 		protected Rect rectLevelWindow;
 		protected Rect rectPauseButton;
@@ -61,6 +61,7 @@ namespace u3dext {
 //		protected bool isShowMenuButton = false;
 		protected bool isShowPauseMenu = false;
 		protected bool isShowQuitDialog = false;
+//		protected bool isQuitting = false;
 		
 		// Theme
 		protected Theme theme;
@@ -101,8 +102,6 @@ namespace u3dext {
 			debug("Apply Theme: " + theme.GetType());
 			debug("How is 640 width?" + theme.W(640));
 			debug("How is 960 height?" + theme.W(960));
-			
-
 
 			if (debugMode) {
 				lastFpsTime = System.DateTime.Now;
@@ -124,7 +123,9 @@ namespace u3dext {
 			rectMainMenuWindow = new Rect(hsw - theme.W(bgMainMenuTex.width)/2, 120,
 					theme.W(bgMainMenuTex.width), theme.H(bgMainMenuTex.height));
 
-			rectLogo = new Rect(0, 0, theme.W(logoTex.width), theme.H(logoTex.height));
+			int wlogo = theme.W(logoTex.width);
+			int hlogo = theme.H(logoTex.height);
+			rectGameLogo = new Rect(hsw - wlogo/2, 0, wlogo, hlogo);
 			rectStageWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectLevelWindow = new Rect(5, 5, sw - 10, sh - 10);
 			rectPauseButton = new Rect(20, 10, theme.W(btnPauseTex.width), theme.H(btnPauseTex.height));
@@ -143,7 +144,8 @@ namespace u3dext {
 
 		protected new void OnGUI () {
 			base.OnGUI();
-			// === DEBUG ===
+
+			// === DEBUG Information ===
 			if (debugMode) {
 				// Show FPS.
 				GUI.Box(rectFPS, fpsLabel);
@@ -185,12 +187,9 @@ namespace u3dext {
 				// Background
 				GUI.Box(rectFullscreen, bgMainTex, userGUISkin.customStyles[2]);
 				// LOGO
-				GUI.BeginGroup(new Rect(hsw - rectLogo.width/2, 0, rectLogo.width, rectLogo.height));
-				GUI.Box(rectLogo, logoTex, midCenterBoxStyle);
-				GUI.EndGroup();
+				GUI.Box(rectGameLogo, logoTex, midCenterBoxStyle);
 				// Main Menu Window
 				OnCreateMainMenu(0);
-//				GUILayout.Window(0, rectMainMenuWindow, OnCreateMainMenu, bgMainMenuTex, userGUISkin.box);
 			}
 		
 			// ==== Select Stage ====
@@ -229,18 +228,19 @@ namespace u3dext {
 				GUILayout.Window(20, rectPauseMenu, OnCreatePauseMenuWindow, "", midCenterBoxStyle);
 			}
 		
-			// == Show level pass dialog. ==
+			// == Level Pass Dialog. ==
 			if (GameState.levelPassStatus == 1) {
 				GUI.Box(rectLevelFinishWindow, bgLevelFinishTex, midCenterBoxStyle);
 				GUILayout.Window(31, rectLevelFinishWindow, OnLevelPassDialogCreated, "Pass", midCenterBoxStyle);
 			} else if (GameState.levelPassStatus == 2) {
-				// Show level fail dialog. 
+				// == Level Fail Dialog ==
 				GUI.Box(rectLevelFinishWindow, bgLevelFinishTex, midCenterBoxStyle);
 				GUILayout.Window(32, rectLevelFinishWindow, OnLevelFailDialogCreated, "Fail", midCenterBoxStyle);
 			}
 
 			// === Quit Dialog ===
 			if (isShowQuitDialog == true) {
+				GameState.isGamePausing = true;
 				GUILayout.Window(90, new Rect(hsw - 100, hsh - 80, 200, 160), delegate(int id) {
 					GUILayout.Label("Are you sure to quit?", GUILayout.Width(180));
 					if (GUILayout.Button("\r\n Yes") == true) {
@@ -248,6 +248,7 @@ namespace u3dext {
 					}
 					if (GUILayout.Button("\r\n No") == true) {
 						isShowQuitDialog = false;
+						GameState.isGamePausing = false;
 					}
 				}, "Quit?");
 			}
@@ -259,7 +260,7 @@ namespace u3dext {
 		}
 
 		protected virtual void OnDeviceMenuButtonPressed () {
-
+			isShowPauseMenu = !isShowPauseMenu;
 		}
 	
 		protected virtual void OnCreateMainMenu (int winId) {
@@ -319,7 +320,6 @@ namespace u3dext {
 				OnDeviceBackButtonPressed();
 			} 
 			else if (Input.GetKeyDown(KeyCode.Menu) == true) {
-				isShowPauseMenu = !isShowPauseMenu;
 				OnDeviceMenuButtonPressed();
 			}
 		}
@@ -333,6 +333,12 @@ namespace u3dext {
 		// Resume game from : "PAUSE" menu, Game Pass, Game Fail.
 		protected virtual void ResumeGame() {
 			GameState.isGamePausing = false;
+			GameState.levelPassStatus = 0;
+			isShowPauseMenu = false;
+			GameState.isShowPauseButton = true;
+		}
+
+		protected virtual void RestartGameLevel() {
 			GameState.levelPassStatus = 0;
 			isShowPauseMenu = false;
 			GameState.isShowPauseButton = true;
