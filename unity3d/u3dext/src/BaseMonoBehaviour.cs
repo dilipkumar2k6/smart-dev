@@ -271,8 +271,9 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	/// </summary>
 	/// <param name="touchId"></param>
 	/// <param name="touchPosition"></param>
+	/// <param name="deltaPosition">Deleta position from last frame</param>
 	/// <returns>True if touched down for zoom or rotate</returns>
-	protected virtual bool OnTouchMove (int touchId, Vector2 touchPosition, Vector2 deltaPosition) {
+	protected virtual bool OnTouchMove (int touchId, Vector2 touchPosition, Vector2 lastFrameDeltaPos, Vector2 touchDownDeltaPos) {
 		this.debug("Finger " + touchId + " touched move at position: " + touchPosition);
 		return true;
 	}
