@@ -9,7 +9,7 @@ AFW是一个用于在Android手机上拦截垃圾短信的应用程序。支持�
 
 
 =安装使用方法：=
-  # 下载APK安装包：http://smart-dev.googlecode.com/files/afw_1.0_beta.apk
+  # 下载APK安装包：http://smart-dev.googlecode.com/files/AFW_1.0_beta.apk
   # 将安装包通过USB线或者其他可行的方法上传到您的手机上。
   # 用手机中的文件浏览器打开上传的APK安装包进行安装。
   # 安装完成启动后，进入设置界面，点击“启动拦截服务“，AFW将启动为后台服务按照黑名单规则进行短信拦截。（重启手机需要重新启动服务）
