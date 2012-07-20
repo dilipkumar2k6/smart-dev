@@ -46,6 +46,8 @@ import android.widget.TextView;
  */
 public abstract class BaseActivity extends Activity {
 
+	public static final String SYS_PROP_DEBUG_MODE = "androidx.debug";
+
 	protected Context context;
 	
 	// DEBUG模式（默认）
@@ -126,7 +128,7 @@ public abstract class BaseActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		context = this;
 		
-		debugMode = !"false".equals(System.getProperty("androidx.debug"));
+		debugMode = !"false".equals(System.getProperty(SYS_PROP_DEBUG_MODE));
 		
 		resources = this.getResources();
 		rs = this.getResources();
