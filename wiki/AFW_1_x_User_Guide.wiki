@@ -10,8 +10,9 @@ http://smart-dev.googlecode.com/files/logo_64.png
   # 被拦截的短信会被删除，为避免可能的误杀，所有删除的短信都在AFW中记录，以便恢复（除非在AFW中清除）。
 
 =将要实现的功能：=
+  # 随系统启动自动开始拦截服务。
   # 用户白名单（包括用户联系人及任何自添加的号码）
-  # 用户之间共享黑名单
+  # 用户之间共享黑名单。
 
 =安装使用方法：=
   # 下载APK安装包：http://smart-dev.googlecode.com/files/AFW_1.0_beta.apk
