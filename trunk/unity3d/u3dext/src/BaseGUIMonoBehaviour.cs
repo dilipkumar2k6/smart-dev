@@ -189,7 +189,7 @@ namespace u3dext {
 				// LOGO
 				GUI.Box(rectGameLogo, logoTex, midCenterBoxStyle);
 				// Main Menu Window
-				OnCreateMainMenu(0);
+				OnCreateMainMenu();
 			}
 		
 			// ==== Select Stage ====
@@ -263,7 +263,7 @@ namespace u3dext {
 			isShowPauseMenu = !isShowPauseMenu;
 		}
 	
-		protected virtual void OnCreateMainMenu (int winId) {
+		protected virtual void OnCreateMainMenu () {
 		
 		}
 	
