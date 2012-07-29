@@ -128,6 +128,7 @@ public abstract class BaseActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		context = this;
 		
+		// 没设置参数的情况为true，只有明确设置不是debug模式的情况才是false。
 		debugMode = !"false".equals(System.getProperty(SYS_PROP_DEBUG_MODE));
 		
 		resources = this.getResources();
@@ -460,7 +461,7 @@ public abstract class BaseActivity extends Activity {
 	/**
 	 * 取出并处理嵌入式的字符资源，嵌入格式: {编号}
 	 * @param sentence
-	 * @param words
+	 * @param words 字符串值或者字符串资源ID可以混合使用
 	 * @return
 	 */
 	protected String getNestedString(int sentence, Object... words){
