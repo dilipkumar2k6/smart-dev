@@ -17,22 +17,25 @@ namespace u3dext {
 	/// </summary>
 	public abstract class BaseAnimationBehaviour : MonoBehaviour {
 		
+		public delegate void AnimationDelegate (GameObject param);
+
 		// === Public ===
 //		public GameObject playingScreen;
-		public Texture[] animTextures;
+
+		public string animTexPrefix;
+		public int animTexSize;
+
 		public Texture transparentTextrue;
 		public bool isPlaying = false;
 		public bool uninterruptedly = false;
 
 		// === Private ===
 		protected int animIdx;
-//		protected Vector3 targetPosition;
-		
-		public delegate void AnimationDelegate (GameObject param);
-
 		protected AnimationDelegate animationCallback;
-		
+		private Texture[] animTextures;
+
 		public BaseAnimationBehaviour () {
+
 
 		}
 		
@@ -42,6 +45,13 @@ namespace u3dext {
 		public void PlayAnimation (AnimationDelegate animationCallback) {
 			this.isPlaying = true;
 			this.animationCallback = animationCallback;
+			if(animTextures==null || animTextures.Length == 0) {
+				animTextures = new Texture[animTexSize];
+				for(int i = 0 ; i<animTexSize ; i++){
+					string suffix = (i<10 ? ("0" + i) : ("" + i));
+					animTextures[i] = (Texture)Resources.Load(animTexPrefix + suffix);
+				}
+			}
 		}
 		
 		protected virtual void Update () {

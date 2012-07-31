@@ -52,6 +52,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	
 	// Beep audio for menu operation.
 	public AudioClip beepMenu;
+	public AudioClip btnClickOkSound;
+	public AudioClip btnClickFailSound;
 	
 	// Controller for current game object.
 	protected CharacterController controller;
@@ -60,6 +62,8 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 	// Character moving status 
 	protected bool isAccelerate = false;
 
+//	protected bool isSoundOn = true;
+//	protected bool isMusicOn = true;
 	
 	// Screen diagonal size
 	protected float sd;
@@ -346,6 +350,26 @@ public abstract class BaseMonoBehaviour : MonoBehaviour	{
 		return true;
 	}
 
+	protected void playButtonClickSound() {
+		if(this.getGameModel().isSoundOn()) {
+			audio.PlayOneShot(btnClickOkSound);
+		}
+	}
+	protected void playButtonClickFailSound() {
+		if(this.getGameModel().isSoundOn()) {
+			audio.PlayOneShot(btnClickFailSound);
+		}
+	}
+
+	/// <summary>
+	/// Override me to get actuall Game Model.
+	/// </summary>
+	/// <returns>
+	/// The game model.
+	/// </returns>
+	protected virtual BaseGameModel getGameModel() {
+		return null;
+	}
 	
 	protected void Destroy () {
 		Debug.Log("Destroying...");
