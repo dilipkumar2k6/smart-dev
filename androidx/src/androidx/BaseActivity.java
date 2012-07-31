@@ -470,8 +470,9 @@ public abstract class BaseActivity extends Activity {
 			if(words[i] instanceof Integer) {
 				resource = resource.replace("{" + i + "}", rs.getString((Integer)words[i]));	
 			}
-			else if(words[i] instanceof String) {
-				resource = resource.replace("{" + i + "}", (String)words[i]);
+//			else if(words[i] instanceof String) {
+			else{
+				resource = resource.replace("{" + i + "}", words[i].toString());
 			}
 		}
 		return resource;
