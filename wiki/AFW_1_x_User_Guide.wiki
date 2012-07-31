@@ -1,6 +1,6 @@
 http://www.blogjava.net/images/blogjava_net/allenny/logo_64.png
 
-===AFW是一个用于在Android手机上拦截垃圾短信的应用程序。支持短信号码全部及部分匹配；支持系统预制黑名单和用户自定义黑名单。运行在Android 2.1以上版本。===
+===AFW是一款免费的Android手机短信防火墙程序，用于拦截垃圾短信。支持短信号码全部及部分匹配；支持系统预制黑名单和用户自定义黑名单。运行在Android 2.1以上版本。===
 
 http://www.blogjava.net/images/blogjava_net/allenny/main_my_sms.png
 http://www.blogjava.net/images/blogjava_net/allenny/main_blocked.png
@@ -12,7 +12,7 @@ http://www.blogjava.net/images/blogjava_net/allenny/setting.png
   # 预制的黑名单列表：常见的自定义黑名单往往效果不佳，因为发垃圾短信的会经常更换号码，我会帮你收集垃圾短信号码制成系统黑名单，系统预制黑名单数量越大，拦截命中率就越高（目前数量还很小，将会持续更新）。
   # 用户自定义黑名单列表：如果你收到的垃圾短信号码不在预制黑名单中，你可以自己添加黑名单。匹配方式同上。
   # 被拦截的短信会被删除，为避免可能的误杀，所有删除的短信都在AFW中记录，以便恢复（除非在AFW中清除）。
-  # 系统启动时自动开始拦截服务。
+  # 可以设置系统启动时自动开始拦截服务。
 
 =将要实现的功能：=
   # 用户白名单（包括用户联系人及任何自添加的号码）
