@@ -44,6 +44,7 @@ namespace u3dext {
 
 		// === GUI ===
 		protected Rect rectFullscreen;
+		protected Rect rectExScreen;
 		protected Rect rectMainMenuWindow;
 		protected Rect rectGameLogo;
 		protected Rect rectStageWindow;
@@ -119,6 +120,7 @@ namespace u3dext {
 			}
 
 			rectFullscreen = new Rect(0, 0, sw, sh);
+			rectExScreen = new Rect(-10, -10, sw + 20, sh + 20);
 
 			rectMainMenuWindow = new Rect(hsw - theme.W(bgMainMenuTex.width)/2, 120,
 					theme.W(bgMainMenuTex.width), theme.H(bgMainMenuTex.height));
@@ -230,10 +232,13 @@ namespace u3dext {
 		
 			// == Level Pass Dialog. ==
 			if (GameState.levelPassStatus == 1) {
+				GUI.Box(rectExScreen, "", userGUISkin.window);
 				GUI.Box(rectLevelFinishWindow, bgLevelFinishTex, midCenterBoxStyle);
 				GUILayout.Window(31, rectLevelFinishWindow, OnLevelPassDialogCreated, "Pass", midCenterBoxStyle);
-			} else if (GameState.levelPassStatus == 2) {
+			} 
+			else if (GameState.levelPassStatus == 2) {
 				// == Level Fail Dialog ==
+				GUI.Box(rectExScreen, "", userGUISkin.window);
 				GUI.Box(rectLevelFinishWindow, bgLevelFinishTex, midCenterBoxStyle);
 				GUILayout.Window(32, rectLevelFinishWindow, OnLevelFailDialogCreated, "Fail", midCenterBoxStyle);
 			}
@@ -343,6 +348,7 @@ namespace u3dext {
 			isShowPauseMenu = false;
 			GameState.isShowPauseButton = true;
 		}
+
 	}
 }
 
