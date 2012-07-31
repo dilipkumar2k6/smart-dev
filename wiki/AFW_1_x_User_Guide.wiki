@@ -19,7 +19,7 @@ http://www.blogjava.net/images/blogjava_net/allenny/setting.png
   # 用户之间共享黑名单。
 
 =安装使用方法：=
-  # 下载最新版的APK安装包：https://smart-dev.googlecode.com/files/AFW_1.0_beta2.apk
+  # 下载最新版的APK安装包：https://smart-dev.googlecode.com/files/AFW_1.0_RC.apk
   # 将安装包通过USB线或者其他可行的方法上传到您的手机上。
   # 用手机中的文件浏览器打开上传的APK安装包进行安装。
   # 安装完成启动后，进入设置界面，点击“启动拦截服务“，AFW将启动为后台服务按照黑名单规则进行短信拦截。（重启手机需要重新启动服务）
@@ -35,5 +35,5 @@ http://www.blogjava.net/images/blogjava_net/allenny/setting.png
 在“已拦截短信“中找到误拦截的短信，单击它，选择”恢复“即可将被删除的短信恢复到短信收件箱内。
 
 =版本更新=
-  * 1.0 beta2: 2012-7-31  将来自同一号码的所有短信合并显示为一项；修复了一些小bug。
+  * 1.0 RC: 2012-7-31  将来自同一号码的所有短信合并显示为一项；开机时启动后台拦截服务；修复了一些小bug
   * 1.0 beta: 2012-7-20  初始测试版本
