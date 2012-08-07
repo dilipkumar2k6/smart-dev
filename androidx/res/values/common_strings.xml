@@ -3,6 +3,7 @@
 
     <string name="common_yes">Yes</string>
     <string name="common_no">No</string>
+    <string name="common_close">Close</string>
     <string name="common_setting">Setting</string>
     <string name="common_import">Import</string>
     <string name="common_export">Export</string>

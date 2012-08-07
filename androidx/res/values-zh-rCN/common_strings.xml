@@ -2,6 +2,7 @@
 <resources>
     <string name="common_yes">是</string>
     <string name="common_no">否</string>
+    <string name="common_close">关闭</string>
     <string name="common_setting">设置</string>
     <string name="common_import">导入</string>
     <string name="common_export">导出</string>

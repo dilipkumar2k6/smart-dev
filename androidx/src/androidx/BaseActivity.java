@@ -88,6 +88,7 @@ public abstract class BaseActivity extends Activity {
 	protected String tagYes = "Yes";
 	protected String tagNo = "No";
 	protected String tagSave = "Save";
+	protected String tagClose = "Close";
 	
 	protected DisplayMetrics dm;
 	protected int sw;
@@ -136,6 +137,7 @@ public abstract class BaseActivity extends Activity {
 
 		tagOk = resources.getString(android.R.string.ok);
 		tagCancel = resources.getString(android.R.string.cancel);
+		tagClose = rs.getString(R.string.common_close);
 		
 		dm = context.getApplicationContext().getResources().getDisplayMetrics();
 		sw = dm.widthPixels;
