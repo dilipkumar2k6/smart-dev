@@ -4,9 +4,10 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime;
-using JsonFx;
-using JsonFx.Json;
-using JsonFx.IO;
+//using JsonFx;
+//using JsonFx.Json;
+//using JsonFx.IO;
+using LitJson;
 using UnityEngine;
 using u3dext;
 
@@ -17,12 +18,13 @@ namespace u3dext {
 		// Reader and writer for settings.
 		private JsonWriter jWriter ;
 		private JsonReader jReader ;
-		protected Dictionary<String, object> modelCache = new Dictionary<String, object>();
+		public Dictionary<String, System.Object> dMeta;
 
+		protected Dictionary<String, object> modelCache = new Dictionary<String, object>();
+		
 		public BaseGameModel () {
 			jWriter = new JsonWriter();
-			jReader = new JsonReader();
-
+//			jReader = new JsonReader();
 		}
 
 		public bool isMusicOn () {
@@ -42,29 +44,45 @@ namespace u3dext {
 		}
 
 		public object getSetting (String name) {
-			// Read exist settings from storage file.
-			FileInfo fi = Utils.checkAndCreateFile(userSettingFile);
-			FileStream inStream = File.OpenRead(userSettingFile);  //fi.OpenRead();
-			TextReader tr = new StreamReader(inStream);
-			Dictionary<String, System.Object> data = jReader.Read<Dictionary<String, System.Object>>(tr);
-			inStream.Close();
-			if (data == null) {
-				return null;
+			if (!modelCache.ContainsKey(name)) {
+
+				// Read exist settings from storage file.
+
+				Debug.Log(" === Start To Read JSON from File: " + userSettingFile);
+
+				FileInfo fi = Utils.checkAndCreateFile(userSettingFile);
+				FileStream inStream = File.OpenRead(userSettingFile);  //fi.OpenRead();
+				TextReader tr = new StreamReader(inStream);
+
+				SimpleJsonReader jReader = new SimpleJsonReader();
+				Dictionary<String, object> data = jReader.Read(tr);
+
+				tr.Close();
+				inStream.Close();
+
+				if (data == null) {
+					return null;
+				}
+				if (data.ContainsKey(name)) {
+					modelCache[name] = data[name];
+//					return data[name];
+				} else {
+					return null;
+				}
 			}
-			if (data.ContainsKey(name)) {
-				return data[name];
-			} else {
-				return null;
-			}
+			return modelCache[name];
 		}
 	
-		public bool saveSetting (String name, System.Object value) {
+		public bool saveSetting (String name, object value) {
+			Debug.Log(" === Start To Read JSON from File: " + userSettingFile);
 			FileInfo fi = Utils.checkAndCreateFile(userSettingFile);
-		
 			// Read exist settings from storage file.
 			FileStream inStream = File.OpenRead(userSettingFile);  //fi.OpenRead();
 			TextReader tr = new StreamReader(inStream);
-			Dictionary<String, System.Object> data = jReader.Read<Dictionary<String, System.Object>>(tr);
+
+			SimpleJsonReader jReader = new SimpleJsonReader();
+			Dictionary<String, object> data = jReader.Read(tr);
+
 			if (data == null) {
 				data = new Dictionary<string, object>();
 			}
@@ -73,13 +91,13 @@ namespace u3dext {
 			} else {
 				data.Add(name, value);
 			}
+			tr.Close();
 			inStream.Close();
 
 			// Write modified or new setting to strage file.
-			String json = jWriter.Write(data);
-			FileStream fs = File.OpenWrite(userSettingFile);  //fi.OpenWrite();
-			fs.Write(Encoding.Default.GetBytes(json), 0, json.Length);
-			fs.Close();
+			SimpleJsonWriter jWriter = new SimpleJsonWriter();
+			jWriter.log = Debug.Log;
+			jWriter.write(userSettingFile, data);
 		
 			// update cache
 			modelCache[name] = value;
@@ -87,8 +105,30 @@ namespace u3dext {
 			Debug.Log("Setting " + name + " saved to local storage");
 			return true;
 		}
+	
+		public virtual bool loadGameMetaData (string metaDataName) {
+			Debug.Log(" === Start To Read JSON from File: " + metaDataName);
+			TextAsset metaFile = (TextAsset)Resources.Load(metaDataName, typeof(TextAsset));
+			if (metaFile == null) {
+				Debug.LogError("Failed to load game metadata resource : " + metaFile);
+				return false;
+			}
+			TextReader tr = new StringReader(metaFile.text);
 
+//			JsonReader reader = new JsonReader();
 
+			SimpleJsonReader jReader = new SimpleJsonReader();
+			jReader.log = Debug.Log;
+//			dMeta = jReader.list2arrayWrapper(jReader.Read(tr));
+			dMeta = jReader.Read(tr);
+
+//			dMeta = (Dictionary<String, object>)reader.Read(tr, typeof(Dictionary<String, object>));
+			if (dMeta.Count == 0) {
+				Debug.LogError("Failed to read metadata to JSON object");
+				return false;
+			}
+			return true;
+		}
 	}
 }
 

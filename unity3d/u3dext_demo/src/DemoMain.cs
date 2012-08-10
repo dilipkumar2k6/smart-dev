@@ -11,6 +11,8 @@ using u3dext;
 /// </summary>
 public class DemoMain {
 	RemoteDebug remoteDebug;
+	public string originalStr;
+	public Object originalInt;
 	
 	public DemoMain () {
 		remoteDebug = RemoteDebug.getInstance(Console.WriteLine);
@@ -37,6 +39,11 @@ public class DemoMain {
 		ins.testTheme();
 		
 		Profiler.getInstance().print(Console.WriteLine);
+
+		ins.originalStr = "original";
+		ins.originalInt = new object();
+		Console.WriteLine(ins.originalStr);
+		ins.testReferenceAndValueType(ins.originalStr, ins.originalInt);
 		
 		Console.WriteLine("Demo stoped");
 	}
@@ -113,6 +120,20 @@ public class DemoMain {
 		Console.WriteLine(theme.H(480));
 		Console.WriteLine(theme.W(481));
 	}
+
+	public void testReferenceAndValueType(string value, Object number) {
+
+		Console.WriteLine(value);
+
+		Console.WriteLine("Is the same String object? " + (originalStr == value));
+
+		Console.WriteLine("Is the same object? " + (originalInt == number));
+
+		value = "changed";
+		Console.WriteLine(value);
+	}
+
+
 	
 		
 // Comment Tempararily!!

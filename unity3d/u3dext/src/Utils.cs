@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -50,6 +52,43 @@ public class Utils	{
 		buf.Remove(buf.Length - 1);
 		return buf + "]";
 	}
+
+	public static String asString (Dictionary<string, object> dic) {
+		String buf = "{";
+		foreach(KeyValuePair<string, object> m in dic) {
+			buf += m.Key + "=";
+			if(m.Value.GetType() == typeof(Dictionary<string, object>)) {
+				buf += asString((Dictionary<string, object>)m.Value);
+			}
+			else {
+				buf += m.Value;
+			}
+			buf +=  ",";
+		}
+		return buf + "}";
+	}
+
+	public static String asString(IList list) {
+		String buf = "{";
+		for(int i=0;i<list.Count;i++) {
+			if(list[i].GetType() == typeof(Dictionary<string, object>)) {
+				buf += asString((Dictionary<string, object>)list[i]);
+			}
+			else {
+				buf += list[i];
+			}
+			buf +=  ",";
+		}
+		return buf + "}";
+	}
+
+	public static String asString (Hashtable dic) {
+		String buf = "{";
+		foreach(DictionaryEntry m in dic) {
+			buf += m.Key + "=" + m.Value;
+		}
+		return buf + "}";
+	}
 	
 	public static string paddingLeft (object txt, int length) {
 		char[] after = new char[length];
@@ -96,10 +135,11 @@ public class Utils	{
 		//
 		FileInfo fi = new FileInfo(filePath);
 		if(fi.Directory.Exists == false) {
-			Directory.CreateDirectory(fi.DirectoryName);
+			DirectoryInfo di = Directory.CreateDirectory(fi.DirectoryName);
 		}
 		if(fi.Exists == false) {
-			File.Create(fi.FullName);
+			FileStream fs = File.Create(fi.FullName);
+			fs.Close();
 		}
 		return new FileInfo(filePath);
 	}
