@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>u3dext_demo</RootNamespace>
     <AssemblyName>u3dext_demo</AssemblyName>
-    <StartupObject>DemoMain</StartupObject>
+    <StartupObject>TestSimpleJsonReader</StartupObject>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -42,6 +42,7 @@
     <Compile Include="src\MyStruct.cs" />
     <Compile Include="src\DemoStruct.cs" />
     <Compile Include="src\MyEntity.cs" />
+    <Compile Include="src\TestSimpleJsonReader.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -62,8 +62,8 @@
     <Reference Include="UnityEditor">
       <HintPath>C:\Program Files\Unity\Editor\Data\Managed\UnityEditor.dll</HintPath>
     </Reference>
-    <Reference Include="JsonFx">
-      <HintPath>libs\JsonFx.dll</HintPath>
+    <Reference Include="LitJson">
+      <HintPath>libs\LitJson.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +85,8 @@
     <Compile Include="src\theme\Theme960x640.cs" />
     <Compile Include="src\theme\Theme800x480.cs" />
     <Compile Include="src\BaseGameModel.cs" />
+    <Compile Include="src\SimpleJsonReader.cs" />
+    <Compile Include="src\SimpleJsonWriter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
