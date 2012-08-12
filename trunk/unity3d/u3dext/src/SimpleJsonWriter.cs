@@ -43,7 +43,7 @@ namespace u3dext {
 			foreach (KeyValuePair<string, object> m in jsonData) {
 				string key = m.Key;
 				object value = m.Value;
-				log("Key=" + key + ", Value=" + value);
+//				log("Key=" + key + ", Value=" + value);
 				jsonWriter.WritePropertyName(key);
 				if (value.GetType() == typeof(Dictionary<string, object>)) {
 					writeDictionary((Dictionary<string, object>)value);
