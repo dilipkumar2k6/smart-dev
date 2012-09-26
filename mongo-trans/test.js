@@ -3,9 +3,14 @@ var mongoskin = require('mongoskin');
 var util = require('util');
 var assert = require('assert');
 var transaction = require('./transaction');
+var Commitment = transaction.Commitment;
 
 var db = mongoskin.db('127.0.0.1:27017/test');
 
+
+transaction.init(function(){
+  return db;
+});
 
 var TBN_USER = 'user';
 
@@ -14,7 +19,11 @@ console.log(process.env.NODE_VERSION);
 
 // ================   业务逻辑    ========================
 
-// @flag 是否在出现错误时仍然正常返回
+/**
+ * 具体的业务逻辑，实现从from账户转移积分至to账户。
+ * @flag 是否在出现错误时仍然正常返回
+ * 返回：成功必须返回所有涉及到的文档ID（用于commit）
+ */
 function doBusiness(transId, from, to, flag, fnCallback) {
   var ids = [];
   // 扣除用户A的分数10，并与事务记录关联，表示此记录已更新但可能会被回滚。注意将事务ID作为更新记录的条件，避免重复更新，用于故障恢复时找到恢复点。  
@@ -59,19 +68,21 @@ function doBusiness(transId, from, to, flag, fnCallback) {
 }
 
 
-
+/**
+ * 具体于转账业务逻辑的回滚业务逻辑。
+ * @param trans
+ * @param fnCallback
+ */
 function rollbackScoreTransfer(trans, fnCallback) {
   console.log('Rollback score transfer');
-  //db.collection(TBN_TRANSACTION).findOne({_id:db.toObjectID(transId)}, function(err, trans) {
-    // B用户的操作一定没有完成，无需处理，直接返还积分给A用户，同时需要清除与事务的关联。  
-    db.collection(TBN_USER).update({name:trans.from, pendingTransactions:trans._id},   
-      {$inc:{score: trans.score}, $pull:{pendingTransactions:trans._id}}, {safe:true}, function(err, result) {
-        if(err) {
-          return fnCallback();
-        }
-        fnCallback(true);// 不管更新结果是多少个，都已完成rollback。
-    });
- // });  
+  // B用户的操作一定没有完成，无需处理，直接返还积分给A用户，同时需要清除与事务的关联。  
+  db.collection(TBN_USER).update({name:trans.from, pendingTransactions:trans._id},   
+    {$inc:{score: trans.score}, $pull:{pendingTransactions:trans._id}}, {safe:true}, function(err, result) {
+      if(err) {
+        return fnCallback();
+      }
+      fnCallback(true);// 不管更新结果是多少个，都已完成rollback。
+  });
 }  
 
 // ================   测试程序    ========================
@@ -83,7 +94,8 @@ function testTransactionSuccess(fnCallback){
       transaction.beginTransaction(transId, function(transId) {
         doBusiness(transId, 'allenny.iteye.com', 'bar.iteye.com', true, function(ids) {
           if(ids && ids.length > 0) {
-            transaction.commit(transId, [{collection:TBN_USER, id:ids[0]}, {collection:TBN_USER, id:ids[1]}], fnCallback);  
+            var commitments = [new Commitment(TBN_USER, ids[0]), new Commitment(TBN_USER, ids[1])];
+            transaction.commit(transId, commitments, fnCallback);  
           }
           else {
             transaction.rollback(transId, rollbackScoreTransfer, fnCallback); 
@@ -101,7 +113,8 @@ function testTransactionFail(fnCallback) {
       transaction.beginTransaction(transId, function(transId) {
         doBusiness(transId, 'bar.iteye.com', 'car.iteye.com', true, function(ids) {
           if(ids && ids.length > 0) {
-            transaction.commit(transId, [{collection:TBN_USER, id:ids[0]}, {collection:TBN_USER, id:ids[1]}], fnCallback);  
+            var commitments = [new Commitment(TBN_USER, ids[0]), new Commitment(TBN_USER, ids[1])];
+            transaction.commit(transId, commitments, fnCallback);  
           }
           else {
             transaction.rollback(transId, rollbackScoreTransfer, fnCallback); 
@@ -205,6 +218,11 @@ function initTestUsers(fnCallback) {
  * 三个账户A，B，C，从A账户转积分至B，从B账户尝试转积分至C（回滚）
 **/
 function main() {
+  
+  var loops  = process.argv[2];
+  if(!loops) {
+    loops = 10;
+  }
 
   testRecoverPending(function(result){
     //if(result) {
@@ -213,27 +231,26 @@ function main() {
         //if(result) {
 
           initTestUsers(function() {
-            var loopSize = 10;
             var count = 0;
-            for(var i=0;i<loopSize;i++) {
+            
+            for(var i=0;i<loops;i++) {
               testTransactionSuccess(function() {
-                //testTransactionFail();
-                if(++count == loopSize) {
-
+                if(++count == loops) {
                   count = 0;
-                  for(var i=0;i<loopSize;i++) {
+                  
+                  for(var i=0;i<loops;i++) {
                     testTransactionFail(function() {
-                      //testTransactionSuccess();
 
-                      // 将用户B的状态改回原来的active
-                      if(++count == loopSize) {
+                      if(++count == loops) {
                         process.exit();
                       }
                     });
                   }
+                  
                 }
               });
             }
+            
           });
 
         //}
@@ -246,8 +263,6 @@ function main() {
     //  process.exit();
     //}
   });
-
-
 
 }
 
