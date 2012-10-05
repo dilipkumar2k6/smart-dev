@@ -103,13 +103,13 @@ exports.commit = function(transId, commitment, fnCallback) {
  * 
  */
 exports.unbindWithTransaction = function(transId, commitments, fnCallback) {
-  console.log('[T] Unbind with transaction %j', commitments);
+  console.log('[T] Unbind %j with transaction ', commitments);
   var n = 0;
   var fail = false;
   // Unbind asynchrnously.
   for(var i=0;i<commitments.length;i++) {
     var r = commitments[i];
-    console.log('  %j', util.inspect(r));
+    //console.log('  %j', util.inspect(r));
     var tb = r.collection, op = r.op, id = r.id;
     getdb().collection(tb).findAndModify({_id:getdb().toObjectID(id)}, QUERY_SINGLE_ORDER , {$pull:{pendingTransactions:transId}}, {safe:true, 'new':true}, function(err, result) {  
       if(err || !result) {
@@ -185,6 +185,7 @@ function changeTransState(transId, newState, fnCallback) {
   });
 };
 
+// db.transaction.find({state:'pendding'});
 // 从故障中恢复，暂时只能处理一种业务逻辑. TODO
 // @fnCallbackPending(total, transId) 处理pending状态事务的回调
 // 
@@ -207,6 +208,7 @@ exports.recoverPendingTransactions = function(fnCallbackPending) {
   });
 };
 
+// db.transaction.find({state:'committed'}, {}, {limit:10});
 // 恢复处于committed的事务。
 // @fnCallbackCommitted(total, trans) 处理commited状态事务的回调
 exports.recoverCommittedTransactions = function(fnCallbackCommitted) {
@@ -240,6 +242,10 @@ exports.Commitment = function(collname, docid) {
 };
 
 
+/**
+ * 记录事务关联的业务逻辑数据（insert，update和delete的数据），该数据记录在transaction表中。
+ * 用于故障恢复程序执行时用来恢复数据状态用的。
+ */
 exports.Operation = function() {
   this.data = {};
 };
@@ -247,15 +253,18 @@ exports.Operation = function() {
 //  
 //};
 //插入操作不可能事先知道ID，因此只记录关联的集合名称，恢复时通过查找该集合内含有待恢复事务ID的文档。
-exports.Operation.prototype.add_insert = function(coll) {
+// 但是，如果不记录文档的唯一键，仅仅靠事务ID来确定一条记录的话，可能会误把“更新”操作当成“插入”操作检索出来。
+// @uniqueKeys 唯一标识一个文档的键。
+exports.Operation.prototype.add_insert = function(coll, uniqueKeys) {
   var inslist = this.data['insert'];
   if(!inslist){
     inslist = [];
     this.data['insert'] = inslist;
   }
-  inslist.push({coll:coll});
+  inslist.push({coll:coll, data:uniqueKeys});
   return this;
 };
+// @data JSON格式表示的所需要更新的字段值（部分字段）
 exports.Operation.prototype.add_update = function(coll, data) {
   var inslist = this.data['update'];
   if(!inslist){
@@ -265,7 +274,7 @@ exports.Operation.prototype.add_update = function(coll, data) {
   inslist.push({coll:coll, data:data});
   return this;
 };
-// @data必须是删除掉的整个记录
+// @data JSON格式，必须是删除掉的整个文档所有字段值。
 exports.Operation.prototype.add_delete = function(coll, data) {
   var inslist = this.data['delete'];
   if(!inslist){
