@@ -113,7 +113,8 @@ function testTransactionSuccess(fnCallback){
 // 从账户B扣除10分并做扣分日志。(测试新建文档和更新文档复合的事务)
 function testTransactionWithInsertSuccess(fnCallback) {
   var operation = new transaction.Operation();
-  operation.add_insert(COLL_LOG).add_update(COLL_USER, {name:'bar.iteye.com', score:-10});
+  var logTime = Date.now();
+  operation.add_insert(COLL_LOG, {user:'bar.iteye.com',timestamp:logTime}).add_update(COLL_USER, {name:'bar.iteye.com', score:-10});
 //  transaction.createTransaction({insert:[{coll:COLL_LOG}], update:[{coll:COLL_USER, name:'bar.iteye.com', score:-10}]}, function(transId) {
   transaction.createTransaction(operation, function(transId) {
     if(transId) {
@@ -129,7 +130,7 @@ function testTransactionWithInsertSuccess(fnCallback) {
           }
           //console.log('[T] 账户 %j', util.inspect(user));
           db.collection(COLL_LOG).insert(
-              {user:'bar.iteye.com', deductscore:10, timestamp:Date.now(), pendingTransactions:[transId]}, 
+              {user:'bar.iteye.com', deductscore:10, timestamp:logTime, pendingTransactions:[transId]}, 
               {safe:true}, function(err, logs) {
             if(err || !logs || logs.length == 0) {
               console.log('[T] 插入扣分日志失败： %j %j', util.inspect(err), util.inspect(logs));
@@ -227,6 +228,7 @@ function testRecoverCommitted(fnCallback) {
       if(u0)ids.push(u0._id);
       db.collection(COLL_USER).findOne({name:trans.to}, function(err, u1) {
         if(u1)ids.push(u1._id);
+
         transaction.unbindWithTransaction(trans._id, [{collection:COLL_USER, id:ids[0]}, {collection:COLL_USER, id:ids[1]}], function(result) {
           if(!result){
             fnCallback();
@@ -279,15 +281,19 @@ function main() {
     loops = 1;
   }
 
+  // 尝试恢复pendding状态的事务
   testRecoverPending(function(result){
     //if(result) {
 
+      // 尝试恢复committed状态的事务
       testRecoverCommitted(function(result) {
         //if(result) {
 
+          // 生成测试用户（不存在的话）
           initTestUsers(function() {
             var count = 0;
             
+            // 循环若干词执行：成功事务，失败事务，带插入新文档的事务。
             for(var i=0;i<loops;i++) {
               testTransactionSuccess(function() {
                 if(++count == loops) {
