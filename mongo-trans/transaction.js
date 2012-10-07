@@ -2,6 +2,7 @@
  * Transaction Module for MongoDB.
  * Author: Yuxing Wang
  * Version: 0.1
+ * Require Module: mongodb, mongoskin
  * Reference:
  * http://cookbook.mongodb.org/patterns/perform-two-phase-commits/
  *
@@ -54,11 +55,11 @@ exports.createTransaction = function(operation, fnCallback) {
   data['createtime'] = Date.now();
   getdb().collection(COLL_TRANSACTION).insert(data, function(err, results) {
     if(err || !results || results.length == 0) {
-      console.log('[T] Fail to create transaction %j ', util.inspect(err));
+      console.log('[T]   Fail to create transaction %s ', util.inspect(err));
       return fnCallback();
     }
     var transId = results[0]._id;
-    console.log('[T] Transaction created: %j', transId);
+    console.log('[T]   Transaction created: %s', transId);
     fnCallback(transId);
   });
 };
@@ -67,7 +68,7 @@ exports.createTransaction = function(operation, fnCallback) {
  * Begin a new created transaction.
  */
 exports.beginTransaction = function(transId, fnCallback) {  
-  console.log('[T] Begin transaction: %j', transId);
+  console.log('[T] Begin transaction: %s', transId);
   changeTransState(transId, 'pending', function(trans) {
     if(trans) {
       fnCallback(transId);      
@@ -80,7 +81,7 @@ exports.beginTransaction = function(transId, fnCallback) {
  * @commitment business documents identifiers, form as: [{collection:'<collection name>', id:'<doc id>'}, ...]
  */
 exports.commit = function(transId, commitment, fnCallback) {  
-  console.log('[T] Commit transaction: %j', transId);
+  console.log('[T] Commit transaction: %s', transId);
 
   changeTransState(transId, 'committed', function(trans) {
 
@@ -88,7 +89,7 @@ exports.commit = function(transId, commitment, fnCallback) {
       if(result) {
         //assert.ok(result.pendingTransactions && result.pendingTransactions.length === 0, 'Pending transactions leak, failover may be needed ' + result.pendingTransactions);
         exports.endTransaction(transId, function(message) {
-          console.log(message);
+          console.log('%s', message);
           fnCallback(true);
         });
       }
@@ -103,22 +104,23 @@ exports.commit = function(transId, commitment, fnCallback) {
  * 
  */
 exports.unbindWithTransaction = function(transId, commitments, fnCallback) {
-  console.log('[T] Unbind %j with transaction ', commitments);
+  console.log('[T] Unbind %s with transaction ', util.inspect(commitments));
   var n = 0;
   var fail = false;
-  // Unbind asynchrnously.
+  // Unbind all asynchrnously.
   for(var i=0;i<commitments.length;i++) {
     var r = commitments[i];
-    //console.log('  %j', util.inspect(r));
+    //console.log('  %s', util.inspect(r));
     var tb = r.collection, op = r.op, id = r.id;
     getdb().collection(tb).findAndModify({_id:getdb().toObjectID(id)}, QUERY_SINGLE_ORDER , {$pull:{pendingTransactions:transId}}, {safe:true, 'new':true}, function(err, result) {  
+      // 正常情况下result一定会返回记录的，所以如果result不存在，则表示失败。
       if(err || !result) {
         // 无需处理错误，交给恢复程序处理。
-        console.warn('  [T] Failed to unbind with transaction, let recover process handle it. %j', util.inspect(err));
+        console.warn('  [T]   Failed to unbind %s with transaction, let recover process handle it. %s', id, util.inspect(err));
         fail = true;
-        fnCallback(false);
+        fnCallback();
       }
-      if(!fail && ++n == commitments.length) {
+      if(++n == commitments.length) {
         fnCallback(true);
       }
     });
@@ -129,7 +131,7 @@ exports.unbindWithTransaction = function(transId, commitments, fnCallback) {
  * Rollback transaction by executing provided user-defined operation.
  */
 exports.rollback = function(transId, fnOperation, fnCallback) {
-  console.log('[T] Rollback transaction: %j', transId);
+  console.log('[T] Rollback transaction: %s', transId);
     // 先将事务状态变为'canceling'  
     changeTransState(transId, 'canceling', function(trans) {
       // 开始具体的回滚操作  
@@ -139,9 +141,9 @@ exports.rollback = function(transId, fnOperation, fnCallback) {
             return fnCallback();
           }
           // 完成事务，将事务状态变为'canceled'， 回滚结束  
-          exports.endTransaction(transId, function(result) {
-            console.log(result);
-            fnCallback(result);
+          exports.endTransaction(transId, function(message) {
+            console.log(message);
+            fnCallback(message);
 	        });
         });
       });
@@ -152,22 +154,22 @@ exports.rollback = function(transId, fnOperation, fnCallback) {
  * End transaction for either 'commit' or 'rollback' operation, depend on transaction state itself.
  */
 exports.endTransaction = function(transId, fnCallback) {
-  console.log('[T] End transaction: %j', transId);
+  console.log('[T] End transaction: %s', transId);
     getdb().collection(COLL_TRANSACTION).findOne({_id:getdb().toObjectID(transId)},function(err, trans) {  
       if(trans.state == 'committed') {
         changeTransState(transId, 'done', function(result) {
           // 其他处理  
-          fnCallback('[T] Transaction done'); 
+          fnCallback('[T]   Transaction done'); 
        });  
       }
       else if(trans.state == 'canceling') {  
         changeTransState(transId, 'canceled', function(result) {
           // 其他处理  
-          fnCallback('[T] Transaction canceled'); 
+          fnCallback('[T]   Transaction canceled'); 
         });  
       }
     else {
-      console.log('[T] Unkown transaction state: %j', trans);
+      console.log('[T]   Unkown transaction state: %s', trans);
     }
   });  
 };
@@ -176,9 +178,10 @@ exports.endTransaction = function(transId, fnCallback) {
  * Change transaction state.
  */
 function changeTransState(transId, newState, fnCallback) {
-  getdb().collection(COLL_TRANSACTION).findAndModify({_id:getdb().toObjectID(transId)}, QUERY_SINGLE_ORDER, {$set:{state:newState}}, {safe:true, 'new':true}, function(err, result) {  
+  getdb().collection(COLL_TRANSACTION).findAndModify({_id:getdb().toObjectID(transId)}, QUERY_SINGLE_ORDER, 
+      {$set:{state:newState, lastupdatetime:Date.now()}}, {safe:true, 'new':true}, function(err, result) {  
     if(err || !result) {
-      console.log('[T] Failed to change transaction state to %j for %j', newState, transId);
+      console.log('[T]   Failed to change transaction state to %s for %s', newState, transId);
         return;
       }
       fnCallback(result);
@@ -189,44 +192,64 @@ function changeTransState(transId, newState, fnCallback) {
 // 从故障中恢复，暂时只能处理一种业务逻辑. TODO
 // @fnCallbackPending(total, transId) 处理pending状态事务的回调
 // 
-exports.recoverPendingTransactions = function(fnCallbackPending) {
-  console.log('[T] Try to recover from pending transactions');
+exports.recoverEachPendingTransaction = function(fnCallbackPending) {
+  console.log('[T] ==== Try to recover from pending transactions ====');
   // Search 'initial' and 'pending' transactions and recover;
-  getdb().collection(COLL_TRANSACTION).findItems({state:{$in:['initial', 'pending']}}, {safe:true}, function(err, transs) {
+  getdb().collection(COLL_TRANSACTION).find({state:'pending'}, {batchSize:10}, function(err, cursor) {
     if(err) {
-      console.log('[T] Fail to recover: %j', util.inspect(err));
-      return fnCallbackPending();
+      console.log('   [ERROR] %s', err);
+      return fnCallbackCommitted();
     }
-    if(transs.length == 0) {
-      console.log('[T] No pending transactions to be recovered');
+    if(!cursor) {
+      console.log('[T]   No pending transactions to be recovered');
       return fnCallbackPending(0);
     }
-    for(var i=0; i<transs.length; i++) {
-      var transId = transs[i]._id;
-      fnCallbackPending(transs.length, transId);
-    }
+    //console.log('[T]   Found %d pending transactions to recover', cursor.totalNumberOfRecords);
+    var idx = 0;
+    cursor.each(function(err, trans) {
+      if(err) {
+        console.log('[T]   Fail to recover: %s', util.inspect(err));
+        return fnCallbackPending();
+      }
+      if(!trans) {
+        console.log('[T]   End of pending transactions. %d', idx);
+        return fnCallbackPending(idx);
+      }
+      console.log('[T]   Pending transaction: %s', trans._id);
+      fnCallbackPending(idx++, trans);
+    });
+
   });
 };
 
 // db.transaction.find({state:'committed'}, {}, {limit:10});
 // 恢复处于committed的事务。
 // @fnCallbackCommitted(total, trans) 处理commited状态事务的回调
-exports.recoverCommittedTransactions = function(fnCallbackCommitted) {
-  console.log('[T] Try to recover from committed transactions');
+exports.recoverEachCommittedTransaction = function(fnCallbackCommitted) {
+  console.log('[T] ==== Try to recover from committed transactions ====');
   // Search 'committed' transactions and recover;
-  getdb().collection(COLL_TRANSACTION).findItems({state:'committed'}, function(err, transs) {
+  getdb().collection(COLL_TRANSACTION).find({state:'committed'}, {batchSize:10}, function(err, cursor) {
     if(err) {
-      console.log('[T] Fail to recover: %j', util.inspect(err));
+      console.log('   [ERROR] %s', err);
       return fnCallbackCommitted();
     }
-    if(transs.length == 0) {
-      console.log('[T] No committed transactions to be recovered');
-      return fnCallbackCommitted(0);
-    } 
-    for(var i=0; i<transs.length; i++) {
-      var trans = transs[i];
-      fnCallbackCommitted(transs.length, trans);
+    if(!cursor) {
+      console.log('[T]   No pending transactions to be recovered');
+      return fnCallbackCommitted();
     }
+    //console.log('[T]   Found %d committed transactions to recover', cursor.totalNumberOfRecords);
+    var idx = 0;
+    cursor.each(function(err, trans) {
+      if(err) {
+        console.log('[T]   Fail to recover: %s', util.inspect(err));
+        return fnCallbackCommitted();
+      }
+      if(!trans) {
+        console.log('[T]   End of committted transactions. %d', idx);
+        return fnCallbackCommitted(idx);
+      }
+      fnCallbackCommitted(idx++, trans);
+    });
   });
 };
 
@@ -249,12 +272,11 @@ exports.Commitment = function(collname, docid) {
 exports.Operation = function() {
   this.data = {};
 };
-//exports.Operation.prototype. = function() {
-//  
-//};
-//插入操作不可能事先知道ID，因此只记录关联的集合名称，恢复时通过查找该集合内含有待恢复事务ID的文档。
-// 但是，如果不记录文档的唯一键，仅仅靠事务ID来确定一条记录的话，可能会误把“更新”操作当成“插入”操作检索出来。
-// @uniqueKeys 唯一标识一个文档的键。
+/**
+ * “插入”操作必须记录文档的唯一键，仅仅靠事务ID来确定一条记录的话，可能会误把“更新”操作当成“插入”操作检索出来。
+ * 如果没有唯一键，那么恢复程序不做处理（假定此类集合是可以存在冗余的）
+ * @uniqueKeys 唯一标识一个文档的键。
+ */
 exports.Operation.prototype.add_insert = function(coll, uniqueKeys) {
   var inslist = this.data['insert'];
   if(!inslist){
