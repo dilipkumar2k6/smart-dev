@@ -394,6 +394,7 @@ public abstract class BaseActivity extends Activity {
 	 * @param msg
 	 * @param activity 点击后调装的Activity
 	 * @param sticky 是否常驻状态栏
+	 * @deprecated to AndroidUtils
 	 */
 	protected void showNotification(int id, int icon,String title, String msg, Class activity, boolean sticky) {
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -408,6 +409,16 @@ public abstract class BaseActivity extends Activity {
 		notificationManager.notify(id, notification);
 	}
 	
+//	protected int findNotifiation() {
+//		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//		notificationManager.
+//		return 0;
+//	}
+	
+	/**
+	 * 取消状态栏提示消息。
+	 * @param id
+	 */
 	protected void cancelNotification(int id) {
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(id);

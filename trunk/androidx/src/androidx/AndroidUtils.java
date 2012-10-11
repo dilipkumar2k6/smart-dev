@@ -13,7 +13,11 @@ import java.util.StringTokenizer;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
@@ -305,5 +309,29 @@ public class AndroidUtils {
 			}
 		}
 		return false;
+	}
+	
+	
+	/**
+	 * 在状态栏显示提示消息。
+	 * @param context
+	 * @param id Notification ID
+	 * @param icon
+	 * @param title
+	 * @param msg
+	 * @param activity 点击后调用的Activity
+	 * @param sticky 是否常驻状态栏
+	 */
+	public static void showNotification(Context context, int id, int icon,String title, String msg, Class activity, boolean sticky) {
+		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		Notification notification = new Notification(icon,
+				msg, System.currentTimeMillis());
+		Intent notificationIntent = new Intent(context, activity);
+		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+		notification.setLatestEventInfo(context, title, msg, contentIntent);
+		if(sticky) {
+			notification.flags = Notification.FLAG_ONGOING_EVENT;
+		}
+		notificationManager.notify(id, notification);
 	}
 }
