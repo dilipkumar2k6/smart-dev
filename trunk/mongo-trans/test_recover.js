@@ -10,9 +10,9 @@ var test = require('./test_biz_flow');
 
 
 
-// ²âÊÔ»Ö¸´³ÌĞò
-// »Ö¸´³ÌĞòÖĞÖØĞÂÖ´ĞĞµÄÒµÎñÂß¼­ÓëÕı³£ÒµÎñÂß¼­²»Í¬£¬Ëü²»ĞíÒªÔÚÊ§°ÜµÄÇé¿öÏÂ½øĞĞ»Ø¹ö£¿£¿£¿£¿
-// ·µ»Ø£º
+// æµ‹è¯•æ¢å¤ç¨‹åº
+// æ¢å¤ç¨‹åºä¸­é‡æ–°æ‰§è¡Œçš„ä¸šåŠ¡é€»è¾‘ä¸æ­£å¸¸ä¸šåŠ¡é€»è¾‘ä¸åŒï¼Œå®ƒä¸è®¸è¦åœ¨å¤±è´¥çš„æƒ…å†µä¸‹è¿›è¡Œå›æ»šï¼Ÿï¼Ÿï¼Ÿï¼Ÿ
+// è¿”å›ï¼š
 function testRecoverPending(fnCallback) {
 
   var handleRecoverWork = function(result) {
@@ -24,16 +24,16 @@ function testRecoverPending(fnCallback) {
     }
   };
 
-  // ´¦ÀíÃ¿Ò»¸öpendingµÄÊÂÎñ¡£
+  // å¤„ç†æ¯ä¸€ä¸ªpendingçš„äº‹åŠ¡ã€‚
   transaction.recoverEachPendingTransaction(function(idx, trans) {
-    // ×îºóÒ»¸ö
+    // æœ€åä¸€ä¸ª
     if(!trans) return fnCallback(idx);
 
     console.log('Redo business');
 
-    // ÖØĞÂÖ´ĞĞÒµÎñÂß¼­
+    // é‡æ–°æ‰§è¡Œä¸šåŠ¡é€»è¾‘
     var transId = trans._id;
-    test.doBusiness(transId, 'bar.iteye.com', 'car.iteye.com', false, function(ids) {
+    test.doBusiness(transId, trans, false, function(ids) {
       if(ids && ids.length > 0) {
         transaction.commit(transId, [{collection:test.COLL_USER, id:ids[0]}, {collection:test.COLL_USER, id:ids[1]}], function(result) {
           handleRecoverWork(result);
@@ -48,17 +48,17 @@ function testRecoverPending(fnCallback) {
   });
 }
 
-// ²âÊÔ»Ö¸´committed×´Ì¬µÄÊÂÎñ
+// æµ‹è¯•æ¢å¤committedçŠ¶æ€çš„äº‹åŠ¡
 var testRecoverCommitted = exports.testRecoverCommitted = function(fnCallback) {
 
   transaction.recoverEachCommittedTransaction(function(idx, trans) {
 
-    // ×îºóÒ»¸ö
+    // æœ€åä¸€ä¸ª
     if(!trans) return fnCallback(idx);
 
     console.log('Redo commitment: from %s to %s', trans.update.data.from, trans.update.data.to);
 
-    // ÖØĞÂÖ´ĞĞcommitÒµÎñÂß¼­
+    // é‡æ–°æ‰§è¡Œcommitä¸šåŠ¡é€»è¾‘
     var transId = trans._id;
     var ids = [];
     test.db.collection(test.COLL_USER).findOne({name:trans.update.data.from}, function(err, u0) {
@@ -89,7 +89,7 @@ var testRecoverCommitted = exports.testRecoverCommitted = function(fnCallback) {
 
 var  main = exports.main = function() {
 
-  // ³¢ÊÔ»Ö¸´pendding×´Ì¬µÄÊÂÎñ
+  // å°è¯•æ¢å¤penddingçŠ¶æ€çš„äº‹åŠ¡
   testRecoverPending(function(result){
     if(!result && result != 0) {
       console.log(result);
@@ -97,7 +97,7 @@ var  main = exports.main = function() {
     }
     console.log('  Done to Test Recover Peding Transactions: %s', result);
 
-    // ³¢ÊÔ»Ö¸´committed×´Ì¬µÄÊÂÎñ
+    // å°è¯•æ¢å¤committedçŠ¶æ€çš„äº‹åŠ¡
     testRecoverCommitted(function(result) {
       if(result || result == 0) {
         console.log('  Done to Test Recover Committed Transactions: %s', result);

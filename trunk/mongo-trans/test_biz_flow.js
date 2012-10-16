@@ -25,12 +25,15 @@ console.log('Node.js version: %s', process.env.NODE_VERSION);
 
 /**
  * 具体的业务逻辑，实现从from账户转移积分至to账户。
- * @flag 是否在出现错误时仍然正常返回（故障恢复时使用）
+ * @transId 事务ID（required）
+ * @data 业务逻辑操作数据（required）
+ * @flag 是否在出现错误时仍然正常返回（故障恢复时使用）（required）
  * 返回：成功必须返回所有涉及到的文档ID（用于commit）
  */
-var doBusiness = exports.doBusiness = function (transId, from, to, flag, fnCallback) {
+var doBusiness = exports.doBusiness = function (transId, data, flag, fnCallback) {
   var ids = [];
   // 扣除用户A的分数10，并与事务记录关联，表示此记录已更新但可能会被回滚。注意将事务ID作为更新记录的条件，避免重复更新，用于故障恢复时找到恢复点。  
+  var from = data.update[0].data.from;
   db.collection(COLL_USER).findAndModify({name:from, pendingTransactions:{$ne:transId}},  transaction.QUERY_SINGLE_ORDER,
       {$inc:{score:-10}, $push:{pendingTransactions:transId}}, {safe:true, 'new':true}, function(err, result) {
     if(err) {
@@ -56,7 +59,8 @@ var doBusiness = exports.doBusiness = function (transId, from, to, flag, fnCallb
 
     if(result)ids.push(result._id);
 
-    // 增加用户B的分数10，其余同上。  
+    // 增加用户B的分数10，其余同上。 
+    var to = data.update[0].data.to;
     db.collection(COLL_USER).findAndModify({name:to, state:{$ne:'locked'}, pendingTransactions:{$ne:transId}},  transaction.QUERY_SINGLE_ORDER ,  
         {$inc:{score:10}, $push:{pendingTransactions:transId}}, {safe:true, 'new':true}, function(err, result) {  
       if(err) {
@@ -101,15 +105,15 @@ var rollbackScoreTransfer = exports.rollbackScoreTransfer = function(trans, fnCa
 
 // ================   测试程序    ========================
 
-// 从A转移10个积分给处于非锁定状态的B。
+// 从A转移10个积分给处于非锁定状态的B。（测试同时更新的事务）
 function testTransactionSuccess(fnCallback){
   var operation = new transaction.Operation();
   operation.add_update(COLL_USER, {from:'allenny.iteye.com', to:'bar.iteye.com', score:10});
-//  transaction.createTransaction({from:'allenny.iteye.com', to:'bar.iteye.com', score:10}, function(transId) {
+
   transaction.createTransaction(operation, function(transId) {
     if(transId) {
       transaction.beginTransaction(transId, function(transId) {
-        doBusiness(transId, 'allenny.iteye.com', 'bar.iteye.com', true, function(ids) {
+        doBusiness(transId, operation, true, function(ids) {
           if(ids && ids.length > 0) {
             var commitments = [new Commitment(COLL_USER, ids[0]), new Commitment(COLL_USER, ids[1])];
             transaction.commit(transId, commitments, fnCallback);  
@@ -190,7 +194,7 @@ function testTransactionFail(fnCallback) {
   transaction.createTransaction(operation, function(transId) {
     if(transId) {
       transaction.beginTransaction(transId, function(transId) {
-        doBusiness(transId, 'bar.iteye.com', 'car.iteye.com', true, function(ids) {
+        doBusiness(transId, operation, true, function(ids) {
           if(ids && ids.length > 0) {
             var commitments = [new Commitment(COLL_USER, ids[0]), new Commitment(COLL_USER, ids[1])];
             transaction.commit(transId, commitments, fnCallback);  
