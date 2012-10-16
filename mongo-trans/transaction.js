@@ -6,7 +6,7 @@
  * Reference:
  * http://cookbook.mongodb.org/patterns/perform-two-phase-commits/
  *
-*/
+ */
 
 var mongodb = require('mongodb');
 var mongoskin = require('mongoskin');
@@ -270,7 +270,12 @@ exports.Commitment = function(collname, docid) {
  * 用于故障恢复程序执行时用来恢复数据状态用的。
  */
 exports.Operation = function() {
+  // 1. {insert -> [{coll:<coll name>, data:<unique key of deleted doc>}]}
+  // 2. {update -> [{coll:<coll name>, data:<updated data in a doc>}]}
+  // 3. {delete -> [{coll:<coll name>, data:<deleted doc>, children:[{coll:<>, ...}, ...]}]}
   this.data = {};
+  this.fnBusiness;
+  this.fnRollback;
 };
 /**
  * “插入”操作必须记录文档的唯一键，仅仅靠事务ID来确定一条记录的话，可能会误把“更新”操作当成“插入”操作检索出来。
@@ -296,13 +301,18 @@ exports.Operation.prototype.add_update = function(coll, data) {
   inslist.push({coll:coll, data:data});
   return this;
 };
-// @data JSON格式，必须是删除掉的整个文档所有字段值。
-exports.Operation.prototype.add_delete = function(coll, data) {
+// 删除有几种情况：
+// 1. 删除的文档有关联的父文档，这不需要特殊处理。
+// 2. 删除的文档有关联的父文档被更新了，这不需要特殊处理（恢复时有父文档的ID保存着）。
+// 3. 删除的文档有关联的子文档（也被删除了），这需要记录关联的子文档，恢复时重新insert并建立关联。
+// 4. 删除的文档有关联的子文档，但是没有被删除，这种情况不受支持（父文档删除子文档也就无效了，况且记录子文档的ID并且恢复是更新子文档外键也很麻烦）。
+// @doc JSON格式，必须是删除掉的整个文档所有字段值。
+exports.Operation.prototype.add_delete = function(coll, doc) {
   var inslist = this.data['delete'];
   if(!inslist){
     inslist = [];
     this.data['delete'] = inslist;
   }
-  inslist.push({coll:coll, doc:data});
+  inslist.push({coll:coll, doc:doc});
   return this;
 };
