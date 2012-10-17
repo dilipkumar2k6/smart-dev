@@ -1,0 +1,36 @@
+{
+  "name": "mongo-trans",
+  "description": "Transaction for MongoDB",
+  "keywords": [
+    "mongo",
+    "transaction",
+    "db"
+  ],
+  "version": "0.1.0",
+  "author": {
+    "name": "Yuxing Wang",
+    "email": "ubuntuus@gmail.com"
+  },
+  "dependencies": {
+    "mongodb": ">=1.1.0",
+    "mongoskin": ">=0.4.0"
+  },
+  "config": {
+    "native": false
+  },
+  "main": "./lib/mongo-trans/transaction",
+  "directories": {
+    "lib": "./lib/mongo-trans"
+  },
+  "engines": {
+    "node": ">=0.6.0"
+  },
+  "licenses": [
+    {
+      "type": "Apache License, Version 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "_id": "mongo-trans@0.1.0",
+  "_from": "mongo-trans"
+}

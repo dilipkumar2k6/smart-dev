@@ -5,13 +5,14 @@ var assert = require('assert');
 
 
 var transaction = require('./transaction');
+var base = require('./business');
 var test = require('./test_biz_flow');
 
 
 
 
 // 测试恢复程序
-// 恢复程序中重新执行的业务逻辑与正常业务逻辑不同，它不许要在失败的情况下进行回滚？？？？
+// 恢复程序中重新执行的业务逻辑与正常业务逻辑不同，它不需要在失败的情况下进行回滚？？？？
 // 返回：
 function testRecoverPending(fnCallback) {
 
@@ -29,22 +30,25 @@ function testRecoverPending(fnCallback) {
     // 最后一个
     if(!trans) return fnCallback(idx);
 
-    console.log('Redo business');
+    console.log('Redo score transfer business');
 
     // 重新执行业务逻辑
     var transId = trans._id;
-    test.doBusiness(transId, trans, false, function(ids) {
+    base.doScoreTransfer(transId, trans, false, function(ids) {
       if(ids && ids.length > 0) {
         transaction.commit(transId, [{collection:test.COLL_USER, id:ids[0]}, {collection:test.COLL_USER, id:ids[1]}], function(result) {
           handleRecoverWork(result);
         });  
       }
       else {
-        transaction.rollback(transId, test.rollbackScoreTransfer, function(result) {
+        transaction.rollback(transId, base.rollbackScoreTransfer, function(result) {
           handleRecoverWork(result);
         });
       }
     });
+    // TODO Recover Deduction Transaction.
+
+    // TODO Recover 
   });
 }
 
