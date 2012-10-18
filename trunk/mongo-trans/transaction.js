@@ -28,8 +28,11 @@ var TRANS_CANCELING = 'canceling';
 
 var QUERY_SINGLE_ORDER = exports.QUERY_SINGLE_ORDER = [['_id', 'asc']];
 
+// Key name for any doc attached to transactions.
+// exports.PENDING_TRANS_NAME = 'pendingTransactions';
+
 /**
- * Get DB connection, overwrite by invoking transaction.init(fnGetDB);
+ * Get DB connection, default is '127.0.0.1:27017/test', overwrite by invoking transaction.init(fnGetDB);
  */
 var getdb = function() {
   console.log('[WARN] No db connection function provided, "localhost" server and "test" collection used.');
@@ -50,6 +53,7 @@ exports.init = function(fnGetDB) {
  * @fnCallback return (transId) if success.
  */
 exports.createTransaction = function(operation, fnCallback) {
+  console.log('[T] Create transaction... ');
   var data = operation.data;
   data['state'] = 'initial';
   data['createtime'] = Date.now();
@@ -111,6 +115,7 @@ exports.unbindWithTransaction = function(transId, commitments, fnCallback) {
   for(var i=0;i<commitments.length;i++) {
     var r = commitments[i];
     //console.log('  %s', util.inspect(r));
+    // TODO the 'op'
     var tb = r.collection, op = r.op, id = r.id;
     getdb().collection(tb).findAndModify({_id:getdb().toObjectID(id)}, QUERY_SINGLE_ORDER , {$pull:{pendingTransactions:transId}}, {safe:true, 'new':true}, function(err, result) {  
       // 正常情况下result一定会返回记录的，所以如果result不存在，则表示失败。
@@ -158,15 +163,15 @@ exports.endTransaction = function(transId, fnCallback) {
     getdb().collection(COLL_TRANSACTION).findOne({_id:getdb().toObjectID(transId)},function(err, trans) {  
       if(trans.state == 'committed') {
         changeTransState(transId, 'done', function(result) {
-          // 其他处理  
-          fnCallback('[T]   Transaction done'); 
-       });  
+          // 其他处理
+          fnCallback('[T]   Transaction done %s', transId); 
+        });
       }
-      else if(trans.state == 'canceling') {  
+      else if(trans.state == 'canceling') {
         changeTransState(transId, 'canceled', function(result) {
-          // 其他处理  
+          // 其他处理
           fnCallback('[T]   Transaction canceled'); 
-        });  
+        });
       }
     else {
       console.log('[T]   Unkown transaction state: %s', trans);
