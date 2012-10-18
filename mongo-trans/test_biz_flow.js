@@ -15,11 +15,9 @@ transaction.init(function(){
   return db;
 });
 
-var COLL_USER = exports.COLL_USER = 'user';
-var COLL_LOG = exports.COLL_LOG = 'mylog';
+// var COLL_USER = exports.COLL_USER = 'user';
+// var COLL_LOG = exports.COLL_LOG = 'mylog';
 
-// 测试故障恢复的标志（根据这个标志随机的强制发生故障）
-var flagTestFailOver = false;
 
 console.log('Node.js version: %s', process.env.NODE_VERSION);
 
@@ -30,18 +28,17 @@ console.log('Node.js version: %s', process.env.NODE_VERSION);
 // 从A转移10个积分给处于非锁定状态的B。（测试同时更新的事务）
 function testTransactionSuccess(fnCallback){
   var operation = new transaction.Operation();
-  operation.add_update(COLL_USER, {from:'allenny.iteye.com', to:'bar.iteye.com', score:10});
+  operation.add_update(base.COLL_USER, {from:'allenny.iteye.com', to:'bar.iteye.com', score:10});
 
   transaction.createTransaction(operation, function(transId) {
     if(transId) {
       transaction.beginTransaction(transId, function(transId) {
-        base.doScoreTransfer(transId, operation, true, function(ids) {
-          if(ids && ids.length > 0) {
-            var commitments = [new Commitment(COLL_USER, ids[0]), new Commitment(COLL_USER, ids[1])];
+        base.doScoreTransfer(transId, operation.data, false, function(commitments) {
+          if(commitments && commitments.length > 0) {
             transaction.commit(transId, commitments, fnCallback);  
           }
           else {
-            transaction.rollback(transId, rollbackScoreTransfer, fnCallback); 
+            transaction.rollback(transId, base.rollbackScoreTransfer, fnCallback); 
           }
         });
       });
@@ -53,35 +50,44 @@ function testTransactionSuccess(fnCallback){
 function testTransactionWithInsertSuccess(fnCallback) {
   var operation = new transaction.Operation();
   var logTime = Date.now();
-  operation.add_insert(COLL_LOG, {user:'bar.iteye.com',timestamp:logTime}).add_update(COLL_USER, {name:'bar.iteye.com', score:-10});
-//  transaction.createTransaction({insert:[{coll:COLL_LOG}], update:[{coll:COLL_USER, name:'bar.iteye.com', score:-10}]}, function(transId) {
+  operation.add_update(base.COLL_USER, {name:'bar.iteye.com', score:-10});
+  operation.add_insert(base.COLL_LOG, {user:'bar.iteye.com', deductscore:10, timestamp:logTime})
+//  transaction.createTransaction({insert:[{coll:base.COLL_LOG}], update:[{coll:base.COLL_USER, name:'bar.iteye.com', score:-10}]}, function(transId) {
   transaction.createTransaction(operation, function(transId) {
     if(transId) {
       transaction.beginTransaction(transId, function(transId) {
+        base.doDeduction(transId, operation.data, false, function(commitments) {
+          if(commitments && commitments.length > 0) {
+            transaction.commit(transId, commitments, fnCallback);  
+          }
+          else {
+            transaction.rollback(transId, base.rollbackDeduction, fnCallback); 
+          }
+        });
         
         // 开始业务逻辑
-        base.db.collection(COLL_USER).findAndModify(
-            {name:'bar.iteye.com', pendingTransactions:{$ne:transId}}, transaction.QUERY_SINGLE_ORDER,
-            {$inc:{score:-10}, $push:{pendingTransactions:transId}}, {safe:true, 'new':true}, function(err, user){
-          if(err || !user) {
-            console.log('[T] 从账户%s扣除积分失败： %s ', 'bar,iteye.com', util.inspect(err));
-            return fnCallback();
-          }
-          //console.log('[T] 账户 %s', util.inspect(user));
-          base.db.collection(COLL_LOG).insert(
-              {user:'bar.iteye.com', deductscore:10, timestamp:logTime, pendingTransactions:[transId]}, 
-              {safe:true}, function(err, logs) {
-            if(err || !logs || logs.length == 0) {
-              console.log('[T] 插入扣分日志失败： %s %s', util.inspect(err), util.inspect(logs));
-              transaction.rollback(transId, rollbackDeduction, fnCallback); 
-            }
-            else {
-              //console.log('[T] 日志 %s', util.inspect(logs));
-              var commitments = [new Commitment(COLL_USER, user._id), new Commitment(COLL_LOG, logs[0]._id)];
-              transaction.commit(transId, commitments, fnCallback);              
-            }
-          });
-        });
+        // base.db.collection(base.COLL_USER).findAndModify(
+        //     {name:'bar.iteye.com', pendingTransactions:{$ne:transId}}, transaction.QUERY_SINGLE_ORDER,
+        //     {$inc:{score:-10}, $push:{pendingTransactions:transId}}, {safe:true, 'new':true}, function(err, user){
+        //   if(err || !user) {
+        //     console.log('[T] 从账户%s扣除积分失败： %s ', 'bar,iteye.com', util.inspect(err));
+        //     return fnCallback();
+        //   }
+        //   //console.log('[T] 账户 %s', util.inspect(user));
+        //   base.db.collection(base.COLL_LOG).insert(
+        //       {user:'bar.iteye.com', deductscore:10, timestamp:logTime, pendingTransactions:[transId]}, 
+        //       {safe:true}, function(err, logs) {
+        //     if(err || !logs || logs.length == 0) {
+        //       console.log('[T] 插入扣分日志失败： %s %s', util.inspect(err), util.inspect(logs));
+        //       transaction.rollback(transId, base.rollbackDeduction, fnCallback); 
+        //     }
+        //     else {
+        //       //console.log('[T] 日志 %s', util.inspect(logs));
+        //       var commitments = [new Commitment(base.COLL_USER, user._id), new Commitment(base.COLL_LOG, logs[0]._id)];
+        //       transaction.commit(transId, commitments, fnCallback);              
+        //     }
+        //   });
+        // });
         
       });
     }
@@ -92,17 +98,17 @@ function testTransactionWithInsertSuccess(fnCallback) {
 // 尝试从B转移10个积分给处于锁定状态的C，此操作应回滚。
 function testTransactionFail(fnCallback) {
   var operation = new transaction.Operation();
-  operation.add_update(COLL_USER, {from:'bar.iteye.com', to:'car.iteye.com', score:10});
+  operation.add_update(base.COLL_USER, {from:'bar.iteye.com', to:'car.iteye.com', score:10});
   transaction.createTransaction(operation, function(transId) {
     if(transId) {
       transaction.beginTransaction(transId, function(transId) {
-        base.doScoreTransfer(transId, operation, true, function(ids) {
+        base.doScoreTransfer(transId, operation.data, false, function(ids) {
           if(ids && ids.length > 0) {
-            var commitments = [new Commitment(COLL_USER, ids[0]), new Commitment(COLL_USER, ids[1])];
+            var commitments = [new Commitment(base.COLL_USER, ids[0]), new Commitment(base.COLL_USER, ids[1])];
             transaction.commit(transId, commitments, fnCallback);  
           }
           else {
-            transaction.rollback(transId, rollbackScoreTransfer, fnCallback); 
+            transaction.rollback(transId, base.rollbackScoreTransfer, fnCallback); 
           }
         });
       });
@@ -115,22 +121,22 @@ function testTransactionFail(fnCallback) {
  * Create 3 test users A B C.
  */
 var initTestUsers = exports.initTestUsers = function (fnCallback) {
-  base.db.collection(COLL_USER).ensureIndex([['name', 1]], {safe:true, unique:true}, function(err, result) {
+  base.db.collection(base.COLL_USER).ensureIndex([['name', 1]], {safe:true, unique:true}, function(err, result) {
 
     // User A
-    base.db.collection(COLL_USER).insert({name:'allenny.iteye.com', score:10000, state:'active'}, {safe:true}, function(err, result) {
+    base.db.collection(base.COLL_USER).insert({name:'allenny.iteye.com', score:10000, state:'active'}, {safe:true}, function(err, result) {
       if(err || !result) {
         console.log('[Fail] %s', err);
       }
 
       // User B
-      base.db.collection(COLL_USER).insert({name:'bar.iteye.com', score:0, state:'active'}, {safe:true}, function(err, result) {
+      base.db.collection(base.COLL_USER).insert({name:'bar.iteye.com', score:0, state:'active'}, {safe:true}, function(err, result) {
         if(err || !result) {
           console.log('[Fail] %s', err);
         }
 
         // User C
-        base.db.collection(COLL_USER).insert({name:'candy.iteye.com', score:0, state:'locked'}, {safe:true}, function(err, result) {
+        base.db.collection(base.COLL_USER).insert({name:'candy.iteye.com', score:0, state:'locked'}, {safe:true}, function(err, result) {
           if(err || !result) {
             console.log('[Fail] %s', err);
           }
@@ -143,8 +149,11 @@ var initTestUsers = exports.initTestUsers = function (fnCallback) {
 };
 
 /**
- * $ node <loops> <testFailOver=true:false>
  * 三个账户A，B，C，从A账户转积分至B，从B账户尝试转积分至C（回滚）
+ * $ node <loops> <testFailOver=true:false>
+ * @loops How many times each test runs
+ * @testFailOver 5% probability to force transaction fail to test fail over functionality.
+ * 
  */
 var  main = exports.main = function() {
 
@@ -156,12 +165,10 @@ var  main = exports.main = function() {
   }
 
   if(process.argv[3]) {
-    flagTestFailOver = process.argv[3];
+    base.flagTestFailOver = process.argv[3];
   }
 
-  if(flagTestFailOver === 'true') {
-    console.log('Test with system failure'); 
-  }
+  console.log('Test %s system failure', base.flagTestFailOver == 'true' ? 'with' : 'without'); 
 
   // 尝试生成测试用户（不存在的话）
   initTestUsers(function() {
@@ -190,10 +197,13 @@ var  main = exports.main = function() {
               }
             });
           }
-          
         }
       });
     }
   });
 };
 
+// Run test if no exported by others.
+if(!module.parent) {
+  main();
+}

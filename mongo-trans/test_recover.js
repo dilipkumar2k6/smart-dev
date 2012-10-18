@@ -34,7 +34,7 @@ function testRecoverPending(fnCallback) {
 
     // 重新执行业务逻辑
     var transId = trans._id;
-    base.doScoreTransfer(transId, trans, false, function(ids) {
+    base.doScoreTransfer(transId, trans, true, function(ids) {
       if(ids && ids.length > 0) {
         transaction.commit(transId, [{collection:test.COLL_USER, id:ids[0]}, {collection:test.COLL_USER, id:ids[1]}], function(result) {
           handleRecoverWork(result);
@@ -60,7 +60,9 @@ var testRecoverCommitted = exports.testRecoverCommitted = function(fnCallback) {
     // 最后一个
     if(!trans) return fnCallback(idx);
 
-    console.log('Redo commitment: from %s to %s', trans.update.data.from, trans.update.data.to);
+    console.log('Transaction: %s', util.inspect(trans));
+
+    console.log('Redo commitment: from %s to %s', trans.update[0].data.from, trans.update[0].data.to);
 
     // 重新执行commit业务逻辑
     var transId = trans._id;
@@ -109,5 +111,10 @@ var  main = exports.main = function() {
       }
     });
   });
+}
 
+
+// Run test if no exported by others.
+if(!module.parent) {
+  main();
 }

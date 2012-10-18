@@ -6,12 +6,11 @@ var test_biz_flow = require('./test_biz_flow');
 var test_recover = require('./test_recover');
 
 if(process.argv.length < 2) {
-  return console.log('Usage: node 0 | 1');
+  return console.log('Usage: node test.js 0|1');
 }
 
 if(process.argv[2] == '0') {
   test_recover.main();
-
 }
 else {
   test_biz_flow.main();
