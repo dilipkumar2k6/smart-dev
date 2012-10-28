@@ -17,6 +17,7 @@ import android.util.Log;
 /**
  * Access SQLite database from local file system(usually SDCard).
  * Extend me to do more works on database.
+ * Override initTables() method to create database schema.
  * Call connect() before invoking any database operation method.
  * @author yuxing
  *
@@ -196,7 +197,7 @@ public class FileDataSource {
 	
 	public boolean isExists(String tableName, String uniqueCol, String colValue) {
 		String sql = "select * from " + tableName + " where " + uniqueCol + "='" + colValue + "'";
-//		Log.d("afw", "SQL:" + sql);
+//		Log.d("db", "SQL:" + sql);
 		Cursor cur = null;
 		try {
 			cur = db.rawQuery(sql, null);
@@ -286,13 +287,8 @@ public class FileDataSource {
 		}
 		try {
 			int rows = db.delete(tbName, "ID=?", new String[]{"" + pkID});
-			Log.i("afw", "" + rows  + " rows deleted.");
-			if(rows > 0) {
-				return true;
-			}
-			else {
-				return false;
-			}
+			Log.i("db", "" + rows  + " rows deleted.");
+			return (rows > 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
