@@ -139,6 +139,8 @@ public abstract class BaseActivity extends Activity {
 		tagOk = resources.getString(android.R.string.ok);
 		tagCancel = resources.getString(android.R.string.cancel);
 		tagClose = rs.getString(R.string.common_close);
+		tagYes = rs.getString(android.R.string.yes);
+		tagNo = rs.getString(android.R.string.no);
 		
 		dm = context.getApplicationContext().getResources().getDisplayMetrics();
 		sw = dm.widthPixels;
@@ -219,7 +221,7 @@ public abstract class BaseActivity extends Activity {
 	 * @param title
 	 * @param msg
 	 * @param inputInit Init the input edit text.
-	 * @param callback Callback when click OK button.
+	 * @param callback Callback with user inputs when click OK button.
 	 * @return
 	 */
 	protected AlertDialog showInputDialog(String title, String msg, String inputInit, final DialogCallback callback) {
@@ -466,12 +468,32 @@ public abstract class BaseActivity extends Activity {
 	}
 	
 	/**
+	 * Get view by it's name which is defined in XML.
+	 * @param name
+	 * @return
+	 */
+	protected View getViewByName(String name) {
+		int id = rs.getIdentifier(name, "id", getPackageName());
+		if(id == 0) {
+			return null;
+		}
+		return this.findViewById(id);
+	}
+	
+	/**
 	 * 
 	 * @param resourceId
 	 * @return
 	 */
 	protected TextView getTextView(int resourceId) {
 		return (TextView)this.findViewById(resourceId);
+	}
+	
+	protected void setTextViewText(int resourceId, String str) {
+		TextView tv = this.getTextView(resourceId);
+		if(tv!=null) {
+			tv.setText(str);
+		}	
 	}
 	
 	/**
@@ -481,6 +503,14 @@ public abstract class BaseActivity extends Activity {
 	 */
 	protected Button getButton(int resourceId) {
 		return (Button)this.findViewById(resourceId);
+	}
+	
+	/**
+	 * Simply start activity by it Class type.
+	 * @param clazz
+	 */
+	protected void startActivity(Class clazz) {
+		startActivity(new Intent(context, clazz));
 	}
 	
 	/**
