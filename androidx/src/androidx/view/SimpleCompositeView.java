@@ -82,9 +82,16 @@ public class SimpleCompositeView {
 	}
 
 	public void render() {
+		if(this.alv == null){
+			throw new RuntimeException("The composite was not init correctly.");
+		}
 		this.alv.setAdapter(adapter);
 	}
 	
+	/**
+	 * 
+	 * @param handler Invoked with ID and displayed contents if ID exists.
+	 */
 	public void onItemClick(final Callback handler) {
 		this.alv.setOnItemClickListener(new OnItemClickListener() {
 
@@ -96,6 +103,10 @@ public class SimpleCompositeView {
 		});
 	}
 	
+	/**
+	 * 
+	 * @param handler Invoked with ID and displayed contents if ID exists.
+	 */
 	public void onItemLongClick(final Callback handler) {
 		this.alv.setOnItemLongClickListener(new OnItemLongClickListener() {
 
@@ -112,6 +123,7 @@ public class SimpleCompositeView {
 		Map item = data.get(pos);
 		Object bizid = item.get(idkey);
 		if(bizid == null) {
+			Log.d("androidx", "No business ID there, callback without anything");
 			handler.invoke();
 		}
 		else {
@@ -120,4 +132,8 @@ public class SimpleCompositeView {
 		}
 	}
 
+	public List<Map<String, ?>> getData() {
+		return data;
+	}
+	
 }

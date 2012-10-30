@@ -23,6 +23,8 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
@@ -35,6 +37,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 /**
@@ -72,7 +75,7 @@ public abstract class BaseActivity extends Activity {
 	protected AlertDialog progressDialog;
 
 	// 单项输入对话框
-	protected AlertDialog inputDialog;
+	protected AlertDialog searchDialog;
 
 	// 单选组对话框
 	protected AlertDialog radioGroupDialog;
@@ -145,6 +148,12 @@ public abstract class BaseActivity extends Activity {
 		dm = context.getApplicationContext().getResources().getDisplayMetrics();
 		sw = dm.widthPixels;
 		sh = dm.heightPixels;
+	}
+	
+	protected void setWindowFullscreenNoTitle() {
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 	}
 
 	public void startActivityByName(String actName) {
@@ -235,22 +244,22 @@ public abstract class BaseActivity extends Activity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onPositive(txtInput.getText().toString().trim());
-				inputDialog.dismiss();
+				searchDialog.dismiss();
 			}
 		});
 		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onNegative(dialog);
-				inputDialog.dismiss();
+				searchDialog.dismiss();
 			}
 		});
 
 		txtInput.setText(inputInit);
-		inputDialog = dBuilder.create();
-		inputDialog.setTitle(title);
-		inputDialog.show();
-		return inputDialog;
+		searchDialog = dBuilder.create();
+		searchDialog.setTitle(title);
+		searchDialog.show();
+		return searchDialog;
 	}
 
 	/**
@@ -503,6 +512,18 @@ public abstract class BaseActivity extends Activity {
 	 */
 	protected Button getButton(int resourceId) {
 		return (Button)this.findViewById(resourceId);
+	}
+	
+	protected EditText getEditText(int resId) {
+		return (EditText)this.findViewById(resId);
+	}
+	
+	protected Spinner getSpinner(int resId) {
+		return (Spinner)this.findViewById(resId);
+	}
+	
+	protected ListView getListView(int resourceId) {
+		return (ListView)this.findViewById(resourceId);
 	}
 	
 	/**

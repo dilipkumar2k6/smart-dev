@@ -15,14 +15,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 /**
- * Access SQLite database from local file system(usually SDCard).
+ * Access SQLite database from local file system(usually SDCard) or system storage.
  * Extend me to do more works on database.
- * Override initTables() method to create database schema.
- * Call connect() before invoking any database operation method.
+ * 1. Override initTables() method to create database schema.
+ * 2. Override getDB() if you want to provide other ways to SQLite database like system built-in.
+ * 2. Call connect() before invoking any database operation method.
+ * 3. Don't forget init table schema before everything.
  * @author yuxing
  *
  */
-public class FileDataSource {
+public class BaseDataSource {
 	
 	public static final String TABLE_NAME_USER_META = "USER_META";
 
@@ -34,22 +36,46 @@ public class FileDataSource {
 			+ " DEFAULT_VALUE text, "
 			+ " MODIFY_TIME long not null, "
 			+ " EXT_DATA text)";
+
 	
-	protected String dbFilePath;
+	protected String dbNameOrFilePath;
 	
 	protected SQLiteDatabase db ;
-	
+
 	protected final String SQL_DROP_TABLE = "drop table ${tableName}";
 
 	protected final String SQL_FIND_ALL = "select * from ${tableName}";
 
-	/**
-	 * Constructor.
-	 * @param dbFilePath
-	 */
-	public FileDataSource(String dbFilePath) {
+	public BaseDataSource(String dbNameOrFilePath) {
 		super();
-		this.dbFilePath = dbFilePath;
+		this.dbNameOrFilePath = dbNameOrFilePath;
+	}	
+	
+	protected SQLiteDatabase getDB() {
+		File dbFile = null;
+		dbFile = new File(dbNameOrFilePath);
+		if (!dbFile.exists()) {
+			Log.i("db", "Database file " + dbNameOrFilePath + " does not exist, cureate a new file.");
+			try {
+				if (!dbFile.getParentFile().exists()) {
+					if (dbFile.getParentFile().mkdirs() == false) {
+						Log.e("db", "Failed to create db directory : " + dbFile.getParent());
+						return null;
+					}
+					else {
+						Log.i("db", "Black list db directory created: " + dbFile.getParent());
+					}
+				}
+				if(dbFile.createNewFile() == false) {
+					Log.d("db", "Failed to create db file: " + dbFile);
+					return null;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return SQLiteDatabase.openOrCreateDatabase(dbFile, null);
 	}
 	
 	/**
@@ -59,31 +85,12 @@ public class FileDataSource {
 		if(db != null && db.isOpen()) {
 			return;
 		}
-		File dbFile = null;
-		dbFile = new File(dbFilePath);
-		if (!dbFile.exists()) {
-			try {
-				if (!dbFile.getParentFile().exists()) {
-					if (dbFile.getParentFile().mkdirs() == false) {
-						Log.e("db", "Failed to create db directory : " + dbFile.getParent());
-						return;
-					}
-					else {
-						Log.i("db", "Black list db directory created: " + dbFile.getParent());
-					}
-				}
-				if(dbFile.createNewFile() == false) {
-					Log.d("db", "Failed to create db file: " + dbFile);
-					return;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				return;
-			}
-		}
-		db = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
+		db = getDB();
 	}
 	
+	/**
+	 * 
+	 */
 	public void disconnect() {
 		if (db != null && db.isOpen()) {
 			db.close();
@@ -237,11 +244,13 @@ public class FileDataSource {
 	 * @return 一个List，每一项表示一条记录，每项用Map表示，key为字段名，value为字段值。
 	 */
 	public List<Map> findAll(String tableName, String whereClause,  String orderByClause) {
-		if(db == null || !db.isOpen()) {
+		if(db == null) {
 			Log.e("db", "Database instance is not correctly initilized.");
 			return null;
 		}
-		connect();
+		if(!db.isOpen()) {
+			connect();
+		}
 		Log.d("db", "Find all in table " + tableName);
 		List<Map> result = new ArrayList();
 //		String sql = SQL_FIND_ALL.replace("${tableName}", tableName);
@@ -282,9 +291,7 @@ public class FileDataSource {
 	 * @return
 	 */
 	public boolean deleteRow(String tbName, long pkID) {
-		if (this.db == null) {
-			return false;
-		}
+		prepareToConnect();
 		try {
 			int rows = db.delete(tbName, "ID=?", new String[]{"" + pkID});
 			Log.i("db", "" + rows  + " rows deleted.");
@@ -294,6 +301,17 @@ public class FileDataSource {
 			return false;
 //		} finally {
 //			this.disconnect();
+		}
+	}
+	
+	// TODO use this method for every operation.
+	protected void prepareToConnect() {
+		if(db == null) {
+			Log.e("db", "Database instance is not correctly initilized.");
+			throw new RuntimeException("Database instance is not correctly initilized.");
+		}
+		if(!db.isOpen()) {
+			connect();
 		}
 	}
 
