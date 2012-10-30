@@ -1,17 +1,10 @@
 package androidx.view;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import android.content.Context;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import androidx.Callback;
 
 /**
  * The ListView with SimpleAdapter is not simple actually, so this SimpleListView
