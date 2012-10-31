@@ -180,7 +180,8 @@ public class BaseDataSource {
 		try {
 			db.execSQL(sql);
 		} catch (SQLException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			Log.w("db", e.getLocalizedMessage());
 		} finally {
 			Log.i("db", "Table created");
 //			db.close();
@@ -277,6 +278,7 @@ public class BaseDataSource {
 	
 	public long countTable(String table, String filter, String[] values) {
 		//TODO 暂时用query替代实现，如果有性能问题，再改成用rawQuery实现
+		prepareToConnect();
 		Cursor cursor = db.query(table, null, filter, values, null, null, null, null);
 		long i=0;
 		for(;cursor.moveToNext();i++){}

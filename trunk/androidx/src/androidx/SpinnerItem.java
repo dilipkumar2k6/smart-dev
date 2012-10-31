@@ -6,11 +6,11 @@ package androidx;
  * @author yuxing
  *
  */
-public class SpnnerItem {
+public class SpinnerItem {
 	private long id;
 	private Object value;
 
-	public SpnnerItem(long id, Object value) {
+	public SpinnerItem(long id, Object value) {
 		super();
 		this.id = id;
 		this.value = value;
