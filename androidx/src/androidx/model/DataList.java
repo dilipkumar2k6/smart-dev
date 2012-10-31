@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import androidx.Callback;
-
 /**
  * Represent data recordset.
  * 
@@ -18,9 +16,13 @@ public class DataList extends ArrayList<Map> {
 		super(collection);
 	}
 
-	public void traverse(Callback<Map> handler) {
+	public void traverse(Callback handler) {
 		for (int i = 0; i < this.size(); i++) {
-			handler.invoke((Map)this.get(i));
+			handler.invoke(i, (Map)this.get(i));
 		}
+	}
+	
+	public static interface Callback {
+		public void invoke(int i, Map row);
 	}
 }
