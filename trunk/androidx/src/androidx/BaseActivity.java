@@ -1,5 +1,9 @@
 package androidx;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.androidx.R;
 
 import android.app.Activity;
@@ -39,6 +43,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import androidx.model.DataList;
 
 /**
  * 提供常用功能的基础Activity类<td/>
@@ -520,6 +525,32 @@ public abstract class BaseActivity extends Activity {
 	
 	protected Spinner getSpinner(int resId) {
 		return (Spinner)this.findViewById(resId);
+	}
+	
+	protected Spinner setSpinner(int resId, DataList data, final String idkey, final String valuekey) {
+		final List items = new ArrayList();
+		data.traverse(new DataList.Callback() {
+
+			@Override
+			public void invoke(int i, Map row) {
+				items.add(new SpnnerItem(Long.parseLong(row.get(idkey).toString()), row.get(valuekey).toString()));
+			}
+			
+		});
+		return setSpinner(resId, items.toArray());
+	}
+	
+	protected Spinner setSpinner(int resId, Object[] data) {
+		Spinner spinner = getSpinner(resId);
+		if(spinner == null) {
+			Log.w("androidx", "Failed to load Spinner: " + rs.getResourceEntryName(resId));
+			return null;
+		}
+
+		ArrayAdapter adapter = new ArrayAdapter(context, android.R.layout.simple_spinner_item, data);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(adapter);
+		return spinner;
 	}
 	
 	protected ListView getListView(int resourceId) {
