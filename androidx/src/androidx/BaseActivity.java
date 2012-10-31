@@ -533,7 +533,7 @@ public abstract class BaseActivity extends Activity {
 
 			@Override
 			public void invoke(int i, Map row) {
-				items.add(new SpnnerItem(Long.parseLong(row.get(idkey).toString()), row.get(valuekey).toString()));
+				items.add(new SpinnerItem(Long.parseLong(row.get(idkey).toString()), row.get(valuekey).toString()));
 			}
 			
 		});
