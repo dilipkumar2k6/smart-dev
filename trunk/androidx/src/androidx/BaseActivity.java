@@ -44,6 +44,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.model.DataList;
+import androidx.model.DataRow;
 
 /**
  * 提供常用功能的基础Activity类<td/>
@@ -56,6 +57,12 @@ public abstract class BaseActivity extends Activity {
 
 	public static final String SYS_PROP_DEBUG_MODE = "androidx.debug";
 	public static final String SYS_PROP_DB_VERSION = "androidx.db.version";
+	
+	// Key of data in intent extra bundle.
+	protected final String INTENT_DATA_ID_KEY = "INTENT_DATA_ID";
+	protected final String INTENT_DATA_ARGS_KEY = "INTENT_DATA_ARGS";
+	protected final String INTENT_DATA_LIST_KEY = "INTENT_DATA_LIST";
+	protected final String INTENT_DATA_ROW_KEY = "INTENT_DATA_ROW";
 
 	protected Context context;
 	
@@ -168,6 +175,77 @@ public abstract class BaseActivity extends Activity {
 		startActivity(intent);
 	}
 	
+	/**
+	 * Simply start activity by it Class type.
+	 * @param clazz
+	 */
+	protected void startActivity(Class clazz) {
+		startActivity(new Intent(context, clazz));
+	}
+	
+	/**
+	 * Start activity with biz ID that represent a data row's PK usually.
+	 * use getIdFromPreActivity() to retrieve ID.
+	 * @param clazz
+	 * @param id
+	 */
+	protected void startActivity(Class clazz, long id) {
+		startActivity(clazz, id, null);	
+	}
+	
+	/**
+	 * Start activity with biz ID and arguments.
+	 * use getIdFromPreActivity() to retrieve ID.
+	 * use getArgsFromPreActivity() to retrieve arguments.
+	 * @param clazz
+	 * @param id Never be less than 0 or equal 0.
+	 * @param args
+	 */
+	protected void startActivity(Class clazz, long id, Bundle args) {
+		Intent intent = new Intent(context, clazz);
+		intent.putExtra(INTENT_DATA_ID_KEY, id);
+		if (args != null)
+			intent.putExtra(INTENT_DATA_ARGS_KEY, args);
+		startActivity(intent);
+	}
+	
+	protected void startActivity(Class clazz, DataList data) {
+		Intent intent = new Intent(context, clazz);
+		intent.putExtra(INTENT_DATA_LIST_KEY, data);
+		startActivity(intent);
+	}
+	
+	protected void startActivity(Class clazz, Map data) {
+		Intent intent = new Intent(context, clazz);
+		intent.putExtra(INTENT_DATA_ROW_KEY, new DataRow(data));
+		startActivity(intent);
+	}
+	
+	/**
+	 * Get ID from pre-activity
+	 * @return >0
+	 */
+	protected long getIdFromPreActivity() {
+		if(this.getIntent().getExtras() == null) {
+			return 0;
+		}
+		Object v = this.getIntent().getExtras().get(INTENT_DATA_ID_KEY);
+		if(v==null)return 0;
+		return (Long)v;
+	}
+	
+	protected Object getArgsFromPreActivity(String name) {
+		Bundle bundle = (Bundle)this.getIntent().getExtras().get(INTENT_DATA_ARGS_KEY);
+		return bundle.get(name);
+	}
+	
+	protected DataList getDataListFromPreviousActivity() {
+		throw new UnsupportedOperationException();
+	}
+	
+	protected DataRow getDataRowFromPreviousActivity() {
+		throw new UnsupportedOperationException();
+	}
 
 	/**
 	 * Show dialog with message to confirm something.
@@ -527,7 +605,15 @@ public abstract class BaseActivity extends Activity {
 		return (Spinner)this.findViewById(resId);
 	}
 	
-	protected Spinner setSpinner(int resId, DataList data, final String idkey, final String valuekey) {
+	/**
+	 * Init spinner with key-values which grab from DataList.
+	 * @param resId
+	 * @param data
+	 * @param idkey
+	 * @param valuekey
+	 * @return
+	 */
+	protected Spinner inittSpinner(int resId, DataList data, final String idkey, final String valuekey) {
 		final List items = new ArrayList();
 		data.traverse(new DataList.Callback() {
 
@@ -537,10 +623,16 @@ public abstract class BaseActivity extends Activity {
 			}
 			
 		});
-		return setSpinner(resId, items.toArray());
+		return initSpinner(resId, items.toArray());
 	}
 	
-	protected Spinner setSpinner(int resId, Object[] data) {
+	/**
+	 * Init spinner with data array which has no ID.
+	 * @param resId
+	 * @param data
+	 * @return
+	 */
+	protected Spinner initSpinner(int resId, Object[] data) {
 		Spinner spinner = getSpinner(resId);
 		if(spinner == null) {
 			Log.w("androidx", "Failed to load Spinner: " + rs.getResourceEntryName(resId));
@@ -553,17 +645,30 @@ public abstract class BaseActivity extends Activity {
 		return spinner;
 	}
 	
+	/**
+	 * Set spinner's selection by item ID.
+	 * @param spinner
+	 * @param itemId
+	 */
+	protected void setSpinner(Spinner spinner, long itemId) {
+		if(spinner == null || itemId < 0) {
+			return ;
+		}
+		int n = spinner.getAdapter().getCount();
+		for(int i=0; i<n; i++) {
+			SpinnerItem si = (SpinnerItem)spinner.getItemAtPosition(i);
+			debug(itemId + " -- " + si.getId());
+			if(itemId == si.getId()){
+				spinner.setSelection(i);
+				return;
+			}
+		}
+	}
+	
 	protected ListView getListView(int resourceId) {
 		return (ListView)this.findViewById(resourceId);
 	}
-	
-	/**
-	 * Simply start activity by it Class type.
-	 * @param clazz
-	 */
-	protected void startActivity(Class clazz) {
-		startActivity(new Intent(context, clazz));
-	}
+
 	
 	/**
 	 * 取出并处理嵌入式的字符资源，嵌入格式: {编号}
@@ -585,6 +690,9 @@ public abstract class BaseActivity extends Activity {
 		return resource;
 	}
 
+	protected void debug(Object log) {
+		Log.d("androidx", log.toString());
+	}
 
 	/**
 	 * 用于对话框的回调。
