@@ -83,13 +83,13 @@ public class SimpleCompositeView {
 
 	public void render() {
 		if(this.alv == null){
-			throw new RuntimeException("The composite was not init correctly.");
+			throw new RuntimeException("The composite view was not init correctly.");
 		}
 		this.alv.setAdapter(adapter);
 	}
 	
 	/**
-	 * 
+	 * Set handler for item clicked event.
 	 * @param handler Invoked with ID and displayed contents if ID exists.
 	 */
 	public void onItemClick(final Callback handler) {
@@ -104,7 +104,7 @@ public class SimpleCompositeView {
 	}
 	
 	/**
-	 * 
+	 * Set handler for item long clicked event.
 	 * @param handler Invoked with ID and displayed contents if ID exists.
 	 */
 	public void onItemLongClick(final Callback handler) {

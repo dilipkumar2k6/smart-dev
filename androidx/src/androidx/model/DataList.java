@@ -2,8 +2,9 @@ package androidx.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+
+import androidx.Utils;
 
 /**
  * Represent data recordset.
@@ -24,13 +25,7 @@ public class DataList<T extends Map> extends ArrayList<T> {
 	}
 	
 	public void addRow(String[] keys, Object[] values) {
-		if(keys==null || values == null|| keys.length != values.length) {
-			return;
-		}
-		Map m = new HashMap();
-		for(int i=0; i<keys.length; i++) {
-			m.put(keys[i], values[i]);
-		}
+		Map m = Utils.arrays2map(keys, values);
 		this.add((T)m);
 	}
 	
