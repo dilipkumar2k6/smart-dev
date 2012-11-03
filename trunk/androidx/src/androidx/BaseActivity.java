@@ -175,12 +175,21 @@ public abstract class BaseActivity extends Activity {
 		startActivity(intent);
 	}
 	
+	protected void startActivity(Class clazz) {
+		startActivity(clazz, false);
+	}
+	
 	/**
 	 * Simply start activity by it Class type.
 	 * @param clazz
 	 */
-	protected void startActivity(Class clazz) {
-		startActivity(new Intent(context, clazz));
+	protected void startActivity(Class clazz, boolean forResult) {
+		if(forResult) {
+			startActivityForResult(new Intent(context, clazz), 1);
+		}
+		else {
+			startActivity(new Intent(context, clazz));
+		}
 	}
 	
 	/**
@@ -189,8 +198,8 @@ public abstract class BaseActivity extends Activity {
 	 * @param clazz
 	 * @param id
 	 */
-	protected void startActivity(Class clazz, long id) {
-		startActivity(clazz, id, null);	
+	protected void startActivity(Class clazz, long id, boolean forResult) {
+		startActivity(clazz, id, null, forResult);	
 	}
 	
 	/**
@@ -201,12 +210,17 @@ public abstract class BaseActivity extends Activity {
 	 * @param id Never be less than 0 or equal 0.
 	 * @param args
 	 */
-	protected void startActivity(Class clazz, long id, Bundle args) {
+	protected void startActivity(Class clazz, long id, Bundle args, boolean forResult) {
 		Intent intent = new Intent(context, clazz);
 		intent.putExtra(INTENT_DATA_ID_KEY, id);
 		if (args != null)
 			intent.putExtra(INTENT_DATA_ARGS_KEY, args);
-		startActivity(intent);
+		if(forResult) {
+			startActivityForResult(intent, 1);
+		}
+		else {
+			startActivity(intent);			
+		}
 	}
 	
 	protected void startActivity(Class clazz, DataList data) {
@@ -220,6 +234,12 @@ public abstract class BaseActivity extends Activity {
 		intent.putExtra(INTENT_DATA_ROW_KEY, new DataRow(data));
 		startActivity(intent);
 	}
+	
+	protected void finishWithId(long id) {
+		getIntent().getExtras().putLong(INTENT_DATA_ID_KEY, id);
+		finish();
+	}
+	
 	
 	/**
 	 * Get ID from pre-activity
@@ -601,6 +621,18 @@ public abstract class BaseActivity extends Activity {
 		return (EditText)this.findViewById(resId);
 	}
 	
+	protected String getEditTextString(int resId) {
+		return getEditText(resId).getText().toString();
+	}
+	
+//	protected int getEditTextInt(int resId) {
+//		String str = getEditTextString(resId);
+//		if(Utils.isEmpty(str)) {
+//			return 0;
+//		}
+//		Integer.parseInt(str);
+//	}
+	
 	protected Spinner getSpinner(int resId) {
 		return (Spinner)this.findViewById(resId);
 	}
@@ -613,12 +645,12 @@ public abstract class BaseActivity extends Activity {
 	 * @param valuekey
 	 * @return
 	 */
-	protected Spinner inittSpinner(int resId, DataList data, final String idkey, final String valuekey) {
+	protected Spinner initSpinner(int resId, DataList data, final String idkey, final String valuekey) {
 		final List items = new ArrayList();
-		data.traverse(new DataList.Callback() {
+		data.traverse(new DataList.Callback<DataRow>() {
 
 			@Override
-			public void invoke(int i, Map row) {
+			public void invoke(int i, DataRow row) {
 				items.add(new SpinnerItem(Long.parseLong(row.get(idkey).toString()), row.get(valuekey).toString()));
 			}
 			
@@ -664,6 +696,20 @@ public abstract class BaseActivity extends Activity {
 			}
 		}
 	}
+	
+//	protected void add2Spinner(Spinner spinner, long itemId, Object value) {
+//		if(spinner == null || itemId < 0) {
+//			return ;
+//		}
+//		ArrayAdapter adapter = (ArrayAdapter)spinner.getAdapter();
+//		
+//		int n = adapter.getCount();
+//		for(int i=0; i<n; i++) {
+//			SpinnerItem si = (SpinnerItem)spinner.getItemAtPosition(i);
+//			debug(itemId + " -- " + si.getId());
+//			// TODO
+//		}
+//	}
 	
 	protected ListView getListView(int resourceId) {
 		return (ListView)this.findViewById(resourceId);

@@ -5,6 +5,10 @@ import java.util.Map;
 
 
 public class Utils {
+	
+	public static boolean isEmpty(String str) {
+		return str == null || str.length() == 0;
+	}
 
 	/**
 	 * Convert key-value arrays to map.

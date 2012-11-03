@@ -263,7 +263,12 @@ public class BaseDataSource {
 			Map row = new HashMap();
 			for (int i = 0; i < count; i++) {
 				String colName = cursor.getColumnName(i);
-				row.put(colName, cursor.getString(i));
+				if("ID".equals(colName)) {
+					row.put(colName, cursor.getLong(i));	
+				}
+				else {
+					row.put(colName, cursor.getString(i));
+				}
 			}
 			result.add(row);
 		}
@@ -308,11 +313,11 @@ public class BaseDataSource {
 	
 	// TODO use this method for every operation.
 	protected void prepareToConnect() {
-		if(db == null) {
-			Log.e("db", "Database instance is not correctly initilized.");
-			throw new RuntimeException("Database instance is not correctly initilized.");
-		}
-		if(!db.isOpen()) {
+//		if(db == null) {
+//			Log.e("db", "Database instance is not correctly initilized.");
+//			throw new RuntimeException("Database instance is not correctly initilized.");
+//		}
+		if(db == null || !db.isOpen()) {
 			connect();
 		}
 	}
