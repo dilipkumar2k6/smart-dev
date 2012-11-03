@@ -1,9 +1,11 @@
 package androidx.view;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
@@ -22,6 +24,7 @@ public class SimpleCompositeView {
 
 	public SimpleCompositeView(AbsListView alv) {
 		this.alv = alv;
+		data = new ArrayList();
 	}
 
 	/**
@@ -80,6 +83,11 @@ public class SimpleCompositeView {
 		}
 		return false;
 	}
+	
+	public void clear() {
+		data.clear();
+		this.render();
+	}
 
 	public void render() {
 		if(this.alv == null){
@@ -127,6 +135,7 @@ public class SimpleCompositeView {
 			handler.invoke();
 		}
 		else {
+			Log.d("androidx", "Select business ID " + bizid + "[" + bizid.getClass() + "]");
 			handler.invoke(bizid);
 			handler.invoke(bizid, item.get(keys[0]), item.get(keys[1]));
 		}

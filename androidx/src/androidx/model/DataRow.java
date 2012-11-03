@@ -10,7 +10,7 @@ public class DataRow extends HashMap<String, Object> implements Serializable {
 		super();
 	}
 
-	public DataRow(Map<? extends String, ? extends Object> map) {
+	public DataRow(Map map) {
 		super(map);
 	}
 
