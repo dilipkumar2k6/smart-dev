@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Access SQLite database from local file system(usually SDCard) or system storage.
@@ -37,45 +39,69 @@ public class BaseDataSource {
 			+ " MODIFY_TIME long not null, "
 			+ " EXT_DATA text)";
 
-	
-	protected String dbNameOrFilePath;
+	protected Context context;
+	protected String dbFilePath;
+	protected String dbName;
 	
 	protected SQLiteDatabase db ;
 
 	protected final String SQL_DROP_TABLE = "drop table ${tableName}";
 
 	protected final String SQL_FIND_ALL = "select * from ${tableName}";
+	
+	
+	// 是否自动关闭连接，默认是true；如果启用事务则设为false，所有方法实现时根据这个标识来决定是否在操作结束时关闭连接。
+	protected boolean isAutoDisconnect = true;
 
-	public BaseDataSource(String dbNameOrFilePath) {
+	public BaseDataSource(String filePath, String dbName) {
 		super();
-		this.dbNameOrFilePath = dbNameOrFilePath;
+//		this.context = context;
+		this.dbFilePath = filePath;
+		this.dbName = dbName;
 	}	
 	
 	protected SQLiteDatabase getDB() {
-		File dbFile = null;
-		dbFile = new File(dbNameOrFilePath);
-		if (!dbFile.exists()) {
-			Log.i("db", "Database file " + dbNameOrFilePath + " does not exist, cureate a new file.");
-			try {
-				if (!dbFile.getParentFile().exists()) {
-					if (dbFile.getParentFile().mkdirs() == false) {
-						Log.e("db", "Failed to create db directory : " + dbFile.getParent());
+		// 如果有SDCARD則存在SD卡上面
+		if(isSDCardAvailable()) {
+			File dbFile = null;
+			dbFile = new File(dbFilePath + dbName + ".db");
+			if (!dbFile.exists()) {
+				Log.i("db", "Database file " + dbFilePath + " does not exist, cureate a new file.");
+				try {
+					if (!dbFile.getParentFile().exists()) {
+						if (dbFile.getParentFile().mkdirs() == false) {
+							Log.e("db", "Failed to create db directory : " + dbFile.getParent());
+							return null;
+						}
+						else {
+							Log.i("db", "Black list db directory created: " + dbFile.getParent());
+						}
+					}
+					if(dbFile.createNewFile() == false) {
+						Log.d("db", "Failed to create db file: " + dbFile);
 						return null;
 					}
-					else {
-						Log.i("db", "Black list db directory created: " + dbFile.getParent());
-					}
-				}
-				if(dbFile.createNewFile() == false) {
-					Log.d("db", "Failed to create db file: " + dbFile);
+				} catch (IOException e) {
+					e.printStackTrace();
 					return null;
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			}
+			return SQLiteDatabase.openOrCreateDatabase(dbFile, null);
+		}
+		else {
+			// 没有则存系统的数据库。
+			if(context == null) {
+				Log.e("androidx", "System Context didn't set properly.");
 				return null;
 			}
+			MySQLiteOpenHelper dbHelper = new MySQLiteOpenHelper(context, "SWIFT_RETAIL");
+			return dbHelper.getWritableDatabase();
 		}
-		return SQLiteDatabase.openOrCreateDatabase(dbFile, null);
+	}
+	
+	public boolean isSDCardAvailable() {
+		File sdcard = new File("/sdcard/");
+		return sdcard.exists() && sdcard.canWrite();
 	}
 	
 	/**
@@ -222,7 +248,7 @@ public class BaseDataSource {
 		return false;
 	}
 	
-	public Map findUnique(String tableName, String uniqueColName, String value) {
+	public Map findUnique(String tableName, String uniqueColName, Object value) {
 		List<Map> data = findAll(tableName, uniqueColName + "=" + value);
 		if(data == null || data.size() == 0) {
 			return null;
@@ -312,6 +338,7 @@ public class BaseDataSource {
 	}
 	
 	// TODO use this method for every operation.
+	// @deprecated?
 	protected void prepareToConnect() {
 //		if(db == null) {
 //			Log.e("db", "Database instance is not correctly initilized.");
@@ -325,6 +352,29 @@ public class BaseDataSource {
 	public SQLiteDatabase getDb() {
 		return db;
 	}
-
 	
+	public void beginTransaction() {
+		isAutoDisconnect = false; // 关闭自动模式
+		this.connect();
+		this.db.beginTransaction();
+	}
+	
+	public void commit() {
+		this.db.setTransactionSuccessful();
+	}
+	
+	public void rollback() {
+		// NOTHING NEED TO DO FOR ROLLBACK
+	}
+	
+	public void endTransaction() {
+		this.db.endTransaction();
+		this.disconnect();
+		isAutoDisconnect = true; // 恢复自动模式
+	}
+
+
+	public void setContext(Context context) {
+		this.context = context;
+	}
 }

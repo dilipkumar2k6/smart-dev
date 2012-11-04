@@ -63,6 +63,8 @@ public abstract class BaseActivity extends Activity {
 	protected final String INTENT_DATA_ARGS_KEY = "INTENT_DATA_ARGS";
 	protected final String INTENT_DATA_LIST_KEY = "INTENT_DATA_LIST";
 	protected final String INTENT_DATA_ROW_KEY = "INTENT_DATA_ROW";
+	
+	protected final int REQUEST_CODE_DEFAULT = 1234;
 
 	protected Context context;
 	
@@ -185,7 +187,7 @@ public abstract class BaseActivity extends Activity {
 	 */
 	protected void startActivity(Class clazz, boolean forResult) {
 		if(forResult) {
-			startActivityForResult(new Intent(context, clazz), 1);
+			startActivityForResult(new Intent(context, clazz), REQUEST_CODE_DEFAULT);
 		}
 		else {
 			startActivity(new Intent(context, clazz));
@@ -198,8 +200,18 @@ public abstract class BaseActivity extends Activity {
 	 * @param clazz
 	 * @param id
 	 */
-	protected void startActivity(Class clazz, long id, boolean forResult) {
-		startActivity(clazz, id, null, forResult);	
+	protected void startActivityWith(Class clazz, long id, boolean forResult) {
+		startActivityWith(clazz, id, null, forResult);	
+	}
+	
+	/**
+	 * Start activity with arguments.
+	 * @param clazz
+	 * @param args
+	 * @param forResult
+	 */
+	protected void startActivityWith(Class clazz, Bundle args, boolean forResult) {
+		startActivityWith(clazz, 0, args, forResult);	
 	}
 	
 	/**
@@ -210,27 +222,28 @@ public abstract class BaseActivity extends Activity {
 	 * @param id Never be less than 0 or equal 0.
 	 * @param args
 	 */
-	protected void startActivity(Class clazz, long id, Bundle args, boolean forResult) {
+	protected void startActivityWith(Class clazz, long id, Bundle args, boolean forResult) {
 		Intent intent = new Intent(context, clazz);
 		intent.putExtra(INTENT_DATA_ID_KEY, id);
 		if (args != null)
 			intent.putExtra(INTENT_DATA_ARGS_KEY, args);
 		if(forResult) {
-			startActivityForResult(intent, 1);
+			startActivityForResult(intent, REQUEST_CODE_DEFAULT);
 		}
 		else {
 			startActivity(intent);			
 		}
 	}
 	
-	protected void startActivity(Class clazz, DataList data) {
+	protected void startActivityWith(Class clazz, DataList data) {
 		Intent intent = new Intent(context, clazz);
 		intent.putExtra(INTENT_DATA_LIST_KEY, data);
 		startActivity(intent);
 	}
 	
-	protected void startActivity(Class clazz, Map data) {
+	protected void startActivityWith(Class clazz, Map data) {
 		Intent intent = new Intent(context, clazz);
+		intent.putExtra("TEST", 999);
 		intent.putExtra(INTENT_DATA_ROW_KEY, new DataRow(data));
 		startActivity(intent);
 	}
@@ -240,6 +253,18 @@ public abstract class BaseActivity extends Activity {
 		finish();
 	}
 	
+	protected void finishWithData(DataRow row){
+		finishWithData(row, null);
+	}
+	
+	protected void finishWithData(DataRow row, Bundle args){
+		Intent intent = new Intent();
+//		debug("finishWithData() " + row.getClass());
+		intent.putExtra(INTENT_DATA_ROW_KEY, row);
+		intent.putExtra(INTENT_DATA_ARGS_KEY, args);
+		setResult(RESULT_OK, intent);
+		finish();
+	}
 	
 	/**
 	 * Get ID from pre-activity
@@ -254,9 +279,9 @@ public abstract class BaseActivity extends Activity {
 		return (Long)v;
 	}
 	
-	protected Object getArgsFromPreActivity(String name) {
+	protected Object getArgFromPreActivity(String argName) {
 		Bundle bundle = (Bundle)this.getIntent().getExtras().get(INTENT_DATA_ARGS_KEY);
-		return bundle.get(name);
+		return bundle.get(argName);
 	}
 	
 	protected DataList getDataListFromPreviousActivity() {
@@ -264,7 +289,8 @@ public abstract class BaseActivity extends Activity {
 	}
 	
 	protected DataRow getDataRowFromPreviousActivity() {
-		throw new UnsupportedOperationException();
+		return (DataRow)this.getIntent().getSerializableExtra(INTENT_DATA_ROW_KEY);
+//		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -650,8 +676,9 @@ public abstract class BaseActivity extends Activity {
 		data.traverse(new DataList.Callback<DataRow>() {
 
 			@Override
-			public void invoke(int i, DataRow row) {
+			public boolean invoke(int i, DataRow row) {
 				items.add(new SpinnerItem(Long.parseLong(row.get(idkey).toString()), row.get(valuekey).toString()));
+				return true;
 			}
 			
 		});

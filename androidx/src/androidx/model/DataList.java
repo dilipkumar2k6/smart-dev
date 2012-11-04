@@ -88,7 +88,7 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 	}
 
 	/**
-	 * 
+	 * 遍历表中所有的数据行（DataRow）
 	 * @param handler
 	 */
 	public void traverse(Callback handler) {
@@ -106,7 +106,14 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 	 * @param <T>
 	 */
 	public static interface Callback<T extends DataRow> {
-		public void invoke(int i, T row);
+		
+		/**
+		 * 
+		 * @param i
+		 * @param row
+		 * @return true to continue; false to break the following operations.
+		 */
+		public boolean invoke(int i, T row);
 	}
 
 }
