@@ -9,7 +9,7 @@ import android.test.AndroidTestCase;
 public class FileDataSourceTest extends AndroidTestCase {
 
 	public void testInsertData() {
-		BaseDataSource ds = new BaseDataSource("/sdcard/temp/unit_test.db");
+		BaseDataSource ds = new BaseDataSource("/sdcard/temp/", "unit_test");
 		
 		ds.connect();
 		ds.createTable(BaseDataSource.SQL_CREATE_TABLE_USER_META);
