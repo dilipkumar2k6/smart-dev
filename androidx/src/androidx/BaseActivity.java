@@ -724,6 +724,7 @@ public abstract class BaseActivity extends Activity {
 		}
 	}
 	
+// TODO later.
 //	protected void add2Spinner(Spinner spinner, long itemId, Object value) {
 //		if(spinner == null || itemId < 0) {
 //			return ;
@@ -762,7 +763,31 @@ public abstract class BaseActivity extends Activity {
 		}
 		return resource;
 	}
-
+	
+	
+	protected void disableViews(int... ids) {
+		for(int i=0;i<ids.length;i++) {
+			findViewById(ids[i]).setEnabled(false);
+		}
+	}
+	
+	protected void disableViews(View... views) {
+		for(int i=0;i<views.length;i++) {
+			views[i].setEnabled(false);
+		}
+	}
+	
+	protected void enableViews(int... ids) {
+		for(int i=0;i<ids.length;i++) {
+			findViewById(ids[i]).setEnabled(true);
+		}
+	}
+	protected void enableViews(View... views) {
+		for(int i=0;i<views.length;i++) {
+			views[i].setEnabled(true);
+		}
+	}
+	
 	protected void debug(Object log) {
 		Log.d("androidx", log.toString());
 	}

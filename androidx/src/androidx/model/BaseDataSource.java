@@ -15,6 +15,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.widget.Toast;
+import androidx.Utils;
 
 /**
  * Access SQLite database from local file system(usually SDCard) or system storage.
@@ -154,13 +155,43 @@ public class BaseDataSource {
 		}
 	}
 	
+	public long getMetaLong(String metaName, long defaultValue) {
+		long ret = getMetaLong(metaName);
+		if(ret == 0) {
+			return defaultValue;
+		}
+		else {
+			return ret;
+		}
+	}
+	
+	public long getMetaLong(String metaName) {
+		String meta = getMeta(metaName);
+		if(Utils.isEmpty(meta)) {
+			return 0;
+		}
+		try {
+			return Long.parseLong(meta);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			return 0L;
+		}
+	}
+	
+	public int getMetaInt(String metaName, int defaultValue) {
+		return (int)getMetaLong(metaName, defaultValue);
+	}
+	public int getMetaInt(String metaName) {
+		return (int)getMetaLong(metaName);
+	}
+	
 	/**
 	 * Set meta data by name. No need to open and close connection explicitly.
 	 * @param metaName
 	 * @param metaValue
 	 * @return
 	 */
-	public boolean setMeta(String metaName, String metaValue) {
+	public boolean setMeta(String metaName, Object metaValue) {
 		if(getMeta(metaName) == null) {
 			if (!db.isOpen()) {
 				this.connect();
@@ -168,7 +199,7 @@ public class BaseDataSource {
 			try {
 				ContentValues values = new ContentValues();
 				values.put("META_NAME", metaName);
-				values.put("META_VALUE", metaValue);
+				values.put("META_VALUE", metaValue.toString());
 				values.put("MODIFY_TIME", Calendar.getInstance().getTimeInMillis());
 				db.insert(TABLE_NAME_USER_META, null, values);
 			} catch (SQLException e) {
@@ -183,7 +214,7 @@ public class BaseDataSource {
 				this.connect();
 			}
 			try {
-				db.execSQL("UPDATE " + TABLE_NAME_USER_META + " SET META_VALUE=? WHERE META_NAME=?", new String[]{metaValue, metaName});
+				db.execSQL("UPDATE " + TABLE_NAME_USER_META + " SET META_VALUE=? WHERE META_NAME=?", new String[]{metaValue.toString(), metaName});
 			} catch (SQLException e) {
 				e.printStackTrace();
 				return false;
