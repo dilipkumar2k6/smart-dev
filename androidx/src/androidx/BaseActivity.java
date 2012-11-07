@@ -390,7 +390,8 @@ public abstract class BaseActivity extends Activity {
 		searchDialog.show();
 		return searchDialog;
 	}
-
+	
+	
 	/**
 	 * Show radio group dialog, return selected index in group.
 	 * 
@@ -662,7 +663,7 @@ public abstract class BaseActivity extends Activity {
 	protected Spinner getSpinner(int resId) {
 		return (Spinner)this.findViewById(resId);
 	}
-	
+
 	/**
 	 * Init spinner with key-values which grab from DataList.
 	 * @param resId
@@ -702,6 +703,20 @@ public abstract class BaseActivity extends Activity {
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(adapter);
 		return spinner;
+	}
+	
+	protected void setSpinner(Spinner spinner, Object item) {
+		if(spinner == null || item == null) {
+			return ;
+		}
+		int n = spinner.getAdapter().getCount();
+		for(int i=0; i<n; i++) {
+			Object value = spinner.getItemAtPosition(i);
+			if(item.equals(value)) {
+				spinner.setSelection(i);
+				return;				
+			}
+		}
 	}
 	
 	/**
