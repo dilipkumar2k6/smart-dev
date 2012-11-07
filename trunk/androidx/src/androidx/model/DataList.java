@@ -100,6 +100,27 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 	}
 	
 	/**
+	 * 将某个字段纵向导出为数组。
+	 * @param keyName
+	 * @return
+	 */
+	public Object[] getColumn(String colName) {
+		Object[] ret = new Object[this.size()];
+		for(int i = 0; i < this.size(); i++) {
+			ret[i] = this.get(i).get(colName);
+		}
+		return ret;
+	}
+	
+	public String[] getColumnAsString(String colName) {
+		String[] ret = new String[this.size()];
+		for(int i = 0; i < this.size(); i++) {
+			ret[i] = this.get(i).get(colName).toString();
+		}
+		return ret;
+	}
+	
+	/**
 	 * Callback for traverse DataList.
 	 * @author yuxing
 	 *
