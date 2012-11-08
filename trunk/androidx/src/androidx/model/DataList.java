@@ -86,6 +86,18 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 //		DataRow m = new DataRow(Utils.arrays2map(keys, values));
 		this.add(row);
 	}
+	
+	public DataRow getRow(final long id) {
+		DataRow ret = null; 
+		for (int i = 0; i < this.size(); i++) {
+			DataRow row = this.get(i);
+			if(row.getID() == id) {
+				ret = row;
+				break;
+			}			
+		}
+		return ret;
+	}
 
 	/**
 	 * 遍历表中所有的数据行（DataRow）
@@ -112,6 +124,11 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 		return ret;
 	}
 	
+	/**
+	 * 将某个字段纵向导出为数组。
+	 * @param colName
+	 * @return
+	 */
 	public String[] getColumnAsString(String colName) {
 		String[] ret = new String[this.size()];
 		for(int i = 0; i < this.size(); i++) {
