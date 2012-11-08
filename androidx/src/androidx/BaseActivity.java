@@ -43,6 +43,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.model.DataList;
 import androidx.model.DataRow;
 
@@ -525,6 +526,10 @@ public abstract class BaseActivity extends Activity {
 		dBuilder.setView(fileActionView);
 		listSelectDialog = dBuilder.create();
 		listSelectDialog .show();
+	}
+	
+	protected void showToast(String msg) {
+		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
 	}
 	
 	/**
