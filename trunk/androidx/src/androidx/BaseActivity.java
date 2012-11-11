@@ -677,8 +677,8 @@ public abstract class BaseActivity extends Activity {
 	 * @param valuekey
 	 * @return
 	 */
-	protected Spinner initSpinner(int resId, DataList data, final String idkey, final String valuekey) {
-		final List items = new ArrayList();
+	protected Spinner initSpinner(int resId, DataList<DataRow> data, final String idkey, final String valuekey) {
+		final List<SpinnerItem> items = new ArrayList();
 		data.traverse(new DataList.Callback<DataRow>() {
 
 			@Override
@@ -710,18 +710,24 @@ public abstract class BaseActivity extends Activity {
 		return spinner;
 	}
 	
-	protected void setSpinner(Spinner spinner, Object item) {
+	/**
+	 * Set spinner's selection directly by item object.
+	 * @param spinner
+	 * @param item
+	 */
+	protected Object setSpinner(Spinner spinner, Object item) {
 		if(spinner == null || item == null) {
-			return ;
+			return null;
 		}
 		int n = spinner.getAdapter().getCount();
 		for(int i=0; i<n; i++) {
 			Object value = spinner.getItemAtPosition(i);
 			if(item.equals(value)) {
 				spinner.setSelection(i);
-				return;				
+				return item;		
 			}
 		}
+		return null;
 	}
 	
 	/**
@@ -729,9 +735,9 @@ public abstract class BaseActivity extends Activity {
 	 * @param spinner
 	 * @param itemId
 	 */
-	protected void setSpinner(Spinner spinner, long itemId) {
+	protected SpinnerItem setSpinner(Spinner spinner, long itemId) {
 		if(spinner == null || itemId < 0) {
-			return ;
+			return null;
 		}
 		int n = spinner.getAdapter().getCount();
 		for(int i=0; i<n; i++) {
@@ -739,9 +745,10 @@ public abstract class BaseActivity extends Activity {
 			debug(itemId + " -- " + si.getId());
 			if(itemId == si.getId()){
 				spinner.setSelection(i);
-				return;
+				return si;
 			}
 		}
+		return null;
 	}
 	
 // TODO later.

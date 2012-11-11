@@ -8,6 +8,8 @@ import java.util.Map;
 
 public class Utils {
 	
+	static SimpleDateFormat TIME_FORMATTER  = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+	
 	public static String quaterLogicStr(boolean firstCond, String firstResult, boolean secondCond, String secondResult) {
 		return (String)quaterLogic(firstCond, firstResult, secondCond, secondResult);
 	}
@@ -53,8 +55,17 @@ public class Utils {
 		return m;
 	}
 	
-	
-	static SimpleDateFormat TIME_FORMATTER  = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+	public static Object[] append(Object[] arr, Object... newEl){
+		Object[] ret = new Object[arr.length + newEl.length];
+		for(int i=0; i<arr.length; i++) {
+			ret[i] = arr[i];
+		}
+		for(int j=0;j<newEl.length;j++) {
+			ret[arr.length + j] = newEl[j];	
+		}		
+		return ret;
+	}
+
 	
 	public static String stringify(Calendar time) {
 		return TIME_FORMATTER.format(time.getTime());

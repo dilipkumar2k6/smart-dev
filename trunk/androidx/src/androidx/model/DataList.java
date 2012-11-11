@@ -62,29 +62,38 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 	 * @param values
 	 */
 	public void addRow(String[] keys, Object[] values) {
-//		DataRow m = new DataRow(Utils.arrays2map(keys, values));
-//		this.add((T)m);
-		addRow(DataRow.class, keys,  values);
+		addRow(this.size() - 1, DataRow.class, keys, values);
 	}
-	
+
+	public void addRow(int idx, String[] keys, Object[] values) {
+		addRow(idx, DataRow.class, keys, values);
+	}
+
+	public void addRow(Class rowType, String[] keys, Object[] values) {
+		addRow(this.size() - 1, rowType, keys, values);
+	}
+
 	/**
 	 * 添加一行，存储为指定的类型，此类型必须与T一致
 	 * @param rowType
 	 * @param keys
 	 * @param values
 	 */
-	public void addRow(Class rowType, String[] keys, Object[] values) {
+	public void addRow(int idx, Class rowType, String[] keys, Object[] values) {
 		T row;
 		try {
-			
 			Constructor cst = rowType.getConstructor(Map.class);
 			row = (T)cst.newInstance(Utils.arrays2map(keys, values));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return;
 		}		
-//		DataRow m = new DataRow(Utils.arrays2map(keys, values));
-		this.add(row);
+		if(idx <0) {
+			this.add(row);
+		}
+		else {
+			this.add(idx, row);	
+		}
 	}
 	
 	public DataRow getRow(final long id) {
@@ -105,7 +114,7 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 	 */
 	public void traverse(Callback handler) {
 		for (int i = 0; i < this.size(); i++) {
-//			Log.d("androidx", this.get(i).getClass().toString());
+			Log.d("androidx", "Traverse DataList's items with type: " + this.get(i).getClass().toString());
 			Log.d("androidx", this.get(i).toString());
 			handler.invoke(i, (T)this.get(i));
 		}
