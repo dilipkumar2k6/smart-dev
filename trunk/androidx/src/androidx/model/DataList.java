@@ -65,10 +65,22 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 		addRow(this.size() - 1, DataRow.class, keys, values);
 	}
 
+	/**
+	 * 
+	 * @param idx
+	 * @param keys
+	 * @param values
+	 */
 	public void addRow(int idx, String[] keys, Object[] values) {
 		addRow(idx, DataRow.class, keys, values);
 	}
 
+	/**
+	 * 
+	 * @param rowType
+	 * @param keys
+	 * @param values
+	 */
 	public void addRow(Class rowType, String[] keys, Object[] values) {
 		addRow(this.size() - 1, rowType, keys, values);
 	}
@@ -96,6 +108,11 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public DataRow getRow(final long id) {
 		DataRow ret = null; 
 		for (int i = 0; i < this.size(); i++) {
