@@ -18,6 +18,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -61,6 +62,7 @@ public abstract class BaseActivity extends Activity {
 	
 	// Key of data in intent extra bundle.
 	protected final String INTENT_DATA_ID_KEY = "INTENT_DATA_ID";
+	protected final String INTENT_DATA_OPTION_KEY = "INTENT_DATA_OPTION_KEY"; 
 	protected final String INTENT_DATA_ARGS_KEY = "INTENT_DATA_ARGS";
 	protected final String INTENT_DATA_LIST_KEY = "INTENT_DATA_LIST";
 	protected final String INTENT_DATA_ROW_KEY = "INTENT_DATA_ROW";
@@ -97,6 +99,10 @@ public abstract class BaseActivity extends Activity {
 	
 	// 列表选择对话框
 	protected AlertDialog listSelectDialog;
+	
+	protected int dialogBgColor = Color.LTGRAY;
+	
+	protected int dialogTxtColor = Color.BLACK;
 	
 	// == Tabs == 
 	protected TabsController tabsController;
@@ -194,6 +200,16 @@ public abstract class BaseActivity extends Activity {
 			startActivity(new Intent(context, clazz));
 		}
 	}
+
+	/**
+	 * Start activity with option ID that represent a selection from multi-options.
+	 * @param clazz
+	 * @param id
+	 * @param forResult
+	 */
+	protected void startActivityWith(Class clazz, int id, boolean forResult) {
+		startActivityWith(clazz, id, null, forResult);	
+	}
 	
 	/**
 	 * Start activity with biz ID that represent a data row's PK usually.
@@ -223,9 +239,14 @@ public abstract class BaseActivity extends Activity {
 	 * @param id Never be less than 0 or equal 0.
 	 * @param args
 	 */
-	protected void startActivityWith(Class clazz, long id, Bundle args, boolean forResult) {
+	protected void startActivityWith(Class clazz, Object id, Bundle args, boolean forResult) {
 		Intent intent = new Intent(context, clazz);
-		intent.putExtra(INTENT_DATA_ID_KEY, id);
+		if(id instanceof Integer) {
+			intent.putExtra(INTENT_DATA_OPTION_KEY, (Integer)id);
+		}
+		else if(id instanceof Long) {
+			intent.putExtra(INTENT_DATA_ID_KEY, (Long)id);	
+		}
 		if (args != null)
 			intent.putExtra(INTENT_DATA_ARGS_KEY, args);
 		if(forResult) {
@@ -272,12 +293,27 @@ public abstract class BaseActivity extends Activity {
 	 * @return >0
 	 */
 	protected long getIdFromPreActivity() {
-		if(this.getIntent().getExtras() == null) {
+		if (this.getIntent().getExtras() == null) {
 			return 0;
 		}
 		Object v = this.getIntent().getExtras().get(INTENT_DATA_ID_KEY);
-		if(v==null)return 0;
-		return (Long)v;
+		if (v == null)
+			return 0;
+		return (Long) v;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	protected int getOptionFromPreActivity() {
+		if (this.getIntent().getExtras() == null) {
+			return 0;
+		}
+		Object v = this.getIntent().getExtras().get(INTENT_DATA_OPTION_KEY);
+		if (v == null)
+			return 0;
+		return (Integer) v;
 	}
 	
 	protected Object getArgFromPreActivity(String argName) {
@@ -406,7 +442,9 @@ public abstract class BaseActivity extends Activity {
 	protected AlertDialog showRadioGroupDialog(String title, String msg, String[] labels, int checked,
 			final DialogCallback callback) {
 		View inputView = LayoutInflater.from(this).inflate(R.layout.common_dialog_radiogroup, null);
-		final RadioGroup radioGroup = (RadioGroup) inputView.findViewById(R.id.radioGroup);
+		inputView.setBackgroundColor(dialogBgColor);
+		final RadioGroup radioGroup = (RadioGroup) inputView.findViewById(R.id.cdr_rg_selection);
+//		radioGroup.setBackgroundColor(dialogBgColor);
 		radioGroup.removeAllViews();
 		for (int i = 0; i < labels.length; i++) {
 //			Log.d("", "Add new radio to group " + labels[i]);
@@ -414,6 +452,7 @@ public abstract class BaseActivity extends Activity {
 			radio.setId(i);
 			radio.setText(labels[i]);
 			radio.setChecked(checked == i ? true : false);
+			radio.setTextColor(dialogTxtColor);
 			radioGroup.addView(radio);
 		}
 
