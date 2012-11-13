@@ -24,6 +24,11 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 		super(collection);
 	}
 	
+	/**
+	 * Wrap all elements in collection to DataRow class type.
+	 * @param coll
+	 * @return
+	 */
 	public static DataList wrap(Collection coll) {
 		return wrap(coll, DataRow.class);
 	}
