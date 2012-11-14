@@ -864,22 +864,22 @@ public abstract class BaseActivity extends Activity {
 	 * @author yuxing
 	 * 
 	 */
-	public static class DialogCallback {
+	public static class DialogCallback<T> {
 		/**
 		 * Positive button clicked.
 		 * @param value
 		 */
-		public void onPositive(Object value){};
+		public void onPositive(T value){};
 		
 		/**
 		 * Positive button clicked with multi-values returned.
 		 * @param values
 		 */
-		public void onPositive(Object... values) {};
+		public void onPositive(T... values) {};
 
 		/**
 		 * Negative button clicked.
 		 */
-		public void onNegative(Object value){};
+		public void onNegative(T value){};
 	}
 }

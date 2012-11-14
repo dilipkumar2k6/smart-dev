@@ -18,6 +18,8 @@ public class SimpleCompositeView {
 	protected AbsListView alv;
 	protected SimpleAdapter adapter;
 	protected String idkey = "k_id";
+	
+	// keys to extract text line 1 and text line 2 for each ListView item.
 	protected String[] keys = new String[] { "k1", "k2" };
 	protected List<Map<String, ?>> data;
 
@@ -105,7 +107,7 @@ public class SimpleCompositeView {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long itemid) {
 				Log.d("androidx", "Item at position " + pos  + " was clicked");
-				handleClickEnvent(pos, handler);
+				handleClickEvent(pos, handler);
 			}
 		});
 	}
@@ -120,13 +122,13 @@ public class SimpleCompositeView {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long itemid) {
 				Log.d("androidx", "Item at position " + pos  + " was long clicked");
-				handleClickEnvent(pos, handler);
+				handleClickEvent(pos, handler);
 				return false;
 			}
 		});
 	}
 	
-	private void handleClickEnvent(int pos, Callback handler) {
+	private void handleClickEvent(int pos, Callback handler) {
 		Map item = data.get(pos);
 		Object bizid = item.get(idkey);
 		if(bizid == null) {
