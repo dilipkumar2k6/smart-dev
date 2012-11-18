@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class Utils {
 	
-	static SimpleDateFormat TIME_FORMATTER  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	static SimpleDateFormat TIME_FORMATTER  = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	
 	public static String quaterLogicStr(boolean firstCond, String firstResult, boolean secondCond, String secondResult) {
 		return (String)quaterLogic(firstCond, firstResult, secondCond, secondResult);
