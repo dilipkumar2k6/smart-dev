@@ -8,7 +8,15 @@ import java.util.Map;
 
 public class Utils {
 	
-	static SimpleDateFormat TIME_FORMATTER  = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	public static SimpleDateFormat TIME_FORMATTER  = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	
+	public static String quaterLogicStr(Object value, Object op0, String ret0, Object op1, String ret1) {
+		return (String)quaterLogic(value, op0, ret0, op1, ret1);
+	}
+	
+	public static Object quaterLogic(Object value, Object op0, Object ret0, Object op1, Object ret1) {
+		return quaterLogic(value.equals(op0), ret0, value.equals(op1), ret1);
+	}
 	
 	public static String quaterLogicStr(boolean firstCond, String firstResult, boolean secondCond, String secondResult) {
 		return (String)quaterLogic(firstCond, firstResult, secondCond, secondResult);
