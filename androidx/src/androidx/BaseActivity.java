@@ -316,10 +316,15 @@ public abstract class BaseActivity extends Activity {
 		return (Integer) v;
 	}
 	
+	protected String getArgStrFromPreActivity(String argName) {
+		return (String)(getArgFromPreActivity(argName));
+	}
+	
 	protected Object getArgFromPreActivity(String argName) {
 		Bundle bundle = (Bundle)this.getIntent().getExtras().get(INTENT_DATA_ARGS_KEY);
 		return bundle.get(argName);
 	}
+
 	
 	protected DataList getDataListFromPreviousActivity() {
 		throw new UnsupportedOperationException();
