@@ -4,30 +4,42 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <RadioGroup
-        android:id="@+id/cdr_rg_selection"
+    <ScrollView
+        android:id="@+id/scrollView1"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="10dp" >
+        android:layout_height="wrap_content" >
 
-        <RadioButton
-            android:id="@+id/radio0"
+        <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="RadioButton" />
+            android:layout_height="fill_parent" >
 
-        <RadioButton
-            android:id="@+id/radio1"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="RadioButton" />
+            <RadioGroup
+                android:id="@+id/cdr_rg_selection"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp" >
 
-        <RadioButton
-            android:id="@+id/radio2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="RadioButton" />
-    </RadioGroup>
+                <RadioButton
+                    android:id="@+id/radio0"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="RadioButton" />
+
+                <RadioButton
+                    android:id="@+id/radio1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="RadioButton" />
+
+                <RadioButton
+                    android:id="@+id/radio2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="RadioButton" />
+            </RadioGroup>
+
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

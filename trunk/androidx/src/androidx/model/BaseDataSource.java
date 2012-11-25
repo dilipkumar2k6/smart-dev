@@ -14,7 +14,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import android.widget.Toast;
 import androidx.Utils;
 
 /**
@@ -39,6 +38,8 @@ public class BaseDataSource {
 			+ " DEFAULT_VALUE text, "
 			+ " MODIFY_TIME long not null, "
 			+ " EXT_DATA text)";
+	
+	private static final String USER_META_SCHEMA_VERSION = "SCHEMA.VERSION"; 
 
 	protected Context context;
 	protected String dbFilePath;
@@ -100,6 +101,10 @@ public class BaseDataSource {
 		}
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public boolean isSDCardAvailable() {
 		File sdcard = new File("/sdcard/");
 		return sdcard.exists() && sdcard.canWrite();
@@ -128,8 +133,24 @@ public class BaseDataSource {
 	 * Init tables by default: user meta infomation table.
 	 * Override me if more tables to be created.
 	 */
-	public void initTables() {
-		createTable(SQL_CREATE_TABLE_USER_META);
+	public boolean initTables() {
+		try {
+			createTable(SQL_CREATE_TABLE_USER_META);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	public int getSchemaVersion() {
+		connect();
+		return this.getMetaInt(USER_META_SCHEMA_VERSION);
+	}
+	
+	public void setSchemaVersion(int version) {
+		connect();
+		this.setMeta(USER_META_SCHEMA_VERSION, version);
 	}
 	
 	/**
@@ -229,20 +250,22 @@ public class BaseDataSource {
 	 * Create table by sql if not exist.
 	 * @param sql
 	 */
-	public void createTable(String sql) {
+	public boolean createTable(String sql) {
 		if(db == null || !db.isOpen()) {
 			Log.e("db", "Database instance is not correctly initilized.");
-			return;
+			return false;
 		}
 		try {
 			db.execSQL(sql);
 		} catch (SQLException e) {
 //			e.printStackTrace();
 			Log.w("db", e.getLocalizedMessage());
+			return false;
 		} finally {
 			Log.i("db", "Table created");
 //			db.close();
 		}
+		return true;
 	}
 	
 	public void dropTable(String tableName) {
@@ -306,13 +329,34 @@ public class BaseDataSource {
 			Log.e("db", "Database instance is not correctly initilized.");
 			return null;
 		}
-		if(!db.isOpen()) {
-			connect();
-		}
+		connect();
 		Log.d("db", "Find all in table " + tableName);
-		List<Map> result = new ArrayList();
-//		String sql = SQL_FIND_ALL.replace("${tableName}", tableName);
 		Cursor cursor = db.query(tableName, null, whereClause, null, null, null, orderByClause);
+		try {
+			return cursorToMapList(cursor);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList();
+		} finally {
+			if(isAutoDisconnect) this.disconnect();
+		}
+	}
+	
+	public List<Map> find(String sql) {
+		connect();
+		Cursor cursor = db.rawQuery(sql, null);
+		try {
+			return cursorToMapList(cursor);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList();
+		} finally {
+			if(isAutoDisconnect) this.disconnect();
+		}
+	}
+	
+	private List<Map> cursorToMapList(Cursor cursor) {
+		List<Map> result = new ArrayList();
 		int n = 0;
 		for(;cursor.moveToNext();) {
 //			Log.d("db", "Row" + n++);
@@ -330,7 +374,6 @@ public class BaseDataSource {
 			result.add(row);
 		}
 		Log.d("db", "Result with " + result.size() + " records.");
-		this.disconnect();
 		return result;
 	}
 	

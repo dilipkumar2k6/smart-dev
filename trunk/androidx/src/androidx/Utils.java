@@ -18,6 +18,10 @@ public class Utils {
 		return quaterLogic(value.equals(op0), ret0, value.equals(op1), ret1);
 	}
 	
+//	public static <TI, TO> Object quaterLogic(TI value, TI op0, TO ret0, TI op1, TO ret1) {
+//		return quaterLogic(value.equals(op0), ret0, value.equals(op1), ret1);
+//	}
+	
 	public static String quaterLogicStr(boolean firstCond, String firstResult, boolean secondCond, String secondResult) {
 		return (String)quaterLogic(firstCond, firstResult, secondCond, secondResult);
 	}
