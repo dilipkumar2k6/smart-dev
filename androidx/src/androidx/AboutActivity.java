@@ -25,6 +25,8 @@ public class AboutActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		setWindowFullscreenNoTitle();
+		
 		final String appName = getArgStrFromPreActivity(KEY_APP_NAME);
 		final String appVersion = getArgStrFromPreActivity(KEY_APP_VERSION);
 		final int appLog = (Integer)getArgFromPreActivity(KEY_APP_LOGO);

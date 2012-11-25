@@ -23,4 +23,7 @@ public class DataRow extends HashMap<String, Object> implements Serializable {
 		return 0;
 	}
 
+	public static interface Callback<T1, T2> {
+		public boolean invoke(T1 key, T2 value);
+	}
 }

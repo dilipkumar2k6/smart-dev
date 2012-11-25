@@ -245,7 +245,7 @@ public abstract class BaseActivity extends Activity {
 			intent.putExtra(INTENT_DATA_OPTION_KEY, (Integer)id);
 		}
 		else if(id instanceof Long) {
-			intent.putExtra(INTENT_DATA_ID_KEY, (Long)id);	
+			intent.putExtra(INTENT_DATA_ID_KEY, (Long)id);
 		}
 		if (args != null)
 			intent.putExtra(INTENT_DATA_ARGS_KEY, args);
@@ -497,7 +497,7 @@ public abstract class BaseActivity extends Activity {
 	 */
 	protected AlertDialog showCheckBoxsDialog(String title, BaseAdapter checkboxListViewAdapter, final DialogCallback callback) {
 		View inputView = LayoutInflater.from(this).inflate(R.layout.common_dialog_list_select, null);
-		final ListView listView = (ListView) inputView.findViewById(R.id.listViewSelect);
+		final ListView listView = (ListView) inputView.findViewById(R.id.cdr_rg_selection);
 		
 		listView.setAdapter(checkboxListViewAdapter);		
 
@@ -553,7 +553,7 @@ public abstract class BaseActivity extends Activity {
 	 */
 	protected void showListSelectDialog(final String title, final String[] items, final DialogCallback callback) {
 		View fileActionView = LayoutInflater.from(context).inflate(R.layout.common_dialog_list_select, null);
-		ListView listSelect = (ListView) fileActionView.findViewById(R.id.listViewSelect);
+		ListView listSelect = (ListView) fileActionView.findViewById(R.id.cdl_list);
 		listSelect.setAdapter(new ArrayAdapter(context, android.R.layout.simple_list_item_1, items));
 		listSelect.setOnItemClickListener(new OnItemClickListener() {
 

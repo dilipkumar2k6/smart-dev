@@ -5,10 +5,10 @@
     android:orientation="vertical" >
 
     <ListView
-        android:id="@+id/listViewSelect"
+        android:id="@+id/cdl_list"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/common_background"
+        android:background="#FFF"
         android:paddingLeft="10dp"
         android:paddingRight="10dp" >
 
