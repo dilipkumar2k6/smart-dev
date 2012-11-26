@@ -71,7 +71,7 @@ public abstract class BaseActivity extends Activity {
 
 	protected Context context;
 	
-	// DEBUG模式（默认）
+	// DEBUG模式（默认） changed by setting system arguments "androidx.debug"
 	protected boolean debugMode = true; 
 	
 	// 资源(deprecated to rs)
