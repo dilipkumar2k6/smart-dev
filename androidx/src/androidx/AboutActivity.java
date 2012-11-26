@@ -3,6 +3,7 @@ package androidx;
 import org.androidx.R;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +20,8 @@ public class AboutActivity extends BaseActivity {
 	public static final String KEY_APP_NAME = "app.name";
 	public static final String KEY_APP_VERSION = "app.version";
 	public static final String KEY_APP_LOGO = "app.logo";
+	public static final String KEY_SUPPORT_EMAIL = "support.email";
+	public static final String KEY_BG_COLOR = "bg.color";
 	public static final String KEY_HOME_URL = "home.url";
 
 	@Override
@@ -31,8 +34,11 @@ public class AboutActivity extends BaseActivity {
 		final String appVersion = getArgStrFromPreActivity(KEY_APP_VERSION);
 		final int appLog = (Integer)getArgFromPreActivity(KEY_APP_LOGO);
 		final String homePageUrl = getArgStrFromPreActivity(KEY_HOME_URL);
+		final String email = getArgStrFromPreActivity(KEY_SUPPORT_EMAIL);
 
 		this.setContentView(R.layout.common_about_us);
+		
+		this.getLinearyLayout(R.id.layout_activity).setBackgroundColor((Integer)getArgFromPreActivity(KEY_BG_COLOR));
 
 		View logoView = this.findViewById(R.id.cau_tv_logo_img);
 
@@ -49,8 +55,9 @@ public class AboutActivity extends BaseActivity {
 		
 		setTextViewText(R.id.cau_tv_app_name, appName);
 		setTextViewText(R.id.cau_tv_version, appVersion);
-		
+		setTextViewText(R.id.cau_tv_support_email, email);
 		this.findViewById(R.id.cau_tv_logo_img).setBackgroundResource(appLog);
+		getTextView(R.id.cau_tv_separator).setBackgroundColor(Color.BLACK);
 		
 		Button btnClose = getButton(R.id.cau_btn_close);
 		btnClose.setOnClickListener(new OnClickListener() {
