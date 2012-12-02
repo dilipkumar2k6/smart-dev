@@ -52,7 +52,7 @@ import androidx.model.DataRow;
  * 提供常用功能的基础Activity类<td/>
  * 文字资源；各种标准对话框；手势支持
  * 
- * @author yxwang
+ * @author 
  * 
  */
 public abstract class BaseActivity extends Activity {
@@ -677,11 +677,12 @@ public abstract class BaseActivity extends Activity {
 		return (TextView)this.findViewById(resourceId);
 	}
 	
-	protected void setTextViewText(int resourceId, String str) {
+	protected TextView setTextViewText(int resourceId, String str) {
 		TextView tv = this.getTextView(resourceId);
-		if(tv!=null) {
+		if (tv != null) {
 			tv.setText(str);
-		}	
+		}
+		return tv;
 	}
 	
 	/**
