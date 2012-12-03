@@ -8,7 +8,9 @@ import java.util.Map;
 
 public class Utils {
 	
-	public static SimpleDateFormat TIME_FORMATTER  = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	public static SimpleDateFormat TIME_FORMATTER_DATA  = new SimpleDateFormat("yyyy-MM-dd");
+	
+	public static SimpleDateFormat TIME_FORMATTER_TIME  = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	
 	public static String quaterLogicStr(Object value, Object op0, String ret0, Object op1, String ret1) {
 		return (String)quaterLogic(value, op0, ret0, op1, ret1);
@@ -78,15 +80,18 @@ public class Utils {
 		return ret;
 	}
 
-	
-	public static String stringify(Calendar time) {
-		return TIME_FORMATTER.format(time.getTime());
+	public static String stringifyDate(Calendar date) {
+		return TIME_FORMATTER_DATA.format(date.getTime());
 	}
 	
-	public static String stringify(long time) {
+	public static String stringifyTime(Calendar time) {
+		return TIME_FORMATTER_TIME.format(time.getTime());
+	}
+	
+	public static String stringifyTime(long time) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(time);
-		return TIME_FORMATTER.format(cal.getTime());
+		return TIME_FORMATTER_TIME.format(cal.getTime());
 	}
 	
 	public static String rightPad(String str, int count, char c) {
