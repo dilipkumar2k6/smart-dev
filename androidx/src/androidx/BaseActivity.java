@@ -30,6 +30,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.ViewDebug.FlagToString;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
@@ -181,6 +182,12 @@ public abstract class BaseActivity extends Activity {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		ComponentName cn = new ComponentName("com.easytime.easytools", actName);
 		intent.setComponent(cn);
+		startActivity(intent);
+	}
+	
+	protected void startActivityWithoutTrace(Class clazz) {
+		Intent intent = new Intent(context, clazz);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 	}
 	
