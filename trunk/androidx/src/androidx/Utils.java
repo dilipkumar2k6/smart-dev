@@ -48,6 +48,14 @@ public class Utils {
 		}
 	}
 	
+	public static String getStringFrom(Map map, String key, String defaultValue) {
+		return (isEmpty(map.get(key)) ? defaultValue : map.get(key).toString());
+	}
+	
+	public static boolean isEmpty(Object str) {
+		return str == null || str.toString().length() == 0;
+	}
+	
 	public static boolean isEmpty(String str) {
 		return str == null || str.length() == 0;
 	}
