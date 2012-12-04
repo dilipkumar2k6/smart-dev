@@ -7,9 +7,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 /**
- * 所有ListView的适配器基类。
+ * Base Adapter for any ListView.
  * 
- * @author yxwang
+ * @author 
  * 
  */
 public abstract class BaseListViewAdapter extends BaseAdapter {

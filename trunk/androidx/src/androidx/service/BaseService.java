@@ -6,7 +6,7 @@ import android.os.IBinder;
 
 /**
  * 
- * @author yxwang
+ * @author 
  *
  */
 public abstract class BaseService extends Service {

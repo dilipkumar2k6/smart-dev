@@ -3,7 +3,7 @@ package androidx;
 /**
  * Provide key-value item for Spinner.
  * TODO any other controls else?
- * @author yuxing
+ * @author 
  *
  */
 public class SpinnerItem {

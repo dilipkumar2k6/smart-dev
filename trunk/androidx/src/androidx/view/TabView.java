@@ -7,7 +7,7 @@ import android.widget.GridView;
 /**
  * 自定义的TabView，禁止滑动
  * 
- * @author yxwang
+ * @author 
  * 
  */
 public class TabView extends GridView {

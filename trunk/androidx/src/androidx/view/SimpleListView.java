@@ -7,7 +7,7 @@ import android.widget.SimpleAdapter;
 /**
  * The ListView with SimpleAdapter is not simple actually, so this SimpleListView
  * is born to make it really simple.
- * @author yuxing
+ * @author 
  *
  */
 public class SimpleListView extends SimpleCompositeView {
