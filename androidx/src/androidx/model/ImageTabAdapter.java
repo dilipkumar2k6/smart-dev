@@ -10,8 +10,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
- * Tab按钮
- * @author yxwang
+ * 
+ * @author 
  *
  */
 public class ImageTabAdapter extends BaseAdapter {

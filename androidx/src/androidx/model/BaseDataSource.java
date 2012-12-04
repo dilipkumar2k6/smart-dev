@@ -23,7 +23,7 @@ import androidx.Utils;
  * 2. Override getDB() if you want to provide other ways to SQLite database like system built-in.
  * 2. Call connect() before invoking any database operation method.
  * 3. Don't forget init table schema before everything.
- * @author yuxing
+ * @author 
  *
  */
 public class BaseDataSource {

@@ -35,7 +35,7 @@ import android.view.View;
  */
 public class AndroidUtils {
 	
-	private static final String GLOBAL_SETTING = "com.easytime.setting";
+	private static final String GLOBAL_SETTING = "org.androidx";
 
 	/**
 	 * Compare target version with APP version.

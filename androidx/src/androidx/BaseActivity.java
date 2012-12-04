@@ -30,7 +30,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.ViewDebug.FlagToString;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
@@ -180,7 +179,7 @@ public abstract class BaseActivity extends Activity {
 
 	public void startActivityByName(String actName) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
-		ComponentName cn = new ComponentName("com.easytime.easytools", actName);
+		ComponentName cn = new ComponentName(this.getClass().getPackage().getName(), actName);
 		intent.setComponent(cn);
 		startActivity(intent);
 	}
@@ -872,9 +871,9 @@ public abstract class BaseActivity extends Activity {
 	}
 
 	/**
-	 * 用于对话框的回调。
+	 * Callback for dialog.
 	 * 
-	 * @author yuxing
+	 * @author 
 	 * 
 	 */
 	public static class DialogCallback<T> {

@@ -4,7 +4,7 @@ import android.os.Binder;
 
 /**
  * 
- * @author yxwang
+ * @author 
  *
  */
 public class BaseServiceBinder extends Binder {

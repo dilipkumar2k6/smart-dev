@@ -12,7 +12,7 @@ import android.widget.Button;
 
 /**
  * Commonly used About.
- * @author yuxing
+ * @author 
  *
  */
 public class AboutActivity extends BaseActivity {

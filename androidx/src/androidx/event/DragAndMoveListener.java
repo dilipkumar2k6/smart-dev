@@ -10,7 +10,7 @@ import androidx.AndroidUtils;
 
 /**
  * 
- * @author yxwang
+ * @author 
  * 
  */
 public abstract class DragAndMoveListener implements OnTouchListener {

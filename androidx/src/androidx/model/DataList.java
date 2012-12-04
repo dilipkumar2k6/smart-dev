@@ -6,13 +6,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import android.util.Log;
 import androidx.Utils;
 
 /**
  * Represent data recordset.
  * 
- * @author yuxing
+ * @author 
  * 
  */
 public class DataList<T extends DataRow> extends ArrayList<T> {
@@ -170,7 +169,7 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 	
 	/**
 	 * Callback for traverse DataList.
-	 * @author yuxing
+	 * @author 
 	 *
 	 * @param <T>
 	 */

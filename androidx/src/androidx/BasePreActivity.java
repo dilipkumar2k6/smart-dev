@@ -8,7 +8,7 @@ import android.telephony.SmsManager;
 /**
  * 需要激活操作的Activity基础类。
  * TODO
- * @author yxwang
+ * @author 
  * 
  */
 public abstract class BasePreActivity extends BaseActivity {
