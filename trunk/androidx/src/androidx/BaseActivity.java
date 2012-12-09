@@ -1,6 +1,7 @@
 package androidx;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,11 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Shader.TileMode;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
@@ -38,6 +43,7 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -47,6 +53,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.model.DataList;
 import androidx.model.DataRow;
+import androidx.view.TabsController;
 
 /**
  * 提供常用功能的基础Activity类<td/>
@@ -68,6 +75,8 @@ public abstract class BaseActivity extends Activity {
 	protected final String INTENT_DATA_ROW_KEY = "INTENT_DATA_ROW";
 	
 	protected final int REQUEST_CODE_DEFAULT = 1234;
+	
+	protected Activity thisActivity;
 
 	protected Context context;
 	
@@ -152,6 +161,9 @@ public abstract class BaseActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		thisActivity = this;
+		
 		context = this;
 		
 		// 没设置参数的情况为true，只有明确设置不是debug模式的情况才是false。
@@ -719,6 +731,10 @@ public abstract class BaseActivity extends Activity {
 	protected Spinner getSpinner(int resId) {
 		return (Spinner)this.findViewById(resId);
 	}
+	
+	protected GridView getGridView(int resId) {
+		return (GridView)this.findViewById(resId);
+	}
 
 	/**
 	 * Init spinner with key-values which grab from DataList.
@@ -739,6 +755,17 @@ public abstract class BaseActivity extends Activity {
 			}
 			
 		});
+		return initSpinner(resId, items.toArray());
+	}
+	
+	protected Spinner initSpinner(int resId, Map map) {
+		final List<SpinnerItem> items = new ArrayList();
+		Iterator it = map.keySet().iterator();
+		while(it.hasNext()) {
+			Long key = (Long)it.next();
+			Object value = map.get(key);
+			items.add(new SpinnerItem(key, value));
+		}
 		return initSpinner(resId, items.toArray());
 	}
 	
@@ -869,7 +896,29 @@ public abstract class BaseActivity extends Activity {
 	protected void debug(Object log) {
 		Log.d("androidx", log.toString());
 	}
-
+	
+	protected View inflatView(int viewId) {
+		return LayoutInflater.from(context).inflate(viewId, null);
+	}
+	
+	
+	public void tileBackground(View view, int resourceId) {
+		Bitmap bitmap = BitmapFactory.decodeResource(rs, resourceId);
+		BitmapDrawable bd = new BitmapDrawable(bitmap);
+		bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+		bd.setDither(true);
+		view.setBackgroundDrawable(bd);
+	}
+	
+	
+	public void mirrorBackground(View view, int resourceId) {
+		Bitmap bmHead = BitmapFactory.decodeResource(rs, resourceId);
+		BitmapDrawable bdHead = new BitmapDrawable(bmHead);
+		bdHead.setTileModeXY(TileMode.MIRROR , TileMode.MIRROR);
+		bdHead.setDither(true);		
+		view.setBackgroundDrawable(bdHead);
+	}
+	
 	/**
 	 * Callback for dialog.
 	 * 

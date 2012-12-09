@@ -5,6 +5,11 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+
 
 public class Utils {
 	
@@ -109,4 +114,5 @@ public class Utils {
 		}
 		return str.concat(new String(pad));
 	}
+
 }

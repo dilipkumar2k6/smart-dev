@@ -1,6 +1,7 @@
-package androidx;
+package androidx.view;
 
 import android.view.View;
+import androidx.Callback;
 
 public class TabsController {
 

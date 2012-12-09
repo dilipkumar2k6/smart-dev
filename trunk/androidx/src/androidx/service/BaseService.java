@@ -1,5 +1,7 @@
 package androidx.service; 
+import android.app.ActivityManager;
 import android.app.Service;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
@@ -13,6 +15,8 @@ public abstract class BaseService extends Service {
 	public Context context;
 	
 	public boolean isRunning;
+	
+	protected String LOG_LABEL = "service";
 
 	public BaseService() {
 		super();
@@ -33,5 +37,20 @@ public abstract class BaseService extends Service {
 	 * 
 	 */
 	public abstract void restartService();
-
+	
+	/**
+	 * Check whether a service is running.
+	 * @param ctx
+	 * @param serviceClass
+	 * @return true if service is running, false otherwise
+	 */
+	public static boolean checkServiceStatus(Context ctx, Class serviceClass) {
+		ActivityManager actManager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
+	    for (RunningServiceInfo service : actManager.getRunningServices(Integer.MAX_VALUE)) {
+	        if (service.service.getClassName().equals(serviceClass.getName())) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
 }
