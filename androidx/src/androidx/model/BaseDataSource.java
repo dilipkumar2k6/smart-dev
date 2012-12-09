@@ -96,7 +96,7 @@ public class BaseDataSource {
 				Log.e("androidx", "System Context didn't set properly.");
 				return null;
 			}
-			MySQLiteOpenHelper dbHelper = new MySQLiteOpenHelper(context, "SWIFT_RETAIL");
+			DefaultSQLiteOpenHelper dbHelper = new DefaultSQLiteOpenHelper(context, "SWIFT_RETAIL");
 			return dbHelper.getWritableDatabase();
 		}
 	}

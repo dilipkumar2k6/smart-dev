@@ -7,8 +7,6 @@ import android.widget.GridView;
 /**
  * 自定义的TabView，禁止滑动
  * 
- * @author 
- * 
  */
 public class TabView extends GridView {
 
@@ -28,7 +26,7 @@ public class TabView extends GridView {
 	}
 
 	private void init() {
-//		this.setScrollbarFadingEnabled(false); // Android 1.6不支持
+//		this.setScrollbarFadingEnabled(false); // Not Android 1.6
 		this.setFadingEdgeLength(0);
 		this.setVerticalSpacing(0);
 		this.setHorizontalSpacing(5);

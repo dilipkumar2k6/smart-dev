@@ -11,13 +11,11 @@ import android.widget.SimpleAdapter;
  *
  */
 public class SimpleListView extends SimpleCompositeView {
-//	private ListView lv;
-	
+
 	public SimpleListView(Context context, ListView lv) {
 		super(lv);
 		adapter = new SimpleAdapter(context, data, android.R.layout.simple_list_item_2
         		, keys, new int[]{android.R.id.text1, android.R.id.text2});
-//		this.lv = lv;
 	}
 
 	

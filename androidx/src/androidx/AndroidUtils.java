@@ -1,35 +1,28 @@
 package androidx;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Shader.TileMode;
-import android.graphics.drawable.BitmapDrawable;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.View;
 
 /**
- * Utilities for Android specified.
+ * Utilities for Android.
  * @author 
  *
  */
@@ -60,6 +53,28 @@ public class AndroidUtils {
 			}
 		}
 		return 0;
+	}
+	
+	public static List getInstalledApps(Context ctx) {
+		List<PackageInfo> pkgs = ctx.getPackageManager().getInstalledPackages(PackageManager.GET_ACTIVITIES);
+		List ret = new ArrayList();
+		for (Iterator it = pkgs.iterator(); it.hasNext();) {
+			PackageInfo pkg = (PackageInfo) it.next();
+			String packageName = pkg.packageName;
+			String appName;
+			Drawable icon;
+			try {
+				if ((pkg.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) {
+					continue;
+				}
+				appName = ctx.getPackageManager().getApplicationLabel(pkg.applicationInfo).toString();
+				icon = ctx.getPackageManager().getApplicationIcon(packageName);
+				ret.add(new Object[]{packageName, appName, icon});
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return ret;
 	}
 	
 	/**
@@ -95,20 +110,29 @@ public class AndroidUtils {
 		return null;
 	}
 	
-	public static int splitScreenWidth(Context ctx, int gridHeight, int skipHeight) {
-		//TODO
-		Log.d("AndroidUtils", "Screen: " + AndroidUtils.getScreenWidth(ctx) + "X" + AndroidUtils.getScreenHeight(ctx));
-		return 0;
+	/**
+	 * Version of current APP.
+	 * @param ctx
+	 * @return
+	 */
+	public static String getAppVersion(Context ctx) {
+		try {
+			PackageInfo pkgInfo = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), PackageManager.GET_ACTIVITIES);
+			return pkgInfo.versionName;
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+			return "0.0";
+		}
 	}
 	
 	/**
-	 * Split screen height to grid.
+	 * Divide screen height to grid.
 	 * @param ctx
 	 * @param gridHeight
 	 * @param skipHeight
 	 * @return
 	 */
-	public static int splitScreenHeight(Context ctx, int gridHeight, int skipHeight) {
+	public static int divideScreenHeight(Context ctx, int gridHeight, int skipHeight) {
 		Log.d("AndroidUtils", "Screen: " + AndroidUtils.getScreenWidth(ctx) + "X" + AndroidUtils.getScreenHeight(ctx));
 		int screenH = AndroidUtils.getScreenHeight(ctx);
 		int contentHeight = screenH - skipHeight;
@@ -116,7 +140,17 @@ public class AndroidUtils {
 		return (int) Math.round(contentHeight / (gridHeight + spacing));
 	}
 	
-	public static int splitScreen(Context ctx, int gridWidth, int skipWidth, int gridHeight, int skipHeight, int spacing){
+	/**
+	 * Divide screen width to grid.
+	 * @param ctx
+	 * @param gridWidth
+	 * @param skipWidth
+	 * @param gridHeight
+	 * @param skipHeight
+	 * @param spacing
+	 * @return
+	 */
+	public static int divideScreenWidth(Context ctx, int gridWidth, int skipWidth, int gridHeight, int skipHeight, int spacing){
 		Log.d("AndroidUtils", "Screen: " + AndroidUtils.getScreenWidth(ctx) + "X" + AndroidUtils.getScreenHeight(ctx));
 		int result = (int) Math.round(AndroidUtils.getScreenWidth(ctx) / gridWidth)
 				* (int) Math.round((AndroidUtils.getScreenHeight(ctx) - skipHeight) / gridHeight);
@@ -149,7 +183,7 @@ public class AndroidUtils {
 	}
 
 	/**
-	 * 取出全局设置，如果不存在，返回默认值
+	 * Get global setting from system, return specified default value if not exists.
 	 * 
 	 * @param ctx
 	 * @param name
@@ -170,7 +204,7 @@ public class AndroidUtils {
 	}
 
 	/**
-	 * 取出全局设置 
+	 * Get global setting.
 	 * @param ctx
 	 * @param name
 	 * @return
@@ -184,9 +218,7 @@ public class AndroidUtils {
 			return setting.getString(name, null).trim();
 		}
 	}
-	
-//	public static String getGlobalSettingInt()
-	
+
 	/**
 	 * 
 	 * @param ctx
@@ -217,99 +249,7 @@ public class AndroidUtils {
 		SharedPreferences setting = ctx.getSharedPreferences(GLOBAL_SETTING, 0);
 		return setting.edit().remove(key).commit();
 	}
-	
-	
-	public static void tileBackground(Context ctx, View view, int resourceId) {
-		Bitmap bitmap = BitmapFactory.decodeResource(ctx.getResources(), resourceId);
-		BitmapDrawable bd = new BitmapDrawable(bitmap);
-		bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
-		bd.setDither(true);
-		view.setBackgroundDrawable(bd);
-	}
-	
-	public static void mirrorBackground(Context ctx, View view, int resourceId) {
-		Bitmap bmHead = BitmapFactory.decodeResource(ctx.getResources(), resourceId);
-		BitmapDrawable bdHead = new BitmapDrawable(bmHead);
-		bdHead.setTileModeXY(TileMode.MIRROR , TileMode.MIRROR);
-		bdHead.setDither(true);		
-		view.setBackgroundDrawable(bdHead);
-	}
-	
-	/**
-	 * 
-	 * @param ctx
-	 * @param serviceClass
-	 * @return true if service is running, false otherwise
-	 */
-	public static boolean checkServiceStatus(Context ctx, Class serviceClass) {
-		ActivityManager manager = (ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
-	    for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-//	    	Log.d("Running Service:", service.service.getClassName());
-	        if (service.service.getClassName().equals(serviceClass.getName())) {
-	            return true;
-	        }
-	    }
-	    return false;
-	}
-	
-	public static boolean isWgetStop = false;
-	
-	/**
-	 * TODO Need re-arrange!
-	 * @param downloadUrl
-	 * @param localSavePath
-	 * @param totalSize Download file size, unknown if <=0
-	 * @return
-	 */
-	public static boolean wget(String downloadUrl, String localSavePath, long totalSize) {
-		InputStream inputStream = null;
-		FileOutputStream fileOutput = null;
-		try {
-			URL url = new URL(downloadUrl);
-			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-			urlConnection.setRequestMethod("GET");
-			urlConnection.setDoOutput(true);
-			urlConnection.connect();
-			File file = new File(localSavePath);
-			if (!file.exists()) {
-				if (!file.getParentFile().exists()) {
-					file.getParentFile().mkdirs();
-				}
-				file.createNewFile();
-			}
-			fileOutput = new FileOutputStream(file);
-			inputStream = urlConnection.getInputStream();
-			
-			long downloadedSize = 0;
-			long downloadSpeed = 0;
-			float downloadPercent;
-			byte[] buffer = new byte[4096];
-			int bufferLength = 0;
-			Log.d("wget()", "Download file size: " + totalSize);
-			while ((bufferLength = inputStream.read(buffer)) > 0 && !isWgetStop) {
-				fileOutput.write(buffer, 0, bufferLength);
-				downloadedSize += bufferLength;
-//			Log.d(TAG, downloadedSize + " bytes have been downloaded.");
-				downloadSpeed = downloadedSize;
-				downloadPercent = ((downloadedSize * 100) / totalSize) > 100 ? 100 : ((downloadedSize * 100) / totalSize);
-			}
-			
-			// stop = !stop;
-			// if (stop) {
-			fileOutput.flush();
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally{
-			try {
-				fileOutput.close();
-				inputStream.close();
-			} catch (Exception e2) {
-				e2.printStackTrace();
-			}
-		}
-		return false;
-	}
+
 	
 	
 	/**
@@ -334,4 +274,5 @@ public class AndroidUtils {
 		}
 		notificationManager.notify(id, notification);
 	}
+
 }

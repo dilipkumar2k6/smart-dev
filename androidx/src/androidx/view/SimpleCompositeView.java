@@ -11,16 +11,23 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.SimpleAdapter;
+import android.widget.ListAdapter;
 import androidx.Callback;
 
+/**
+ * The base composite view. 
+ * @author 
+ *
+ */
 public class SimpleCompositeView {
 	protected AbsListView alv;
-	protected SimpleAdapter adapter;
+	protected ListAdapter adapter;
 	protected String idkey = "k_id";
 	
 	// keys to extract text line 1 and text line 2 for each ListView item.
 	protected String[] keys = new String[] { "k1", "k2" };
+	
+	// Data of rows with k1 and k2.
 	protected List<Map<String, ?>> data;
 
 	public SimpleCompositeView(AbsListView alv) {
@@ -42,6 +49,12 @@ public class SimpleCompositeView {
 		return addItem(values[0], values[1]);
 	}
 
+	/**
+	 * Add new item 
+	 * @param id
+	 * @param values
+	 * @return
+	 */
 	public SimpleCompositeView addItem(Object id, Object[] values) {
 		if (values == null || values.length != 2) {
 			throw new IllegalArgumentException();
@@ -60,6 +73,13 @@ public class SimpleCompositeView {
 		return addItem(null, title, desc);
 	}
 
+	/**
+	 * 
+	 * @param id
+	 * @param title
+	 * @param desc
+	 * @return
+	 */
 	public SimpleCompositeView addItem(Object id, Object title, Object desc) {
 		Map m = new HashMap();
 		if (id != null) {
