@@ -3,6 +3,11 @@ package androidx;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Convert string to any data type safely(return defalut if exception)
+ * @author 
+ *
+ */
 public class NumberConverter {
 	protected static Map<Class, Converter> CONVERTERS = new HashMap();
 	static {

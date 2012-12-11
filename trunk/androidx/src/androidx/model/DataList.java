@@ -9,7 +9,7 @@ import java.util.Map;
 import androidx.Utils;
 
 /**
- * Represent data recordset.
+ * Represent data record set.
  * 
  * @author 
  * 
@@ -61,7 +61,7 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 	}
 
 	/**
-	 * 以默认DataRow类型添加一行。
+	 * Add new row as DataRow type.以默认DataRow类型添加一行。
 	 * @param keys
 	 * @param values
 	 */

@@ -274,5 +274,20 @@ public class AndroidUtils {
 		}
 		notificationManager.notify(id, notification);
 	}
-
+	
+//	protected int findNotifiation() {
+//		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//		notificationManager.
+//		return 0;
+//	}
+	
+	
+	/**
+	 * 取消状态栏提示消息。
+	 * @param id
+	 */
+	protected void cancelNotification(Context context, int id) {
+		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(id);
+	}
 }
