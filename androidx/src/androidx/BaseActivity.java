@@ -593,44 +593,7 @@ public abstract class BaseActivity extends Activity {
 	protected void showToast(String msg) {
 		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
 	}
-	
-	/**
-	 * 在状态栏显示提示消息。
-	 * @param id Notification ID
-	 * @param icon
-	 * @param title
-	 * @param msg
-	 * @param activity 点击后调装的Activity
-	 * @param sticky 是否常驻状态栏
-	 * @deprecated to AndroidUtils
-	 */
-	protected void showNotification(int id, int icon,String title, String msg, Class activity, boolean sticky) {
-		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification notification = new Notification(icon,
-				msg, System.currentTimeMillis());
-		Intent notificationIntent = new Intent(context, activity);
-		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-		notification.setLatestEventInfo(context, title, msg, contentIntent);
-		if(sticky) {
-			notification.flags = Notification.FLAG_ONGOING_EVENT;
-		}
-		notificationManager.notify(id, notification);
-	}
-	
-//	protected int findNotifiation() {
-//		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//		notificationManager.
-//		return 0;
-//	}
-	
-	/**
-	 * 取消状态栏提示消息。
-	 * @param id
-	 */
-	protected void cancelNotification(int id) {
-		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		notificationManager.cancel(id);
-	}
+
 	
 	/**
 	 * 

@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * A default SQLite helper which did nothing.
- * @author yuxing
+ * @author 
  *
  */
 public class DefaultSQLiteOpenHelper extends SQLiteOpenHelper {

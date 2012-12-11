@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * Represent data row in SQLite database.
  * @author 
  *
  */
