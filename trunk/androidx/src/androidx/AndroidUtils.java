@@ -286,7 +286,7 @@ public class AndroidUtils {
 	 * 取消状态栏提示消息。
 	 * @param id
 	 */
-	protected void cancelNotification(Context context, int id) {
+	public static void cancelNotification(Context context, int id) {
 		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(id);
 	}
