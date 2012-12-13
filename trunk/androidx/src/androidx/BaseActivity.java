@@ -515,7 +515,7 @@ public abstract class BaseActivity extends Activity {
 	 */
 	protected AlertDialog showCheckBoxsDialog(String title, BaseAdapter checkboxListViewAdapter, final DialogCallback callback) {
 		View inputView = LayoutInflater.from(this).inflate(R.layout.common_dialog_list_select, null);
-		final ListView listView = (ListView) inputView.findViewById(R.id.cdr_rg_selection);
+		final ListView listView = (ListView) inputView.findViewById(R.id.cdl_list);
 		
 		listView.setAdapter(checkboxListViewAdapter);		
 
