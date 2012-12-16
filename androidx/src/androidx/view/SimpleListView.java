@@ -1,6 +1,7 @@
 package androidx.view;
 
 import android.content.Context;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
@@ -13,14 +14,12 @@ import android.widget.SimpleAdapter;
 public class SimpleListView extends SimpleCompositeView {
 
 	public SimpleListView(Context context, ListView lv) {
-		super(lv);
-		adapter = new SimpleAdapter(context, data, android.R.layout.simple_list_item_2
-        		, keys, new int[]{android.R.id.text1, android.R.id.text2});
+		super(context, lv);
 	}
 
-	
-//	public void render() {
-//		this.lv.setAdapter(adapter);
-//	}
-
+	@Override
+	protected BaseAdapter getAdapter(Context context) {
+		return new SimpleAdapter(context, data, android.R.layout.simple_list_item_2
+        		, keys, new int[]{android.R.id.text1, android.R.id.text2});
+	}
 }

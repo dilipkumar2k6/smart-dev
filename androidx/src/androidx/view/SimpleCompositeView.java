@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListAdapter;
@@ -19,7 +21,7 @@ import androidx.Callback;
  * @author 
  *
  */
-public class SimpleCompositeView {
+public abstract class SimpleCompositeView {
 	protected AbsListView alv;
 	protected ListAdapter adapter;
 	protected String idkey = "k_id";
@@ -30,10 +32,18 @@ public class SimpleCompositeView {
 	// Data of rows with k1 and k2.
 	protected List<Map<String, ?>> data;
 
-	public SimpleCompositeView(AbsListView alv) {
+	public SimpleCompositeView(Context context, AbsListView alv) {
 		this.alv = alv;
 		data = new ArrayList();
+		adapter = getAdapter(context);
 	}
+	
+	/**
+	 * Inject adapter by overriding this method.
+	 * @param context
+	 * @return
+	 */
+	protected abstract BaseAdapter getAdapter(Context context);
 
 	/**
 	 * Add new list item, title and description.
