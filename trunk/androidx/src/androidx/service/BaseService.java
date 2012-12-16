@@ -5,6 +5,7 @@ import android.app.ActivityManager.RunningServiceInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 /**
  * 
@@ -52,5 +53,9 @@ public abstract class BaseService extends Service {
 	        }
 	    }
 	    return false;
+	}
+	
+	protected void debug(Object log) {
+		Log.d("service", log.toString());
 	}
 }

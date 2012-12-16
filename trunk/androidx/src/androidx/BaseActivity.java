@@ -857,7 +857,7 @@ public abstract class BaseActivity extends Activity {
 	}
 	
 	protected void debug(Object log) {
-		Log.d("androidx", log.toString());
+		Log.d("activity", log.toString());
 	}
 	
 	protected View inflatView(int viewId) {

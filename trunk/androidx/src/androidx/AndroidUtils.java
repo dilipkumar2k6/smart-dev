@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -30,6 +32,25 @@ public class AndroidUtils {
 	
 	private static final String GLOBAL_SETTING = "org.androidx";
 
+	public static int getProcessId(Context ctx, String pkgName) {
+		ActivityManager actService = (ActivityManager)ctx.getSystemService(Context.ACTIVITY_SERVICE);
+		
+		List<RunningAppProcessInfo> processes = actService.getRunningAppProcesses();
+		Iterator<RunningAppProcessInfo> it = processes.iterator();
+		while(it.hasNext()) {
+			RunningAppProcessInfo psinfo = it.next();
+//			Log.d("androidx", psinfo.pid + "");
+//			Log.d("androidx", psinfo.processName);
+			for(int i=0; i<psinfo.pkgList.length; i++) {
+//				Log.d("androidx", "  " + psinfo.pkgList[i]);
+				if(psinfo.pkgList[i].equals(pkgName)) {
+					return psinfo.pid;
+				}
+			}
+		}
+		return 0;
+	}
+	
 	/**
 	 * Compare target version with APP version.
 	 * @param ctx
