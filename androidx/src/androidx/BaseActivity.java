@@ -10,9 +10,6 @@ import org.androidx.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -265,6 +262,9 @@ public abstract class BaseActivity extends Activity {
 		else if(id instanceof Long) {
 			intent.putExtra(INTENT_DATA_ID_KEY, (Long)id);
 		}
+		else if(id instanceof String){
+			intent.putExtra(INTENT_DATA_ID_KEY, (String)id);
+		}
 		if (args != null)
 			intent.putExtra(INTENT_DATA_ARGS_KEY, args);
 		if(forResult) {
@@ -319,7 +319,17 @@ public abstract class BaseActivity extends Activity {
 			return 0;
 		return (Long) v;
 	}
-
+	
+	protected String getIdStrFromPreActivity() {
+		if (this.getIntent().getExtras() == null) {
+			return "";
+		}
+		Object v = this.getIntent().getExtras().get(INTENT_DATA_ID_KEY);
+		if (v == null)
+			return "";
+		return (String) v;
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -369,6 +379,7 @@ public abstract class BaseActivity extends Activity {
 				Log.d("Confirm Dialog", "OK clicked");
 				callback.onPositive(dialog);
 				dialog.dismiss();
+				callback.afterSelected();
 			}
 		});
 		dBuilder.setNegativeButton(tagCancel, new OnClickListener() {
@@ -377,6 +388,7 @@ public abstract class BaseActivity extends Activity {
 				Log.d("Confirm Dialog", "Calcel clicked");
 				callback.onNegative(dialog);
 				dialog.dismiss();
+				callback.afterSelected();
 			}
 		});
 
@@ -515,7 +527,7 @@ public abstract class BaseActivity extends Activity {
 	 */
 	protected AlertDialog showCheckBoxsDialog(String title, BaseAdapter checkboxListViewAdapter, final DialogCallback callback) {
 		View inputView = LayoutInflater.from(this).inflate(R.layout.common_dialog_list_select, null);
-		final ListView listView = (ListView) inputView.findViewById(R.id.cdl_list);
+		final ListView listView = (ListView) inputView.findViewById(R.id.cdr_rg_selection);
 		
 		listView.setAdapter(checkboxListViewAdapter);		
 
@@ -857,6 +869,7 @@ public abstract class BaseActivity extends Activity {
 	}
 	
 	protected void debug(Object log) {
+		if(log == null) log = "[null]";
 		Log.d("activity", log.toString());
 	}
 	
@@ -905,5 +918,10 @@ public abstract class BaseActivity extends Activity {
 		 * Negative button clicked.
 		 */
 		public void onNegative(T value){};
+		
+		/**
+		 * Invoked after any choices that make.
+		 */
+		public void afterSelected(){}
 	}
 }

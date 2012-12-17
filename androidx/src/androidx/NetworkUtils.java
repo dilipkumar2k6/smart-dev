@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
+import java.util.Enumeration;
 
 import android.util.Log;
 
@@ -68,6 +72,42 @@ public class NetworkUtils {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Retrieve the first found local IP address(No 127.0.0.1)
+	 * @return
+	 */
+	public static String getFirstLocalIPAddress() {
+		Enumeration<NetworkInterface> enu = null;
+		try {
+			enu = NetworkInterface.getNetworkInterfaces();
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
+		if(enu == null) {
+			System.out.println("No network interface found in this machine.");
+			return null;
+		}
+		String appropriateIpAddress = null;
+		while(enu.hasMoreElements()) {
+			NetworkInterface ni = enu.nextElement();
+			Enumeration<InetAddress> addresses = ni.getInetAddresses();
+			while(addresses.hasMoreElements()) {
+				InetAddress ia = addresses.nextElement();
+				// Skip loopback
+				if(ia.isSiteLocalAddress() && !"127.0.0.1".equals(ia.getHostAddress())) {
+					// Prefer 192.* and 10.*
+					if(ia.getHostAddress().startsWith("192") || ia.getHostAddress().startsWith("10")) {
+						appropriateIpAddress = ia.getHostAddress();
+					}
+				}
+			}
+		}
+		if(Utils.isEmpty(appropriateIpAddress)) {
+			appropriateIpAddress = "127.0.0.1";
+		}
+		return appropriateIpAddress;
 	}
 	
 }
