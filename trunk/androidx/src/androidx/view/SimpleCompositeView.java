@@ -10,11 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListAdapter;
 import androidx.Callback;
+import androidx.Utils;
 
 /**
  * The base composite view. 
@@ -22,15 +22,28 @@ import androidx.Callback;
  *
  */
 public abstract class SimpleCompositeView {
-	protected AbsListView alv;
-	protected ListAdapter adapter;
-	protected String idkey = "k_id";
 	
-	// keys to extract text line 1 and text line 2 for each ListView item.
-	protected String[] keys = new String[] { "k1", "k2" };
+	public static final int STATE_POSITIVE = 1;
+	public static final int STATE_NEGATIVE = 2;
+	
+	public static int translateState(int value, int posTarget, int negTarget) {
+		return (Integer)Utils.quaterLogic(value
+				, posTarget, SimpleCompositeView.STATE_POSITIVE
+				, negTarget, SimpleCompositeView.STATE_NEGATIVE);
+	}
+	
+	protected AbsListView alv;
+	protected String idkey = "k_id";
+	protected String statekey = "k_state";
+	
+	// keys to extract text line 1 and text line 2 for each ListView item. 
+	protected String[] keys = new String[] { "k1", "k2"};
 	
 	// Data of rows with k1 and k2.
 	protected List<Map<String, ?>> data;
+	
+	// Adapter for data of view.
+	private ListAdapter adapter;
 
 	public SimpleCompositeView(Context context, AbsListView alv) {
 		this.alv = alv;
@@ -43,7 +56,7 @@ public abstract class SimpleCompositeView {
 	 * @param context
 	 * @return
 	 */
-	protected abstract BaseAdapter getAdapter(Context context);
+	protected abstract ListAdapter getAdapter(Context context);
 
 	/**
 	 * Add new list item, title and description.
@@ -69,7 +82,7 @@ public abstract class SimpleCompositeView {
 		if (values == null || values.length != 2) {
 			throw new IllegalArgumentException();
 		}
-		return addItem(id, values[0], values[1]);
+		return addItem(id, values[0], values[1], 0);
 	}
 
 	/**
@@ -80,9 +93,17 @@ public abstract class SimpleCompositeView {
 	 * @return
 	 */
 	public SimpleCompositeView addItem(Object title, Object desc) {
-		return addItem(null, title, desc);
+		return addItem(null, title, desc, 0);
 	}
-
+	
+	public SimpleCompositeView addItem(Object id, Object title, Object desc) {
+		return addItem(id, title, desc, 0);
+	}
+	
+	public SimpleCompositeView addItem(Object title, Object desc, int state) {
+		return addItem(null, title, desc, state);
+	}
+	
 	/**
 	 * 
 	 * @param id
@@ -90,13 +111,14 @@ public abstract class SimpleCompositeView {
 	 * @param desc
 	 * @return
 	 */
-	public SimpleCompositeView addItem(Object id, Object title, Object desc) {
+	public SimpleCompositeView addItem(Object id, Object title, Object desc, int state) {
 		Map m = new HashMap();
 		if (id != null) {
 			m.put(idkey, id);
 		}
 		m.put(keys[0], title);
 		m.put(keys[1], desc);
+		m.put(statekey, state);
 		data.add(m);
 		return this;
 	}
