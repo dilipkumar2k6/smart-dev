@@ -33,9 +33,9 @@ public class AndroidUtils {
 	private static final String GLOBAL_SETTING = "org.androidx";
 
 	public static int getProcessId(Context ctx, String pkgName) {
-		ActivityManager actService = (ActivityManager)ctx.getSystemService(Context.ACTIVITY_SERVICE);
+		ActivityManager actManager = (ActivityManager)ctx.getSystemService(Context.ACTIVITY_SERVICE);
 		
-		List<RunningAppProcessInfo> processes = actService.getRunningAppProcesses();
+		List<RunningAppProcessInfo> processes = actManager.getRunningAppProcesses();
 		Iterator<RunningAppProcessInfo> it = processes.iterator();
 		while(it.hasNext()) {
 			RunningAppProcessInfo psinfo = it.next();
@@ -49,6 +49,19 @@ public class AndroidUtils {
 			}
 		}
 		return 0;
+	}
+
+	
+	public static void killProcess(Context ctx,String pkgName) {
+		ActivityManager actManager = (ActivityManager)ctx.getSystemService(Context.ACTIVITY_SERVICE);
+		// version 1.5 - 2.1
+		if(android.os.Build.VERSION.SDK_INT <= 7) {
+			actManager.restartPackage(pkgName);
+		}
+		// version 2.2+
+		else {
+			actManager.killBackgroundProcesses(pkgName);
+		}
 	}
 	
 	/**
