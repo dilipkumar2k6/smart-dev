@@ -172,9 +172,9 @@ public class RemoteDebug {
 	}
 
 	public void log (String prefix, String msg) {
-//		String logInfo = prefix + " " + ": " + msg + "\r\n";
-//		// Callback log.
-//		localDebugCallback(logInfo);
+		String logInfo = prefix + " " + ": " + msg + "\r\n";
+		// Callback log.
+		localDebugCallback(logInfo);
 //		
 //		// Not ready for remote debug.
 //		if (tcpListener == null) {

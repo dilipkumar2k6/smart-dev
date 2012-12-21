@@ -94,7 +94,7 @@ namespace u3dext {
 					break;
 				default:
 					object value = jsonReader.Value;
-					if(value.GetType() == typeof(Int64)) {
+					if(value!=null && value.GetType() == typeof(Int64)) {
 						value = (Int32)value;
 					}
 					if (inDictionary) {
