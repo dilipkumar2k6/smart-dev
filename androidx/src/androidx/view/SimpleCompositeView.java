@@ -13,7 +13,6 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import androidx.Callback;
 import androidx.Utils;
@@ -98,16 +97,30 @@ public abstract class SimpleCompositeView {
 		return addItem(null, title, desc, 0);
 	}
 	
+	/**
+	 * Add new item with id, title and description.
+	 * @param id
+	 * @param title
+	 * @param desc
+	 * @return
+	 */
 	public SimpleCompositeView addItem(Object id, Object title, Object desc) {
 		return addItem(id, title, desc, 0);
 	}
 	
+	/**
+	 * Add new item with title, description, state.
+	 * @param title
+	 * @param desc
+	 * @param state
+	 * @return
+	 */
 	public SimpleCompositeView addItem(Object title, Object desc, int state) {
 		return addItem(null, title, desc, state);
 	}
 	
 	/**
-	 * 
+	 * Add new item with id, title, description and state.
 	 * @param id
 	 * @param title
 	 * @param desc
@@ -125,6 +138,11 @@ public abstract class SimpleCompositeView {
 		return this;
 	}
 	
+	/**
+	 * Add all map entries, key as id, value as title and description.
+	 * @param m
+	 * @return
+	 */
 	public SimpleCompositeView addAllItems(Map m) {
 		Iterator it = m.keySet().iterator();
 		while (it.hasNext()) {
@@ -138,6 +156,13 @@ public abstract class SimpleCompositeView {
 		return this;
 	}
 	
+	/**
+	 * 
+	 * @param data
+	 * @param k1
+	 * @param k2
+	 * @return
+	 */
 	public SimpleCompositeView addAllItems(List<Map> data, Object k1, Object k2) {
 		for(int i=0; i<data.size(); i++) {
 			Map m = data.get(i);
@@ -145,9 +170,13 @@ public abstract class SimpleCompositeView {
 		}
 		return this;
 	}
-	
-	
 
+
+	/**
+	 * Remove item by item ID.
+	 * @param id
+	 * @return
+	 */
 	public boolean removeItem(Object id) {
 		if (id == null) {
 			return false;
@@ -162,11 +191,17 @@ public abstract class SimpleCompositeView {
 		return false;
 	}
 	
+	/**
+	 * Clear all data.
+	 */
 	public void clear() {
 		data.clear();
 		this.render();
 	}
 
+	/**
+	 * Render to display all data for this view.
+	 */
 	public void render() {
 		if(this.alv == null){
 			throw new RuntimeException("The composite view was not init correctly.");
@@ -219,6 +254,10 @@ public abstract class SimpleCompositeView {
 		}
 	}
 
+	/**
+	 * Get inner data as a list with Maps inside.
+	 * @return
+	 */
 	public List<Map<String, ?>> getData() {
 		return data;
 	}
