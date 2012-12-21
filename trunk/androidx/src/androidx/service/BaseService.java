@@ -8,7 +8,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 /**
- * 
+ * Base class for any background services. 
+ * Use static method {@code checkServiceStatus()} to check any service status.
  * @author 
  *
  */

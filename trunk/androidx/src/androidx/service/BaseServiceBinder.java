@@ -3,7 +3,7 @@ package androidx.service;
 import android.os.Binder;
 
 /**
- * 
+ * Base class for any service binder.
  * @author 
  *
  */

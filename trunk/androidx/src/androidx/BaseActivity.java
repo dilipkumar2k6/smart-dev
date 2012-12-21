@@ -9,11 +9,8 @@ import org.androidx.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -25,26 +22,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AnimationSet;
-import android.view.animation.TranslateAnimation;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,7 +41,7 @@ import androidx.view.TabsController;
 
 /**
  * 提供常用功能的基础Activity类<td/>
- * 文字资源；各种标准对话框；手势支持
+ * 文字资源，Toast
  * 
  * @author 
  * 
@@ -124,36 +111,6 @@ public abstract class BaseActivity extends Activity {
 	protected DisplayMetrics dm;
 	protected int sw;
 	protected int sh;
-	
-	
-	// == 需要的话覆盖变量值进行参数调整 ==
-	
-	protected int animationSpeed = 500; // ms, Larger is faster
-	
-	// Gesture
-	protected int gestureThrottleVelocityX = 500;
-	protected int gestureThrottleVelocityY = 30;
-	
-	protected final GestureDetector gestureDetector = new GestureDetector(new SimpleOnGestureListener() {
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			Log.d("Fling...", e1 + "__" + e2 + "__" + velocityX + "__" + velocityY);
-			if (velocityX > gestureThrottleVelocityX && velocityY < gestureThrottleVelocityY) {
-				Log.d(this.getClass().getSimpleName(), "Fling to right");
-				onGesture(tabsController.currentTabIndex, tabsController.nextTabIndex());
-			}
-
-			else if (velocityX < -gestureThrottleVelocityX && velocityY > -gestureThrottleVelocityY) {
-				Log.d(this.getClass().getSimpleName(), "Fling to left");
-				onGesture(tabsController.currentTabIndex, tabsController.previousTabIndex());
-			}
-			return super.onFling(e1, e2, velocityX, velocityY);
-		}
-	});
-	
-	protected void onGesture(int oldTabIdx, int newTabIdx){
-		// DO NOTHING
-	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -362,283 +319,250 @@ public abstract class BaseActivity extends Activity {
 		return (DataRow)this.getIntent().getSerializableExtra(INTENT_DATA_ROW_KEY);
 //		throw new UnsupportedOperationException();
 	}
-
-	/**
-	 * Show dialog with message to confirm something.
-	 * 
-	 * @param msg
-	 * @param callback
-	 */
-	protected void showConfirmDialog(String msg, final DialogCallback callback) {
-		AlertDialog.Builder dBuilder = new Builder(context);
-		dBuilder.setMessage(msg);
-		dBuilder.setIcon(android.R.drawable.ic_menu_help);
-		dBuilder.setPositiveButton(tagOk, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Log.d("Confirm Dialog", "OK clicked");
-				callback.onPositive(dialog);
-				dialog.dismiss();
-				callback.afterSelected();
-			}
-		});
-		dBuilder.setNegativeButton(tagCancel, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Log.d("Confirm Dialog", "Calcel clicked");
-				callback.onNegative(dialog);
-				dialog.dismiss();
-				callback.afterSelected();
-			}
-		});
-
-		confirmDialog = dBuilder.create();
-		confirmDialog.setTitle(resources.getString(R.string.common_dialog_confirm_title));
-		confirmDialog.show();
-	}
-	
-	/**
-	 * Show un-interrupted progress dialog with message.
-	 * 
-	 * @param msg
-	 * @param callback
-	 */
-	protected void showProgressDialog(String msg, final DialogCallback callback) {
-		final View progressView = LayoutInflater.from(context).inflate(R.layout.common_progress_dialog, null);
-		TextView textView = (TextView) progressView.findViewById(R.id.textViewMsg);
-		textView.setText(msg);
-
-		AlertDialog.Builder dBuilder = new Builder(context);
-		dBuilder.setView(progressView);
-		dBuilder.setIcon(android.R.drawable.ic_dialog_info);
-		dBuilder.setNegativeButton(tagCancel, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Log.d("ProgressDialog", "Calcel clicked");
-				callback.onNegative(dialog);
-				dialog.dismiss();
-			}
-		});
-
-		progressDialog = dBuilder.create();
-		progressDialog.setTitle(resources.getString(R.string.common_dialog_progress_title));
-		progressDialog.show();
-	}
-
-	/**
-	 * Show dialog with single input.
-	 * 
-	 * @param title
-	 * @param msg
-	 * @param inputInit Init the input edit text.
-	 * @param callback Callback with user inputs when click OK button.
-	 * @return
-	 */
-	protected AlertDialog showInputDialog(String title, String msg, String inputInit, final DialogCallback callback) {
-		View inputView = LayoutInflater.from(this).inflate(R.layout.common_dialog_single_input, null);
-		final EditText txtInput = (EditText) inputView.findViewById(R.id.editTxtInput);
-		AlertDialog.Builder dBuilder = new Builder(this);
-		dBuilder.setView(inputView);
-		dBuilder.setIcon(android.R.drawable.ic_dialog_info);
-		dBuilder.setMessage(msg);
-		dBuilder.setPositiveButton(tagYes, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				callback.onPositive(txtInput.getText().toString().trim());
-				searchDialog.dismiss();
-			}
-		});
-		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				callback.onNegative(dialog);
-				searchDialog.dismiss();
-			}
-		});
-
-		txtInput.setText(inputInit);
-		searchDialog = dBuilder.create();
-		searchDialog.setTitle(title);
-		searchDialog.show();
-		return searchDialog;
-	}
-	
-	
-	/**
-	 * Show radio group dialog, return selected index in group.
-	 * 
-	 * @param title
-	 * @param msg
-	 * @param labels
-	 * @param checked
-	 * @param callback
-	 * @return
-	 */
-	protected AlertDialog showRadioGroupDialog(String title, String msg, String[] labels, int checked,
-			final DialogCallback callback) {
-		View inputView = LayoutInflater.from(this).inflate(R.layout.common_dialog_radiogroup, null);
-		inputView.setBackgroundColor(dialogBgColor);
-		final RadioGroup radioGroup = (RadioGroup) inputView.findViewById(R.id.cdr_rg_selection);
-//		radioGroup.setBackgroundColor(dialogBgColor);
-		radioGroup.removeAllViews();
-		for (int i = 0; i < labels.length; i++) {
-//			Log.d("", "Add new radio to group " + labels[i]);
-			RadioButton radio = new RadioButton(this);
-			radio.setId(i);
-			radio.setText(labels[i]);
-			radio.setChecked(checked == i ? true : false);
-			radio.setTextColor(dialogTxtColor);
-			radioGroup.addView(radio);
-		}
-
-		AlertDialog.Builder dBuilder = new Builder(this);
-		dBuilder.setView(inputView);
-		dBuilder.setIcon(android.R.drawable.ic_menu_more);
-		dBuilder.setMessage(msg);
-		dBuilder.setPositiveButton(tagYes, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				callback.onPositive(radioGroup.getCheckedRadioButtonId());
-				radioGroupDialog.dismiss();
-			}
-		});
-		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				callback.onNegative(dialog);
-				radioGroupDialog.dismiss();
-			}
-		});
-
-		radioGroupDialog = dBuilder.create();
-		radioGroupDialog.setTitle(title);
-		radioGroupDialog.show();
-		return radioGroupDialog;
-	}
-
-	/**
-	 * Show dialog with Checkbox list view
-	 * @param title
-	 * @param msg
-	 * @param labels
-	 * @param checkboxListViewAdapter Adapter to init the list view with checkboxs.
-	 * @param callback Callback to invoker.
-	 * @return
-	 */
-	protected AlertDialog showCheckBoxsDialog(String title, BaseAdapter checkboxListViewAdapter, final DialogCallback callback) {
-		View inputView = LayoutInflater.from(this).inflate(R.layout.common_dialog_list_select, null);
-		final ListView listView = (ListView) inputView.findViewById(R.id.cdr_rg_selection);
-		
-		listView.setAdapter(checkboxListViewAdapter);		
-
-		AlertDialog.Builder dBuilder = new Builder(this);
-		dBuilder.setView(inputView);
-		dBuilder.setIcon(android.R.drawable.ic_menu_more);
-		dBuilder.setPositiveButton(tagYes, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				callback.onPositive(listView);
-				listSelectDialog.dismiss();
-			}
-		});
-		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				callback.onNegative(dialog);
-				listSelectDialog.dismiss();
-			}
-		});
-
-		listSelectDialog = dBuilder.create();
-		listSelectDialog.setTitle(title);
-		listSelectDialog.show();
-		return listSelectDialog;
-	}
-
-	/**
-	 * 显示信息对话框。
-	 * @param msg
-	 */
-	protected void showInfoDialog(final String msg) {
-		AlertDialog.Builder dBuilder = new Builder(this);
-		dBuilder.setMessage(msg);
-		dBuilder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				Log.d("showInfoDialog", "Cancel clicked");
-				infoDialog.dismiss();
-			}
-		});
-		infoDialog = dBuilder.create();
-		infoDialog.setTitle(android.R.string.dialog_alert_title);
-		infoDialog.setIcon(android.R.drawable.ic_menu_info_details);
-		infoDialog.show();
-	}
-	
-	/**
-	 * 显示一个列表对话框，比如“对话框式弹出菜单“。不自动关闭对话框，需要调用者手动关闭。
-	 * @param title
-	 * @param items
-	 * @param callback 列表选中一项时调用，参数为选项位置。
-	 */
-	protected void showListSelectDialog(final String title, final String[] items, final DialogCallback callback) {
-		View fileActionView = LayoutInflater.from(context).inflate(R.layout.common_dialog_list_select, null);
-		ListView listSelect = (ListView) fileActionView.findViewById(R.id.cdl_list);
-		listSelect.setAdapter(new ArrayAdapter(context, android.R.layout.simple_list_item_1, items));
-		listSelect.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-				callback.onPositive(position);
-			}
-			
-		});
-		
-		AlertDialog.Builder dBuilder = new Builder(context);
-		dBuilder.setTitle(title);
-		dBuilder.setIcon(android.R.drawable.ic_menu_more);
-		dBuilder.setView(fileActionView);
-		listSelectDialog = dBuilder.create();
-		listSelectDialog .show();
-	}
+//
+//	/**
+//	 * Show dialog with message to confirm something.
+//	 * 
+//	 * @param msg
+//	 * @param callback
+//	 */
+//	protected void showConfirmDialog(String msg, final DialogCallback callback) {
+//		AlertDialog.Builder dBuilder = new Builder(context);
+//		dBuilder.setMessage(msg);
+//		dBuilder.setIcon(android.R.drawable.ic_menu_help);
+//		dBuilder.setPositiveButton(tagOk, new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				Log.d("Confirm Dialog", "OK clicked");
+//				callback.onPositive(dialog);
+//				dialog.dismiss();
+//				callback.afterSelected();
+//			}
+//		});
+//		dBuilder.setNegativeButton(tagCancel, new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				Log.d("Confirm Dialog", "Calcel clicked");
+//				callback.onNegative(dialog);
+//				dialog.dismiss();
+//				callback.afterSelected();
+//			}
+//		});
+//
+//		confirmDialog = dBuilder.create();
+//		confirmDialog.setTitle(resources.getString(R.string.common_dialog_confirm_title));
+//		confirmDialog.show();
+//	}
+//	
+//	/**
+//	 * Show un-interrupted progress dialog with message.
+//	 * 
+//	 * @param msg
+//	 * @param callback
+//	 */
+//	protected void showProgressDialog(String msg, final DialogCallback callback) {
+//		final View progressView = LayoutInflater.from(context).inflate(R.layout.common_progress_dialog, null);
+//		TextView textView = (TextView) progressView.findViewById(R.id.textViewMsg);
+//		textView.setText(msg);
+//
+//		AlertDialog.Builder dBuilder = new Builder(context);
+//		dBuilder.setView(progressView);
+//		dBuilder.setIcon(android.R.drawable.ic_dialog_info);
+//		dBuilder.setNegativeButton(tagCancel, new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				Log.d("ProgressDialog", "Calcel clicked");
+//				callback.onNegative(dialog);
+//				dialog.dismiss();
+//			}
+//		});
+//
+//		progressDialog = dBuilder.create();
+//		progressDialog.setTitle(resources.getString(R.string.common_dialog_progress_title));
+//		progressDialog.show();
+//	}
+//
+//	/**
+//	 * Show dialog with single input.
+//	 * 
+//	 * @param title
+//	 * @param msg
+//	 * @param inputInit Init the input edit text.
+//	 * @param callback Callback with user inputs when click OK button.
+//	 * @return
+//	 */
+//	protected AlertDialog showInputDialog(String title, String msg, String inputInit, final DialogCallback callback) {
+//		View inputView = LayoutInflater.from(this).inflate(R.layout.common_dialog_single_input, null);
+//		final EditText txtInput = (EditText) inputView.findViewById(R.id.editTxtInput);
+//		AlertDialog.Builder dBuilder = new Builder(this);
+//		dBuilder.setView(inputView);
+//		dBuilder.setIcon(android.R.drawable.ic_dialog_info);
+//		dBuilder.setMessage(msg);
+//		dBuilder.setPositiveButton(tagYes, new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				callback.onPositive(txtInput.getText().toString().trim());
+//				searchDialog.dismiss();
+//			}
+//		});
+//		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				callback.onNegative(dialog);
+//				searchDialog.dismiss();
+//			}
+//		});
+//
+//		txtInput.setText(inputInit);
+//		searchDialog = dBuilder.create();
+//		searchDialog.setTitle(title);
+//		searchDialog.show();
+//		return searchDialog;
+//	}
+//	
+//	
+//	/**
+//	 * Show radio group dialog, return selected index in group.
+//	 * 
+//	 * @param title
+//	 * @param msg
+//	 * @param labels
+//	 * @param checked
+//	 * @param callback
+//	 * @return
+//	 */
+//	protected AlertDialog showRadioGroupDialog(String title, String msg, String[] labels, int checked,
+//			final DialogCallback callback) {
+//		View inputView = LayoutInflater.from(this).inflate(R.layout.common_dialog_radiogroup, null);
+//		inputView.setBackgroundColor(dialogBgColor);
+//		final RadioGroup radioGroup = (RadioGroup) inputView.findViewById(R.id.cdr_rg_selection);
+////		radioGroup.setBackgroundColor(dialogBgColor);
+//		radioGroup.removeAllViews();
+//		for (int i = 0; i < labels.length; i++) {
+////			Log.d("", "Add new radio to group " + labels[i]);
+//			RadioButton radio = new RadioButton(this);
+//			radio.setId(i);
+//			radio.setText(labels[i]);
+//			radio.setChecked(checked == i ? true : false);
+//			radio.setTextColor(dialogTxtColor);
+//			radioGroup.addView(radio);
+//		}
+//
+//		AlertDialog.Builder dBuilder = new Builder(this);
+//		dBuilder.setView(inputView);
+//		dBuilder.setIcon(android.R.drawable.ic_menu_more);
+//		dBuilder.setMessage(msg);
+//		dBuilder.setPositiveButton(tagYes, new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				callback.onPositive(radioGroup.getCheckedRadioButtonId());
+//				radioGroupDialog.dismiss();
+//			}
+//		});
+//		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				callback.onNegative(dialog);
+//				radioGroupDialog.dismiss();
+//			}
+//		});
+//
+//		radioGroupDialog = dBuilder.create();
+//		radioGroupDialog.setTitle(title);
+//		radioGroupDialog.show();
+//		return radioGroupDialog;
+//	}
+//
+//	/**
+//	 * Show dialog with Checkbox list view
+//	 * @param title
+//	 * @param msg
+//	 * @param labels
+//	 * @param checkboxListViewAdapter Adapter to init the list view with checkboxs.
+//	 * @param callback Callback to invoker.
+//	 * @return
+//	 */
+//	protected AlertDialog showCheckBoxsDialog(String title, BaseAdapter checkboxListViewAdapter, final DialogCallback callback) {
+//		View inputView = LayoutInflater.from(this).inflate(R.layout.common_dialog_list_select, null);
+//		final ListView listView = (ListView) inputView.findViewById(R.id.cdr_rg_selection);
+//		
+//		listView.setAdapter(checkboxListViewAdapter);		
+//
+//		AlertDialog.Builder dBuilder = new Builder(this);
+//		dBuilder.setView(inputView);
+//		dBuilder.setIcon(android.R.drawable.ic_menu_more);
+//		dBuilder.setPositiveButton(tagYes, new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				callback.onPositive(listView);
+//				listSelectDialog.dismiss();
+//			}
+//		});
+//		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				callback.onNegative(dialog);
+//				listSelectDialog.dismiss();
+//			}
+//		});
+//
+//		listSelectDialog = dBuilder.create();
+//		listSelectDialog.setTitle(title);
+//		listSelectDialog.show();
+//		return listSelectDialog;
+//	}
+//
+//	/**
+//	 * 显示信息对话框。
+//	 * @param msg
+//	 */
+//	protected void showInfoDialog(final String msg) {
+//		AlertDialog.Builder dBuilder = new Builder(this);
+//		dBuilder.setMessage(msg);
+//		dBuilder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				Log.d("showInfoDialog", "Cancel clicked");
+//				infoDialog.dismiss();
+//			}
+//		});
+//		infoDialog = dBuilder.create();
+//		infoDialog.setTitle(android.R.string.dialog_alert_title);
+//		infoDialog.setIcon(android.R.drawable.ic_menu_info_details);
+//		infoDialog.show();
+//	}
+//	
+//	/**
+//	 * 显示一个列表对话框，比如“对话框式弹出菜单“。不自动关闭对话框，需要调用者手动关闭。
+//	 * @param title
+//	 * @param items
+//	 * @param callback 列表选中一项时调用，参数为选项位置。
+//	 */
+//	protected void showListSelectDialog(final String title, final String[] items, final DialogCallback callback) {
+//		View fileActionView = LayoutInflater.from(context).inflate(R.layout.common_dialog_list_select, null);
+//		ListView listSelect = (ListView) fileActionView.findViewById(R.id.cdl_list);
+//		listSelect.setAdapter(new ArrayAdapter(context, android.R.layout.simple_list_item_1, items));
+//		listSelect.setOnItemClickListener(new OnItemClickListener() {
+//
+//			@Override
+//			public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+//				callback.onPositive(position);
+//			}
+//			
+//		});
+//		
+//		AlertDialog.Builder dBuilder = new Builder(context);
+//		dBuilder.setTitle(title);
+//		dBuilder.setIcon(android.R.drawable.ic_menu_more);
+//		dBuilder.setView(fileActionView);
+//		listSelectDialog = dBuilder.create();
+//		listSelectDialog .show();
+//	}
 	
 	protected void showToast(String msg) {
 		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
 	}
 
-	
-	/**
-	 * 
-	 * @param lastView
-	 * @param nextView
-	 * @param isLeftToRight
-	 */
-	protected void playAnimation(View lastView, View nextView, boolean isLeftToRight) {
-		if (lastView == null || nextView == null) {
-			return;
-		}
-		AnimationSet aset = new AnimationSet(true);
-
-		int distanceTo = isLeftToRight ? -sw : sw;
-		int distanceFrom = isLeftToRight ? sw : -sw;
-
-		TranslateAnimation ta1 = new TranslateAnimation(0, distanceTo, 0, 0);
-		ta1.setDuration(animationSpeed);
-		lastView.setAnimation(ta1);
-
-		TranslateAnimation ta2 = new TranslateAnimation(distanceFrom, 0, 0, 0);
-		ta2.setDuration(animationSpeed);
-		nextView.setAnimation(ta2);
-
-		aset.addAnimation(ta1);
-		aset.addAnimation(ta2);
-		aset.start();
-
-		lastView.startAnimation(ta1);
-		lastView.setVisibility(View.INVISIBLE);
-		nextView.setVisibility(View.VISIBLE);
-	}
-	
 	/**
 	 * 获取LinearLayout
 	 * @param resourceId
@@ -894,34 +818,34 @@ public abstract class BaseActivity extends Activity {
 		bdHead.setDither(true);		
 		view.setBackgroundDrawable(bdHead);
 	}
-	
-	/**
-	 * Callback for dialog.
-	 * 
-	 * @author 
-	 * 
-	 */
-	public static class DialogCallback<T> {
-		/**
-		 * Positive button clicked.
-		 * @param value
-		 */
-		public void onPositive(T value){};
-		
-		/**
-		 * Positive button clicked with multi-values returned.
-		 * @param values
-		 */
-		public void onPositive(T... values) {};
-
-		/**
-		 * Negative button clicked.
-		 */
-		public void onNegative(T value){};
-		
-		/**
-		 * Invoked after any choices that make.
-		 */
-		public void afterSelected(){}
-	}
+//	
+//	/**
+//	 * Callback for dialog.
+//	 * 
+//	 * @author 
+//	 * 
+//	 */
+//	public static class DialogCallback<T> {
+//		/**
+//		 * Positive button clicked.
+//		 * @param value
+//		 */
+//		public void onPositive(T value){};
+//		
+//		/**
+//		 * Positive button clicked with multi-values returned.
+//		 * @param values
+//		 */
+//		public void onPositive(T... values) {};
+//
+//		/**
+//		 * Negative button clicked.
+//		 */
+//		public void onNegative(T value){};
+//		
+//		/**
+//		 * Invoked after any choices that make.
+//		 */
+//		public void afterSelected(){}
+//	}
 }
