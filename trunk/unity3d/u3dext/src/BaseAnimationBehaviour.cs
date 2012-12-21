@@ -35,8 +35,6 @@ namespace u3dext {
 		private Texture[] animTextures;
 
 		public BaseAnimationBehaviour () {
-
-
 		}
 		
 		/// <summary>

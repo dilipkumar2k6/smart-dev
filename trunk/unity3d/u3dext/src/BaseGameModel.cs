@@ -4,9 +4,6 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime;
-//using JsonFx;
-//using JsonFx.Json;
-//using JsonFx.IO;
 using LitJson;
 using UnityEngine;
 using u3dext;
@@ -16,38 +13,31 @@ namespace u3dext {
 
 		protected string userSettingFile ;
 		// Reader and writer for settings.
-		private JsonWriter jWriter ;
-		private JsonReader jReader ;
 		public Dictionary<String, System.Object> dMeta;
 
 		protected Dictionary<String, object> modelCache = new Dictionary<String, object>();
 		
 		public BaseGameModel () {
-			jWriter = new JsonWriter();
-//			jReader = new JsonReader();
 		}
 
 		public bool isMusicOn () {
-			if (!modelCache.ContainsKey("music")) {
-				object d = this.getSetting("music");
-				modelCache.Add("music", d == null ? true : (bool)d);
-			}
-			return (bool)modelCache["music"];
+			object d = this.getSetting("music", true);
+			return d == null ? true : (bool)d;
 		}
 	
 		public bool isSoundOn () {
-			if (!modelCache.ContainsKey("sound")) {
-				object d = this.getSetting("sound");
-				modelCache.Add("sound", d == null ? true : (bool)d);
-			}
-			return (bool)modelCache["sound"];
+			object d = this.getSetting("sound", true);
+			return d == null ? true : (bool)d;
 		}
 
 		public object getSetting (String name) {
+			return getSetting(name, null);
+		}
+
+		public object getSetting (String name, object defaultValue) {
 			if (!modelCache.ContainsKey(name)) {
 
 				// Read exist settings from storage file.
-
 				Debug.Log(" === Start To Read JSON from File: " + userSettingFile);
 
 				FileInfo fi = Utils.checkAndCreateFile(userSettingFile);
@@ -60,15 +50,15 @@ namespace u3dext {
 				tr.Close();
 				inStream.Close();
 
-				if (data == null) {
-					return null;
+				if (data == null || !data.ContainsKey(name)) {
+//					if(defaultValue != null) {
+						modelCache[name] = defaultValue;
+//					}
 				}
-				if (data.ContainsKey(name)) {
+				else {
 					modelCache[name] = data[name];
-//					return data[name];
-				} else {
-					return null;
 				}
+
 			}
 			return modelCache[name];
 		}
@@ -101,8 +91,7 @@ namespace u3dext {
 		
 			// update cache
 			modelCache[name] = value;
-		
-			Debug.Log("Setting " + name + " saved to local storage");
+			Debug.Log("Setting " + name + " = " + value + " saved to local storage");
 			return true;
 		}
 	
@@ -115,14 +104,10 @@ namespace u3dext {
 			}
 			TextReader tr = new StringReader(metaFile.text);
 
-//			JsonReader reader = new JsonReader();
-
 			SimpleJsonReader jReader = new SimpleJsonReader();
 			jReader.log = Debug.Log;
-//			dMeta = jReader.list2arrayWrapper(jReader.Read(tr));
 			dMeta = jReader.Read(tr);
 
-//			dMeta = (Dictionary<String, object>)reader.Read(tr, typeof(Dictionary<String, object>));
 			if (dMeta.Count == 0) {
 				Debug.LogError("Failed to read metadata to JSON object");
 				return false;

@@ -2,6 +2,7 @@ package androidx.view;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import androidx.Callback;
 import androidx.Utils;
@@ -122,6 +124,29 @@ public abstract class SimpleCompositeView {
 		data.add(m);
 		return this;
 	}
+	
+	public SimpleCompositeView addAllItems(Map m) {
+		Iterator it = m.keySet().iterator();
+		while (it.hasNext()) {
+			Object k = it.next();
+			Object v = m.get(k);
+			Log.d("", k + "=" + v);
+			if (v != null) {
+				addItem(k, v, v);
+			}
+		}
+		return this;
+	}
+	
+	public SimpleCompositeView addAllItems(List<Map> data, Object k1, Object k2) {
+		for(int i=0; i<data.size(); i++) {
+			Map m = data.get(i);
+			addItem(m.get(k1), m.get(k2), null);
+		}
+		return this;
+	}
+	
+	
 
 	public boolean removeItem(Object id) {
 		if (id == null) {

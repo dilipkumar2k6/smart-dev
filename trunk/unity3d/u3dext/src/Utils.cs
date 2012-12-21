@@ -143,5 +143,11 @@ public class Utils	{
 		}
 		return new FileInfo(filePath);
 	}
+
+	// pos: from right to left
+	public static int numberInNumber(long num, int pos) {
+		string s = num.ToString();
+		return Int32.Parse("" + s.ToCharArray()[s.Length - pos - 1]);
+	}
 	
 }

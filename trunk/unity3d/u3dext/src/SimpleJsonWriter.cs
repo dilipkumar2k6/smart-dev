@@ -29,10 +29,10 @@ namespace u3dext {
 			writeDictionary(jsonData);
 
 			// Flush to file.
-			FileInfo fi = new FileInfo(filePath);
-			FileStream fs = fi.OpenWrite();
+//			FileInfo fi = new FileInfo(filePath);
+			FileStream fs = new FileStream(filePath, FileMode.Create);
 			byte[] byteArray = System.Text.Encoding.Default.GetBytes(sb.ToString());
-			fs.Write(byteArray, 0, sb.Length);
+			fs.Write(byteArray, 0, byteArray.Length);
 			fs.Close();
 		}
 
@@ -53,6 +53,7 @@ namespace u3dext {
 					writeObject(value);
 				}
 			}
+//			log("}");
 			jsonWriter.WriteObjectEnd();
 		}
 
@@ -75,6 +76,10 @@ namespace u3dext {
 
 		// Write any object to JSON object.
 		private void writeObject (object value) {
+			if(value == null) {
+				log("Null object.");
+				return;
+			}
 			Type type = value.GetType();
 			if (type == typeof(Int32)) {
 				jsonWriter.Write((Int32)value);
