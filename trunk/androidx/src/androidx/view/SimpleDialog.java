@@ -1,6 +1,7 @@
 package androidx.view;
 
 import java.util.Map;
+import java.util.Stack;
 
 import org.androidx.R;
 
@@ -11,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +27,7 @@ import android.widget.TextView;
 import androidx.Callback.CallbackAdapter;
 
 public class SimpleDialog {
-	// == 字符串资源 ==
+
 	protected String tagOk = "OK";
 	protected String tagCancel = "Cancel";
 	protected String tagYes = "Yes";
@@ -39,29 +39,12 @@ public class SimpleDialog {
 	
 	protected int dialogTxtColor = Color.BLACK;
 	
-	// 处理UI更新
-	protected final Handler handler = new Handler();
-
-	// 信息对话框
-	protected AlertDialog infoDialog;
-
-	// 确认对话框
-	protected AlertDialog confirmDialog;
-
-	// 进度条对话框
-	protected AlertDialog progressDialog;
-
-	// 单项输入对话框
-	protected AlertDialog searchDialog;
-
-	// 单选组对话框
-	protected AlertDialog radioGroupDialog;
-
-	// 列表选择对话框
-	protected AlertDialog listSelectDialog;
+	// The current on top of any other dialogs.
+	private Stack<AlertDialog> dialogStack = new Stack<AlertDialog>();
 	
-	Context context;
-	Resources rs;
+	private Context context;
+	
+	private Resources rs;
 
 	public SimpleDialog(Context context) {
 		super();
@@ -82,6 +65,7 @@ public class SimpleDialog {
 	 * @param callback
 	 */
 	public void showConfirmDialog(String msg, final DialogCallback callback) {
+		Log.d("", "showConfirmDialog()");
 		AlertDialog.Builder dBuilder = new Builder(context);
 		dBuilder.setMessage(msg);
 		dBuilder.setIcon(android.R.drawable.ic_menu_help);
@@ -90,7 +74,7 @@ public class SimpleDialog {
 			public void onClick(DialogInterface dialog, int which) {
 				Log.d("Confirm Dialog", "OK clicked");
 				callback.onPositive(dialog);
-				dialog.dismiss();
+				dismissDialogOnTop();
 				callback.afterSelected();
 			}
 		});
@@ -99,14 +83,16 @@ public class SimpleDialog {
 			public void onClick(DialogInterface dialog, int which) {
 				Log.d("Confirm Dialog", "Calcel clicked");
 				callback.onNegative(dialog);
-				dialog.dismiss();
+				dismissDialogOnTop();
 				callback.afterSelected();
 			}
 		});
 
-		confirmDialog = dBuilder.create();
+		AlertDialog confirmDialog = dBuilder.create();
 		confirmDialog.setTitle(rs.getString(R.string.common_dialog_confirm_title));
 		confirmDialog.show();
+		Log.d("", "  show");
+		dialogStack.push(confirmDialog);
 	}
 
 	/**
@@ -128,13 +114,15 @@ public class SimpleDialog {
 			public void onClick(DialogInterface dialog, int which) {
 				Log.d("ProgressDialog", "Calcel clicked");
 				callback.onNegative(dialog);
-				dialog.dismiss();
+//				dialog.dismiss();
+				dismissDialogOnTop();
 			}
 		});
 
-		progressDialog = dBuilder.create();
+		AlertDialog progressDialog = dBuilder.create();
 		progressDialog.setTitle(rs.getString(R.string.common_dialog_progress_title));
 		progressDialog.show();
+		dialogStack.push(progressDialog);
 	}
 
 	/**
@@ -159,21 +147,24 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onPositive(txtInput.getText().toString().trim());
-				searchDialog.dismiss();
+//				searchDialog.dismiss();
+				dismissDialogOnTop();
 			}
 		});
 		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onNegative(dialog);
-				searchDialog.dismiss();
+//				searchDialog.dismiss();
+				dismissDialogOnTop();
 			}
 		});
 
 		txtInput.setText(inputInit);
-		searchDialog = dBuilder.create();
+		AlertDialog searchDialog = dBuilder.create();
 		searchDialog.setTitle(title);
 		searchDialog.show();
+		dialogStack.push(searchDialog);
 		return searchDialog;
 	}
 
@@ -212,20 +203,23 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onPositive(radioGroup.getCheckedRadioButtonId());
-				radioGroupDialog.dismiss();
+//				radioGroupDialog.dismiss();
+				dismissDialogOnTop();
 			}
 		});
 		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onNegative(dialog);
-				radioGroupDialog.dismiss();
+//				radioGroupDialog.dismiss();
+				dismissDialogOnTop();
 			}
 		});
 
-		radioGroupDialog = dBuilder.create();
+		AlertDialog radioGroupDialog = dBuilder.create();
 		radioGroupDialog.setTitle(title);
 		radioGroupDialog.show();
+		dialogStack.push(radioGroupDialog);
 		return radioGroupDialog;
 	}
 
@@ -255,20 +249,23 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onPositive(listView);
-				listSelectDialog.dismiss();
+//				listSelectDialog.dismiss();
+				dismissDialogOnTop();
 			}
 		});
 		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onNegative(dialog);
-				listSelectDialog.dismiss();
+//				listSelectDialog.dismiss();
+				dismissDialogOnTop();
 			}
 		});
 
-		listSelectDialog = dBuilder.create();
+		AlertDialog listSelectDialog = dBuilder.create();
 		listSelectDialog.setTitle(title);
 		listSelectDialog.show();
+		dialogStack.push(listSelectDialog);
 		return listSelectDialog;
 	}
 
@@ -284,13 +281,15 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				Log.d("showInfoDialog", "Cancel clicked");
-				infoDialog.dismiss();
+//				infoDialog.dismiss();
+				dismissDialogOnTop();
 			}
 		});
-		infoDialog = dBuilder.create();
+		AlertDialog infoDialog = dBuilder.create();
 		infoDialog.setTitle(android.R.string.dialog_alert_title);
 		infoDialog.setIcon(android.R.drawable.ic_menu_info_details);
 		infoDialog.show();
+		dialogStack.push(infoDialog);
 	}
 
 	/**
@@ -318,8 +317,9 @@ public class SimpleDialog {
 		dBuilder.setTitle(title);
 		dBuilder.setIcon(android.R.drawable.ic_menu_more);
 		dBuilder.setView(fileActionView);
-		listSelectDialog = dBuilder.create();
+		AlertDialog listSelectDialog = dBuilder.create();
 		listSelectDialog.show();
+		dialogStack.push(listSelectDialog);
 	}
 	
 	/**
@@ -345,8 +345,27 @@ public class SimpleDialog {
 		dBuilder.setTitle(title);
 		dBuilder.setIcon(android.R.drawable.ic_menu_more);
 		dBuilder.setView(fileActionView);
-		listSelectDialog = dBuilder.create();
+		AlertDialog listSelectDialog = dBuilder.create();
 		listSelectDialog.show();
+		dialogStack.push(listSelectDialog);
+	}
+	
+	/**
+	 * Dismiss latest dialog showed up.
+	 */
+	public void dismissDialogOnTop() {
+		if(dialogStack == null || dialogStack.size() == 0) {
+			Log.d("androidx", "No dialog on the top");
+			return;
+		}
+		AlertDialog dlg = dialogStack.pop();
+		if (dlg == null)
+			Log.d("androidx", "No dialog on the top");
+		else{
+			Log.d("androidx", "Dismiss top dialog");
+			dlg.dismiss();			
+		}
+
 	}
 	
 	
