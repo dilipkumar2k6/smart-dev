@@ -1,1 +1,13 @@
 使用Android SDK开发的时候，有很多功能虽然很常见，但是Java语言的孱弱以及Adnroid SDK的繁琐都使得常规的代码都很冗长。androidx旨在把这些冗余过度的常规过程省略掉，让你可以把时间和精力都花在有难度有挑战的事情上。
+
+=使用方法=
+androidx使用的方法很简单，只需要将您的Activity继承自androidx的BaseActivity，您就可以获得大多数调用简便的扩展功能了。
+
+{{{
+public class MyActivity extends BaseActivity {
+
+}
+}}}
+
+
+=API指南=
