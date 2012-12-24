@@ -38,7 +38,7 @@ public abstract class SimpleCompositeView {
 	protected String statekey = "k_state";
 	
 	// keys to extract text line 1 and text line 2 for each ListView item. 
-	protected String[] keys = new String[] { "k1", "k2"};
+	protected String[] keys = new String[] { "k1", "k2", "k3"};
 	
 	// Data of rows with k1 and k2.
 	protected List<Map<String, ?>> data;
@@ -80,10 +80,7 @@ public abstract class SimpleCompositeView {
 	 * @return
 	 */
 	public SimpleCompositeView addItem(Object id, Object[] values) {
-		if (values == null || values.length != 2) {
-			throw new IllegalArgumentException();
-		}
-		return addItem(id, values[0], values[1], 0);
+		return addItem(id, 0 , values);
 	}
 
 	/**
@@ -124,6 +121,7 @@ public abstract class SimpleCompositeView {
 	 * @param id
 	 * @param title
 	 * @param desc
+	 * @deprecated
 	 * @return
 	 */
 	public SimpleCompositeView addItem(Object id, Object title, Object desc, int state) {
@@ -134,6 +132,19 @@ public abstract class SimpleCompositeView {
 		m.put(keys[0], title);
 		m.put(keys[1], desc);
 		m.put(statekey, state);
+		data.add(m);
+		return this;
+	}
+	
+	public SimpleCompositeView addItem(Object id, int state, Object... values) {
+		Map m = new HashMap();
+		if (id != null) {
+			m.put(idkey, id);
+		}
+		m.put(statekey, state);
+		if(values.length > 0)m.put(keys[0], values[0]);
+		if(values.length > 1)m.put(keys[1], values[1]);
+		if(values.length > 2)m.put(keys[2], values[2]);
 		data.add(m);
 		return this;
 	}

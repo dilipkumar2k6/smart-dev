@@ -10,7 +10,7 @@ import android.widget.BaseAdapter;
  * Base Adapter for any ListView.
  * 
  * @author 
- * 
+ * @deprecated
  */
 public abstract class BaseListViewAdapter extends BaseAdapter {
 	protected LayoutInflater inflater;
