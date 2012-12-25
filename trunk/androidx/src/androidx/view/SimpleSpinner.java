@@ -27,9 +27,19 @@ public class SimpleSpinner {
 	
 	protected Spinner spinner;
 
+	public SimpleSpinner(Context ctx) {
+		super();
+		this.ctx = ctx;
+	}
+
 	public SimpleSpinner(Activity activity) {
 		super();
 		this.activity = activity;
+	}
+
+	public SimpleSpinner(Spinner spinner) {
+		super();
+		this.spinner = spinner;
 	}
 
 	/**
@@ -80,6 +90,9 @@ public class SimpleSpinner {
 	 * @return
 	 */
 	public Spinner initSpinner(int resId, Object[] data) {
+		if(activity == null) {
+			throw new RuntimeException("No activity specified for this Spinner");
+		}
 		spinner = (Spinner) activity.findViewById(resId);
 		if (spinner == null) {
 			Log.w("androidx", "Failed to load Spinner: " + activity.getResources().getResourceEntryName(resId));
@@ -92,6 +105,10 @@ public class SimpleSpinner {
 		return spinner;
 	}
 
+	public Object setSpinner(Object item) {
+		return setSpinner(spinner, item);
+	}
+	
 	/**
 	 * Set spinner's selection directly by item object.
 	 * 
@@ -111,6 +128,10 @@ public class SimpleSpinner {
 			}
 		}
 		return null;
+	}
+	
+	public Object setSpinner(long itemId) {
+		return setSpinner(spinner, itemId);
 	}
 
 	/**
