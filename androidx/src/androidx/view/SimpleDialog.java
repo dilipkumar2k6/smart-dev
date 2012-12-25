@@ -23,9 +23,16 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.Callback.CallbackAdapter;
 
+/**
+ * Show all kinds of dialogs in a simple way.
+ * 
+ * @author 
+ *
+ */
 public class SimpleDialog {
 
 	protected String tagOk = "OK";
@@ -96,6 +103,24 @@ public class SimpleDialog {
 	}
 
 	/**
+	 * Show progress dialog until dismissing by others.
+	 * @param msg
+	 */
+	public void showProgressDialog(String msg) {
+		final View progressView = LayoutInflater.from(context).inflate(R.layout.common_progress_dialog, null);
+		TextView textView = (TextView) progressView.findViewById(R.id.textViewMsg);
+		textView.setText(msg);
+		AlertDialog.Builder dBuilder = new Builder(context);
+		dBuilder.setView(progressView);
+		dBuilder.setIcon(android.R.drawable.ic_dialog_info);
+		AlertDialog progressDialog = dBuilder.create();
+		progressDialog.setTitle(rs.getString(R.string.common_dialog_progress_title));
+		progressDialog.show();
+		dialogStack.push(progressDialog);		
+	}
+	
+	
+	/**
 	 * Show un-interrupted progress dialog with message.
 	 * 
 	 * @param msg
@@ -113,9 +138,8 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				Log.d("ProgressDialog", "Calcel clicked");
-				callback.onNegative(dialog);
-//				dialog.dismiss();
 				dismissDialogOnTop();
+				callback.onNegative(dialog);
 			}
 		});
 
@@ -136,7 +160,7 @@ public class SimpleDialog {
 	 *            Callback with user inputs when click OK button.
 	 * @return
 	 */
-	public AlertDialog showInputDialog(String title, String msg, String inputInit, final DialogCallback callback) {
+	public AlertDialog showInputDialog(String title, String msg, int inputType, Object inputInit, final DialogCallback callback) {
 		View inputView = LayoutInflater.from(context).inflate(R.layout.common_dialog_single_input, null);
 		final EditText txtInput = (EditText) inputView.findViewById(R.id.editTxtInput);
 		AlertDialog.Builder dBuilder = new Builder(context);
@@ -146,27 +170,29 @@ public class SimpleDialog {
 		dBuilder.setPositiveButton(tagYes, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				callback.onPositive(txtInput.getText().toString().trim());
-//				searchDialog.dismiss();
 				dismissDialogOnTop();
+				callback.onPositive(txtInput.getText().toString().trim());
+				
 			}
 		});
 		dBuilder.setNegativeButton(tagNo, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				callback.onNegative(dialog);
-//				searchDialog.dismiss();
 				dismissDialogOnTop();
+				callback.onNegative(dialog);
 			}
 		});
 
-		txtInput.setText(inputInit);
+		txtInput.setInputType(inputType);
+		txtInput.setText(inputInit.toString());
 		AlertDialog searchDialog = dBuilder.create();
 		searchDialog.setTitle(title);
 		searchDialog.show();
 		dialogStack.push(searchDialog);
 		return searchDialog;
 	}
+	
+
 
 	/**
 	 * Show radio group dialog, return selected index in group.
@@ -203,7 +229,6 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onPositive(radioGroup.getCheckedRadioButtonId());
-//				radioGroupDialog.dismiss();
 				dismissDialogOnTop();
 			}
 		});
@@ -211,7 +236,6 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onNegative(dialog);
-//				radioGroupDialog.dismiss();
 				dismissDialogOnTop();
 			}
 		});
@@ -249,7 +273,6 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onPositive(listView);
-//				listSelectDialog.dismiss();
 				dismissDialogOnTop();
 			}
 		});
@@ -257,7 +280,6 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				callback.onNegative(dialog);
-//				listSelectDialog.dismiss();
 				dismissDialogOnTop();
 			}
 		});
@@ -281,7 +303,6 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				Log.d("showInfoDialog", "Cancel clicked");
-//				infoDialog.dismiss();
 				dismissDialogOnTop();
 			}
 		});
@@ -312,11 +333,17 @@ public class SimpleDialog {
 			}
 
 		});
-
 		AlertDialog.Builder dBuilder = new Builder(context);
 		dBuilder.setTitle(title);
 		dBuilder.setIcon(android.R.drawable.ic_menu_more);
 		dBuilder.setView(fileActionView);
+		dBuilder.setNegativeButton(tagCancel, new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				callback.onNegative(dialog);
+				dismissDialogOnTop();
+			}
+		});
 		AlertDialog listSelectDialog = dBuilder.create();
 		listSelectDialog.show();
 		dialogStack.push(listSelectDialog);
@@ -329,8 +356,8 @@ public class SimpleDialog {
 	 * @param callback
 	 */
 	public void showListSelectDialog(final String title, final Map items, final DialogCallback callback) {
-		View fileActionView = LayoutInflater.from(context).inflate(R.layout.common_dialog_list_select, null);
-		ListView listSelect = (ListView) fileActionView.findViewById(R.id.cdl_list);
+		View layout = LayoutInflater.from(context).inflate(R.layout.common_dialog_list_select, null);
+		ListView listSelect = (ListView) layout.findViewById(R.id.cdl_list);
 		SimpleListView slv = new SimpleListView(context, listSelect);
 		slv.addAllItems(items);
 		slv.onItemClick(new CallbackAdapter() {
@@ -344,10 +371,94 @@ public class SimpleDialog {
 		AlertDialog.Builder dBuilder = new Builder(context);
 		dBuilder.setTitle(title);
 		dBuilder.setIcon(android.R.drawable.ic_menu_more);
-		dBuilder.setView(fileActionView);
+		dBuilder.setView(layout);
+		dBuilder.setNegativeButton(tagCancel, new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dismissDialogOnTop();
+				callback.onNegative(dialog);
+			}
+		});
 		AlertDialog listSelectDialog = dBuilder.create();
 		listSelectDialog.show();
 		dialogStack.push(listSelectDialog);
+	}
+	
+	/**
+	 * Show customized dialog, if complex input such as Spinner, use {@link CustomDialogInit} to init; 
+	 * @param title
+	 * @param layoutResId
+	 * @param resIds
+	 * @param init
+	 * @param callback
+	 */
+	public void showCustomizedDialog(final String title, int layoutResId, final int[] resIds, final Object[] init,
+			final DialogCallback callback) {
+		final View layout = LayoutInflater.from(context).inflate(layoutResId, null);
+
+		for (int i = 0; i < resIds.length; i++) {
+			View v = layout.findViewById(resIds[i]);
+			if(v == null) {
+				continue;
+			}
+			if(v instanceof TextView) {
+				TextView tv = (TextView)v;
+				tv.setText(init[i].toString());
+			}
+			else if(v instanceof EditText) {
+				EditText et = (EditText)v;
+				et.setText(init[i].toString());
+			}
+			else if(v instanceof Spinner) {
+				if(init[i] instanceof CustomDialogInit ) {
+					CustomDialogInit h = (CustomDialogInit)init[i];
+					Spinner spinner = (Spinner)h.init(resIds[i]);
+					new SimpleSpinner(spinner).setSpinner(h.setValue());
+				}
+			}
+		}
+		
+		AlertDialog.Builder dBuilder = new Builder(context);
+		dBuilder.setTitle(title);
+		dBuilder.setIcon(android.R.drawable.ic_menu_info_details);
+		dBuilder.setView(layout);
+		dBuilder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Log.d("showInfoDialog", "Cancel clicked");
+				dismissDialogOnTop();
+				Object[] ret = new Object[resIds.length];
+				for (int i = 0; i < resIds.length; i++) {
+					View v = layout.findViewById(resIds[i]);
+					if(v == null) {
+						continue;
+					}
+					if(v instanceof TextView) {
+						TextView tv = (TextView)v;
+						ret[i] = tv.getText().toString();
+					}
+					else if(v instanceof EditText) {
+						EditText et = (EditText)v;
+						ret[i] = et.getText().toString();
+					}
+					else if(v instanceof Spinner) {
+						SimpleSpinner spinner = new SimpleSpinner(context);
+						// TODO
+					}
+				}
+				callback.onPositive(ret);
+			}
+		});
+		dBuilder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dismissDialogOnTop();
+				callback.onNegative(dialog);
+			}
+		});
+		AlertDialog customDialog = dBuilder.create();
+		customDialog.show();
+		dialogStack.push(customDialog);
 	}
 	
 	/**
@@ -365,9 +476,20 @@ public class SimpleDialog {
 			Log.d("androidx", "Dismiss top dialog");
 			dlg.dismiss();			
 		}
-
 	}
+
 	
+	/**
+	 * Use this to init complex dialog item like Spinner.
+	 * @author yuxing
+	 *
+	 */
+	public static class CustomDialogInit {
+		
+		public View init(int resId){return null;};
+		
+		public Object setValue(){return null;};
+	}
 	
 	/**
 	 * Callback for dialog.
@@ -398,4 +520,5 @@ public class SimpleDialog {
 		 */
 		public void afterSelected(){}
 	}
+
 }

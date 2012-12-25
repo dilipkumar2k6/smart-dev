@@ -19,6 +19,7 @@ import android.graphics.Shader.TileMode;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -69,39 +70,16 @@ public abstract class BaseActivity extends Activity {
 	// DEBUG模式（默认） changed by setting system arguments "androidx.debug"
 	protected boolean debugMode = true; 
 	
-	// 资源(deprecated to rs)
-	protected Resources resources;
-	
+	// Context resources(deprecated to rs)
 	protected Resources rs;
 	
-	// 处理UI更新
+	// Handler UI update
 	protected final Handler handler = new Handler();
-
-//	// 信息对话框
-//	protected AlertDialog infoDialog;
-//	
-//	// 确认对话框
-//	protected AlertDialog confirmDialog;
-//
-//	// 进度条对话框
-//	protected AlertDialog progressDialog;
-//
-//	// 单项输入对话框
-//	protected AlertDialog searchDialog;
-//
-//	// 单选组对话框
-//	protected AlertDialog radioGroupDialog;
-//	
-//	// 列表选择对话框
-//	protected AlertDialog listSelectDialog;
-//	
-//	protected int dialogBgColor = Color.LTGRAY;
-//	
-//	protected int dialogTxtColor = Color.BLACK;
 	
+	// Simple Dialogs
 	protected SimpleDialog simpleDialog;
 	
-	// == Tabs == 
+
 	protected TabsController tabsController;
 	
 	// == 字符串资源 ==
@@ -129,11 +107,10 @@ public abstract class BaseActivity extends Activity {
 		// 没设置参数的情况为true，只有明确设置不是debug模式的情况才是false。
 		debugMode = !"false".equals(System.getProperty(SYS_PROP_DEBUG_MODE));
 		
-		resources = this.getResources();
 		rs = this.getResources();
 
-		tagOk = resources.getString(android.R.string.ok);
-		tagCancel = resources.getString(android.R.string.cancel);
+		tagOk = rs.getString(android.R.string.ok);
+		tagCancel = rs.getString(android.R.string.cancel);
 		tagClose = rs.getString(R.string.common_close);
 		tagYes = rs.getString(android.R.string.yes);
 		tagNo = rs.getString(android.R.string.no);
@@ -334,8 +311,40 @@ public abstract class BaseActivity extends Activity {
 		simpleDialog.showProgressDialog(msg, callback);
 	}
 
-	protected AlertDialog showInputDialog(String title, String msg, String inputInit, DialogCallback callback) {
-		return simpleDialog.showInputDialog(title, msg, inputInit, callback);
+	/**
+	 * Show dialog that allows any text to input.
+	 * @param title
+	 * @param msg
+	 * @param inputInit
+	 * @param callback
+	 * @return
+	 */
+	protected AlertDialog showTextInputDialog(String title, String msg, String inputInit, DialogCallback callback) {
+		return simpleDialog.showInputDialog(title, msg, InputType.TYPE_CLASS_TEXT, inputInit, callback);
+	}
+	
+	/**
+	 * Show dialog that only allows integer number to input.
+	 * @param title
+	 * @param msg
+	 * @param inputInit
+	 * @param callback
+	 * @return
+	 */
+	protected AlertDialog showIntInputDialog(String title, String msg, String inputInit, DialogCallback callback) {
+		return simpleDialog.showInputDialog(title, msg, InputType.TYPE_NUMBER_FLAG_SIGNED ,inputInit, callback);
+	}
+	
+	/**
+	 * Show dialog that only allows float number to input.
+	 * @param title
+	 * @param msg
+	 * @param inputInit
+	 * @param callback
+	 * @return
+	 */
+	protected AlertDialog showFloatInputDialog(String title, String msg, String inputInit, DialogCallback callback) {
+		return simpleDialog.showInputDialog(title, msg, InputType.TYPE_NUMBER_FLAG_DECIMAL, inputInit, callback);
 	}
 
 	protected AlertDialog showRadioGroupDialog(String title, String msg, String[] labels, int checked,
@@ -624,34 +633,5 @@ public abstract class BaseActivity extends Activity {
 		bdHead.setDither(true);		
 		view.setBackgroundDrawable(bdHead);
 	}
-//	
-//	/**
-//	 * Callback for dialog.
-//	 * 
-//	 * @author 
-//	 * 
-//	 */
-//	public static class DialogCallback<T> {
-//		/**
-//		 * Positive button clicked.
-//		 * @param value
-//		 */
-//		public void onPositive(T value){};
-//		
-//		/**
-//		 * Positive button clicked with multi-values returned.
-//		 * @param values
-//		 */
-//		public void onPositive(T... values) {};
-//
-//		/**
-//		 * Negative button clicked.
-//		 */
-//		public void onNegative(T value){};
-//		
-//		/**
-//		 * Invoked after any choices that make.
-//		 */
-//		public void afterSelected(){}
-//	}
+
 }
