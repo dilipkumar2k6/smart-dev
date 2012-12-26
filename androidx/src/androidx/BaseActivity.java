@@ -26,9 +26,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
@@ -422,8 +425,12 @@ public abstract class BaseActivity extends Activity {
 	 * @param resourceId
 	 * @return
 	 */
-	protected Button getButton(int resourceId) {
-		return (Button)this.findViewById(resourceId);
+	protected Button getButton(int resId) {
+		return (Button)this.findViewById(resId);
+	}
+	
+	protected CheckBox getCheckBox(int resId) {
+		return (CheckBox)this.findViewById(resId);
 	}
 	
 	protected EditText getEditText(int resId) {
@@ -606,6 +613,38 @@ public abstract class BaseActivity extends Activity {
 			views[i].setEnabled(true);
 		}
 	}
+	
+	
+	
+	/**
+	 * Simple handle click event for any View component.
+	 * @param resId
+	 * @param handler
+	 */
+	protected View onViewClicked(int resId, final Callback handler) {
+		View view = this.findViewById(resId);
+		if(view == null) {
+			Log.d("android", "No view found：" + rs.getResourceName(resId));
+			return view;
+		}
+		view.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				handler.invoke(v);
+			}
+		});
+		return view;
+	}
+	
+	protected CheckBox onCheckBoxChecked(int resId, final OnCheckedChangeListener listener) {
+		CheckBox ckb = getCheckBox(resId);
+		ckb.setOnCheckedChangeListener(listener);
+		return ckb;
+	}
+	
+	
+
+	
 	
 	protected void debug(Object log) {
 		if(log == null) log = "[null]";

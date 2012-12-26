@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|center_horizontal"
         android:layout_margin="5dp"
-        android:src="@drawable/common_button_dark_tilex" />
+        android:src="@drawable/common_button_dark" />
 
     <TextView
         android:id="@+id/cgi_tv_label"
