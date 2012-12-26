@@ -7,6 +7,7 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
+import android.text.Layout;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -24,7 +25,7 @@ public class SimpleSpinner {
 	protected Activity activity;
 	
 	protected Context ctx;
-	
+
 	protected Spinner spinner;
 
 	public SimpleSpinner(Context ctx) {
@@ -72,14 +73,29 @@ public class SimpleSpinner {
 	 * @return
 	 */
 	public Spinner initSpinner(int resId, Map map) {
+		return initSpinner(resId, mapToList(map).toArray());
+	}
+	
+	/**
+	 * 
+	 * @param spinner
+	 * @param map
+	 * @return
+	 */
+	public Spinner initSpinner(Spinner spinner, Map map) {
+		return initSpinner(spinner, mapToList(map).toArray());	
+	}
+	
+	//
+	private List<SpinnerItem> mapToList(Map map) {
 		final List<SpinnerItem> items = new ArrayList<SpinnerItem>();
 		Iterator<Long> it = map.keySet().iterator();
 		while (it.hasNext()) {
-			Long key = (Long) it.next();
+			Object key = it.next();
 			Object value = map.get(key);
 			items.add(new SpinnerItem(key, value));
 		}
-		return initSpinner(resId, items.toArray());
+		return items;
 	}
 
 	/**
@@ -95,9 +111,14 @@ public class SimpleSpinner {
 		}
 		spinner = (Spinner) activity.findViewById(resId);
 		if (spinner == null) {
-			Log.w("androidx", "Failed to load Spinner: " + activity.getResources().getResourceEntryName(resId));
+			Log.w("androidx", "Failed to load Spinner: " + activity.getResources().getResourceEntryName(resId) + " from Activity "
+					+ activity.getClass().getName());
 			return null;
 		}
+		return initSpinner(spinner, data);
+	}
+	
+	public Spinner initSpinner(Spinner spinner, Object[] data) {
 
 		ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_spinner_item, data);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -148,7 +169,7 @@ public class SimpleSpinner {
 		for (int i = 0; i < n; i++) {
 			SpinnerItem si = (SpinnerItem) spinner.getItemAtPosition(i);
 			Log.d("", itemId + " -- " + si.getId());
-			if (itemId == si.getId()) {
+			if (itemId == (Long)si.getId()) {
 				spinner.setSelection(i);
 				return si;
 			}
