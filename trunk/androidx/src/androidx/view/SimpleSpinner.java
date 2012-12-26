@@ -7,7 +7,6 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
-import android.text.Layout;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -136,7 +135,7 @@ public class SimpleSpinner {
 	 * @param spinner
 	 * @param item
 	 */
-	public Object setSpinner(Spinner spinner, Object item) {
+	public SpinnerItem setSpinner(Spinner spinner, SpinnerItem item) {
 		if (spinner == null || item == null) {
 			return null;
 		}
@@ -155,21 +154,25 @@ public class SimpleSpinner {
 		return setSpinner(spinner, itemId);
 	}
 
+//	public SpinnerItem setSpinner(Spinner spinner, int itemId) {
+//		return setSpinner(spinner, (long)itemId);
+//	}
+	
 	/**
 	 * Set spinner's selection by item ID.
 	 * 
 	 * @param spinner
 	 * @param itemId
 	 */
-	public SpinnerItem setSpinner(Spinner spinner, long itemId) {
-		if (spinner == null || itemId < 0) {
+	public SpinnerItem setSpinner(Spinner spinner, Object itemId) {
+		if (spinner == null || itemId == null) {
 			return null;
 		}
 		int n = spinner.getAdapter().getCount();
 		for (int i = 0; i < n; i++) {
 			SpinnerItem si = (SpinnerItem) spinner.getItemAtPosition(i);
 			Log.d("", itemId + " -- " + si.getId());
-			if (itemId == (Long)si.getId()) {
+			if (itemId.equals(si.getId())) {
 				spinner.setSelection(i);
 				return si;
 			}
