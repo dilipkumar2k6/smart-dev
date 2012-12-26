@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -398,22 +399,22 @@ public class SimpleDialog {
 
 		for (int i = 0; i < resIds.length; i++) {
 			View v = layout.findViewById(resIds[i]);
-			if(v == null) {
+			if (v == null) {
 				continue;
 			}
-			if(v instanceof TextView) {
-				TextView tv = (TextView)v;
+			if (v instanceof TextView) {
+				TextView tv = (TextView) v;
 				tv.setText(init[i].toString());
 			}
-			else if(v instanceof EditText) {
-				EditText et = (EditText)v;
+			else if (v instanceof EditText) {
+				EditText et = (EditText) v;
 				et.setText(init[i].toString());
 			}
-			else if(v instanceof Spinner) {
-				if(init[i] instanceof CustomDialogInit ) {
-					CustomDialogInit h = (CustomDialogInit)init[i];
-					Spinner spinner = (Spinner)h.init(resIds[i]);
-					new SimpleSpinner(spinner).setSpinner(h.setValue());
+			else if (v instanceof Spinner) {
+				if (init[i] instanceof CustomDialogInit) {
+					CustomDialogInit h = (CustomDialogInit) init[i];
+					h.init(layout, resIds[i]);
+//					new SimpleSpinner((Spinner) v).setSpinner(h.setValue());
 				}
 			}
 		}
@@ -486,7 +487,7 @@ public class SimpleDialog {
 	 */
 	public static class CustomDialogInit {
 		
-		public View init(int resId){return null;};
+		public void init(View layout, int resId){};
 		
 		public Object setValue(){return null;};
 	}
