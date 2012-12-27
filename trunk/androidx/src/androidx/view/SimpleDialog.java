@@ -413,8 +413,9 @@ public class SimpleDialog {
 			else if (v instanceof Spinner) {
 				if (init[i] instanceof CustomDialogInit) {
 					CustomDialogInit h = (CustomDialogInit) init[i];
-					h.init(layout, resIds[i]);
-//					new SimpleSpinner((Spinner) v).setSpinner(h.setValue());
+					int size = h.init(layout, resIds[i]);
+					v.setEnabled(size==0? false: true);
+					new SimpleSpinner((Spinner) v).setSelection(h.setValue());
 				}
 			}
 		}
@@ -487,7 +488,13 @@ public class SimpleDialog {
 	 */
 	public static class CustomDialogInit {
 		
-		public void init(View layout, int resId){};
+		/**
+		 * 
+		 * @param layout
+		 * @param resId
+		 * @return size of data
+		 */
+		public int init(View layout, int resId){return 0;};
 		
 		public Object setValue(){return null;};
 	}

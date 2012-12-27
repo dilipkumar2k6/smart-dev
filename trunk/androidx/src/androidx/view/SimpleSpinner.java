@@ -5,24 +5,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import androidx.SpinnerItem;
-import androidx.model.DataList;
-import androidx.model.DataRow;
 
 /**
  * 
- * @author 
- *
+ * @author
+ * 
  */
 public class SimpleSpinner {
-	
-	protected Activity activity;
-	
+
 	protected Context ctx;
 
 	protected Spinner spinner;
@@ -32,49 +27,11 @@ public class SimpleSpinner {
 		this.ctx = ctx;
 	}
 
-	public SimpleSpinner(Activity activity) {
-		super();
-		this.activity = activity;
-	}
-
 	public SimpleSpinner(Spinner spinner) {
 		super();
 		this.spinner = spinner;
 	}
 
-	/**
-	 * Init spinner with key-values which grab from DataList.
-	 * 
-	 * @param resId
-	 * @param data
-	 * @param idkey
-	 * @param valuekey
-	 * @return
-	 */
-	public Spinner initSpinner(int resId, DataList<DataRow> data, final String idkey, final String valuekey) {
-		final List<SpinnerItem> items = new ArrayList<SpinnerItem>();
-		data.traverse(new DataList.Callback<DataRow>() {
-
-			@Override
-			public boolean invoke(int i, DataRow row) {
-				items.add(new SpinnerItem(Long.parseLong(row.get(idkey).toString()), row.get(valuekey).toString()));
-				return true;
-			}
-
-		});
-		return initSpinner(resId, items.toArray());
-	}
-
-	/**
-	 * Init spinner with key-values which grab from map.
-	 * @param resId
-	 * @param map
-	 * @return
-	 */
-	public Spinner initSpinner(int resId, Map map) {
-		return initSpinner(resId, mapToList(map).toArray());
-	}
-	
 	/**
 	 * 
 	 * @param spinner
@@ -82,60 +39,46 @@ public class SimpleSpinner {
 	 * @return
 	 */
 	public Spinner initSpinner(Spinner spinner, Map map) {
-		return initSpinner(spinner, mapToList(map).toArray());	
-	}
-	
-	//
-	private List<SpinnerItem> mapToList(Map map) {
-		final List<SpinnerItem> items = new ArrayList<SpinnerItem>();
-		Iterator<Long> it = map.keySet().iterator();
-		while (it.hasNext()) {
-			Object key = it.next();
-			Object value = map.get(key);
-			items.add(new SpinnerItem(key, value));
-		}
-		return items;
+		return initSpinner(spinner, mapToList(map).toArray());
 	}
 
 	/**
-	 * Init spinner with data array which has no ID.
 	 * 
-	 * @param resId
+	 * @param spinner
 	 * @param data
 	 * @return
 	 */
-	public Spinner initSpinner(int resId, Object[] data) {
-		if(activity == null) {
-			throw new RuntimeException("No activity specified for this Spinner");
-		}
-		spinner = (Spinner) activity.findViewById(resId);
-		if (spinner == null) {
-			Log.w("androidx", "Failed to load Spinner: " + activity.getResources().getResourceEntryName(resId) + " from Activity "
-					+ activity.getClass().getName());
-			return null;
-		}
-		return initSpinner(spinner, data);
-	}
-	
 	public Spinner initSpinner(Spinner spinner, Object[] data) {
-
-		ArrayAdapter adapter = new ArrayAdapter(activity, android.R.layout.simple_spinner_item, data);
+		if (ctx == null) {
+			throw new RuntimeException("No context specified for this Spinner");
+		}
+		if (spinner == null) {
+			throw new RuntimeException("No spinner found");
+		}
+		this.spinner = spinner;
+		if (data == null || data.length == 0) {
+			Log.d("androidx", "Nothing to init for Spinner");
+			return spinner;
+		}
+		Log.d("androidx", "" + data.length);
+		ArrayAdapter adapter = new ArrayAdapter(ctx, android.R.layout.simple_spinner_item, data);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(adapter);
 		return spinner;
 	}
 
-	public Object setSpinner(Object item) {
-		return setSpinner(spinner, item);
-	}
 	
+	public Object setSelection(Object item) {
+		return setSelection(spinner, item);
+	}
+
 	/**
 	 * Set spinner's selection directly by item object.
 	 * 
 	 * @param spinner
 	 * @param item
 	 */
-	public SpinnerItem setSpinner(Spinner spinner, SpinnerItem item) {
+	public SpinnerItem setSelection(Spinner spinner, SpinnerItem item) {
 		if (spinner == null || item == null) {
 			return null;
 		}
@@ -149,22 +92,18 @@ public class SimpleSpinner {
 		}
 		return null;
 	}
-	
-	public Object setSpinner(long itemId) {
-		return setSpinner(spinner, itemId);
+
+	public Object setSelection(long itemId) {
+		return setSelection(spinner, itemId);
 	}
 
-//	public SpinnerItem setSpinner(Spinner spinner, int itemId) {
-//		return setSpinner(spinner, (long)itemId);
-//	}
-	
 	/**
 	 * Set spinner's selection by item ID.
 	 * 
 	 * @param spinner
 	 * @param itemId
 	 */
-	public SpinnerItem setSpinner(Spinner spinner, Object itemId) {
+	public SpinnerItem setSelection(Spinner spinner, Object itemId) {
 		if (spinner == null || itemId == null) {
 			return null;
 		}
@@ -179,9 +118,21 @@ public class SimpleSpinner {
 		}
 		return null;
 	}
-	
+
 	public Object getSelectedSpinnerKey() {
-		SpinnerItem spitem = (SpinnerItem)spinner.getSelectedItem();
+		SpinnerItem spitem = (SpinnerItem) spinner.getSelectedItem();
 		return spitem.getId();
+	}
+
+	//
+	protected List<SpinnerItem> mapToList(Map map) {
+		final List<SpinnerItem> items = new ArrayList<SpinnerItem>();
+		Iterator<Long> it = map.keySet().iterator();
+		while (it.hasNext()) {
+			Object key = it.next();
+			Object value = map.get(key);
+			items.add(new SpinnerItem(key, value));
+		}
+		return items;
 	}
 }
