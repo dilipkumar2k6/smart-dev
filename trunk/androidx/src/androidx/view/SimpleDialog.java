@@ -163,7 +163,7 @@ public class SimpleDialog {
 	 */
 	public AlertDialog showInputDialog(String title, String msg, int inputType, Object inputInit, final DialogCallback callback) {
 		View inputView = LayoutInflater.from(context).inflate(R.layout.common_dialog_single_input, null);
-		final EditText txtInput = (EditText) inputView.findViewById(R.id.editTxtInput);
+		final EditText etInput = (EditText) inputView.findViewById(R.id.editTxtInput);
 		AlertDialog.Builder dBuilder = new Builder(context);
 		dBuilder.setView(inputView);
 		dBuilder.setIcon(android.R.drawable.ic_dialog_info);
@@ -172,7 +172,7 @@ public class SimpleDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dismissDialogOnTop();
-				callback.onPositive(txtInput.getText().toString().trim());
+				callback.onPositive(etInput.getText().toString().trim());
 				
 			}
 		});
@@ -184,8 +184,8 @@ public class SimpleDialog {
 			}
 		});
 
-		txtInput.setInputType(inputType);
-		txtInput.setText(inputInit.toString());
+		etInput.setInputType(inputType);
+		etInput.setText(inputInit.toString());
 		AlertDialog searchDialog = dBuilder.create();
 		searchDialog.setTitle(title);
 		searchDialog.show();
@@ -408,6 +408,7 @@ public class SimpleDialog {
 			}
 			else if (v instanceof EditText) {
 				EditText et = (EditText) v;
+				ViewUtils.initEditTextByType(et, init[i].getClass());
 				et.setText(init[i].toString());
 			}
 			else if (v instanceof Spinner) {
