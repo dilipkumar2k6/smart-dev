@@ -22,6 +22,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Utilities for Android.
@@ -323,5 +324,14 @@ public class AndroidUtils {
 	public static void cancelNotification(Context context, int id) {
 		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(id);
+	}
+	
+	public static void showToast(Context context,String msg) {
+		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+	}
+	
+	public static void showToast(Context context,String msg, Object... params) {
+		// TODO
+		
 	}
 }

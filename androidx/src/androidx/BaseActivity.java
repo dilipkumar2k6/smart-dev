@@ -1,8 +1,5 @@
 package androidx;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.androidx.R;
@@ -24,10 +21,9 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -38,7 +34,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.model.DataList;
 import androidx.model.DataRow;
 import androidx.view.SimpleDialog;
@@ -373,7 +368,7 @@ public abstract class BaseActivity extends Activity {
 	}
 	
 	protected void showToast(String msg) {
-		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+		AndroidUtils.showToast(context, msg);
 	}
 	
 	protected void showToast(String msg, Object... params) {
