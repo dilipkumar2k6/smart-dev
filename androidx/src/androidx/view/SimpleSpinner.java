@@ -124,7 +124,11 @@ public class SimpleSpinner {
 		return spitem.getId();
 	}
 
-	//
+	/**
+	 * Convert key-value map too SpinnerItem list.
+	 * @param map
+	 * @return
+	 */
 	protected List<SpinnerItem> mapToList(Map map) {
 		final List<SpinnerItem> items = new ArrayList<SpinnerItem>();
 		Iterator<Long> it = map.keySet().iterator();

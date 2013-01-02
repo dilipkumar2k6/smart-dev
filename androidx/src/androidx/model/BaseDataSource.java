@@ -63,8 +63,10 @@ public class BaseDataSource {
 	}	
 	
 	protected SQLiteDatabase getDB() {
+		Log.d("db", "Try to get Database instance");
 		// 如果有SDCARD則存在SD卡上面
 		if(isSDCardAvailable()) {
+			Log.d("db", "Access database from SD card");
 			File dbFile = null;
 			dbFile = new File(dbFilePath + dbName + ".db");
 			if (!dbFile.exists()) {
@@ -88,15 +90,20 @@ public class BaseDataSource {
 					return null;
 				}
 			}
-			return SQLiteDatabase.openOrCreateDatabase(dbFile, null);
+			SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(dbFile, null);
+			if(!db.isOpen()) {
+				throw new RuntimeException("Failed to open database from: " + dbFilePath);
+			}
+			return db;
 		}
 		else {
+			Log.d("db", "Access database from system storage");
 			// 没有则存系统的数据库。
 			if(context == null) {
-				Log.e("androidx", "System Context didn't set properly.");
+				Log.e("androidx.db", "System Context didn't set properly.");
 				return null;
 			}
-			DefaultSQLiteOpenHelper dbHelper = new DefaultSQLiteOpenHelper(context, "SWIFT_RETAIL");
+			DefaultSQLiteOpenHelper dbHelper = new DefaultSQLiteOpenHelper(context, "androidx");
 			return dbHelper.getWritableDatabase();
 		}
 	}

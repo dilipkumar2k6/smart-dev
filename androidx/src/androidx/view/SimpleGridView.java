@@ -117,7 +117,8 @@ public class SimpleGridView extends SimpleCompositeView{
 			// Description
 			int resDesc = layoutResId == 0 ? R.id.cgi_tv_label : itemResIds[1];
 			TextView txtView = (TextView) layout.findViewById(resDesc);
-			txtView.setText(new String(row.get(keys[1]).toString().getBytes()));
+			Object desc = row.get(keys[1]);
+			txtView.setText(new String((desc == null ? "" : desc.toString()).getBytes()));
 			return layout;
 		}
 

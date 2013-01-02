@@ -32,6 +32,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.model.DataList;
@@ -451,117 +452,13 @@ public abstract class BaseActivity extends Activity {
 	protected GridView getGridView(int resId) {
 		return (GridView)this.findViewById(resId);
 	}
-
-	/**
-	 * Init spinner with key-values which grab from DataList.
-	 * @param resId
-	 * @param data
-	 * @param idkey
-	 * @param valuekey
-	 * @return
-	 */
-//	protected Spinner initSpinner(int resId, DataList<DataRow> data, final String idkey, final String valuekey) {
-//		final List<SpinnerItem> items = new ArrayList();
-//		data.traverse(new DataList.Callback<DataRow>() {
-//
-//			@Override
-//			public boolean invoke(int i, DataRow row) {
-//				items.add(new SpinnerItem(Long.parseLong(row.get(idkey).toString()), row.get(valuekey).toString()));
-//				return true;
-//			}
-//			
-//		});
-//		return initSpinner(resId, items.toArray());
-//	}
-	
-//	protected Spinner initSpinner(int resId, Map map) {
-//		final List<SpinnerItem> items = new ArrayList();
-//		Iterator it = map.keySet().iterator();
-//		while(it.hasNext()) {
-//			Long key = (Long)it.next();
-//			Object value = map.get(key);
-//			items.add(new SpinnerItem(key, value));
-//		}
-//		return initSpinner(resId, items.toArray());
-//	}
-	
-	/**
-	 * Init spinner with data array which has no ID.
-	 * @param resId
-	 * @param data
-	 * @return
-	 */
-//	protected Spinner initSpinner(int resId, Object[] data) {
-//		Spinner spinner = getSpinner(resId);
-//		if(spinner == null) {
-//			Log.w("androidx", "Failed to load Spinner: " + rs.getResourceEntryName(resId));
-//			return null;
-//		}
-//
-//		ArrayAdapter adapter = new ArrayAdapter(context, android.R.layout.simple_spinner_item, data);
-//		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//		spinner.setAdapter(adapter);
-//		return spinner;
-//	}
-	
-	/**
-	 * Set spinner's selection directly by item object.
-	 * @param spinner
-	 * @param item
-	 */
-//	protected Object setSpinner(Spinner spinner, Object item) {
-//		if(spinner == null || item == null) {
-//			return null;
-//		}
-//		int n = spinner.getAdapter().getCount();
-//		for(int i=0; i<n; i++) {
-//			Object value = spinner.getItemAtPosition(i);
-//			if(item.equals(value)) {
-//				spinner.setSelection(i);
-//				return item;		
-//			}
-//		}
-//		return null;
-//	}
-	
-	/**
-	 * Set spinner's selection by item ID.
-	 * @param spinner
-	 * @param itemId
-	 */
-//	protected SpinnerItem setSpinner(Spinner spinner, long itemId) {
-//		if(spinner == null || itemId < 0) {
-//			return null;
-//		}
-//		int n = spinner.getAdapter().getCount();
-//		for(int i=0; i<n; i++) {
-//			SpinnerItem si = (SpinnerItem)spinner.getItemAtPosition(i);
-//			debug(itemId + " -- " + si.getId());
-//			if(itemId == si.getId()){
-//				spinner.setSelection(i);
-//				return si;
-//			}
-//		}
-//		return null;
-//	}
-	
-// TODO later.
-//	protected void add2Spinner(Spinner spinner, long itemId, Object value) {
-//		if(spinner == null || itemId < 0) {
-//			return ;
-//		}
-//		ArrayAdapter adapter = (ArrayAdapter)spinner.getAdapter();
-//		
-//		int n = adapter.getCount();
-//		for(int i=0; i<n; i++) {
-//			SpinnerItem si = (SpinnerItem)spinner.getItemAtPosition(i);
-//			debug(itemId + " -- " + si.getId());
-//			// TODO
-//		}
-//	}
 	
 	protected ListView getListView(int resourceId) {
 		return (ListView)this.findViewById(resourceId);
+	}
+	
+	protected ProgressBar getProgressBar(int resId) {
+		return (ProgressBar)this.findViewById(resId);
 	}
 
 	
