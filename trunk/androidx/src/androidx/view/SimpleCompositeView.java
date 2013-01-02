@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import androidx.Callback;
 import androidx.Utils;
 
@@ -43,6 +44,8 @@ public abstract class SimpleCompositeView {
 	// Data of rows with k1 and k2.
 	protected List<Map<String, ?>> data;
 	
+	protected String defaultLabel = "";
+	
 	// Adapter for data of view.
 	private ListAdapter adapter;
 
@@ -52,8 +55,18 @@ public abstract class SimpleCompositeView {
 		adapter = getAdapter(context);
 	}
 	
+	public SimpleCompositeView(Context context, ListView lv, String defaultLabel) {
+		this(context, lv);
+		this.data = new ArrayList();
+		this.defaultLabel = defaultLabel;
+		addItem(defaultLabel, "");
+		adapter = getAdapter(context);
+		render();
+	}
+	
 	/**
 	 * Inject adapter by overriding this method.
+	 * This method will be called while constructing the view.
 	 * @param context
 	 * @return
 	 */
@@ -91,7 +104,7 @@ public abstract class SimpleCompositeView {
 	 * @return
 	 */
 	public SimpleCompositeView addItem(Object title, Object desc) {
-		return addItem(null, title, desc, 0);
+		return addItem(null, 0, title, desc);
 	}
 	
 	/**
@@ -102,7 +115,7 @@ public abstract class SimpleCompositeView {
 	 * @return
 	 */
 	public SimpleCompositeView addItem(Object id, Object title, Object desc) {
-		return addItem(id, title, desc, 0);
+		return addItem(id, 0, title, desc);
 	}
 	
 	/**
@@ -113,29 +126,16 @@ public abstract class SimpleCompositeView {
 	 * @return
 	 */
 	public SimpleCompositeView addItem(Object title, Object desc, int state) {
-		return addItem(null, title, desc, state);
+		return addItem(null, state, title, desc);
 	}
 	
 	/**
 	 * Add new item with id, title, description and state.
 	 * @param id
-	 * @param title
-	 * @param desc
-	 * @deprecated
+	 * @param state
+	 * @param values
 	 * @return
 	 */
-	public SimpleCompositeView addItem(Object id, Object title, Object desc, int state) {
-		Map m = new HashMap();
-		if (id != null) {
-			m.put(idkey, id);
-		}
-		m.put(keys[0], title);
-		m.put(keys[1], desc);
-		m.put(statekey, state);
-		data.add(m);
-		return this;
-	}
-	
 	public SimpleCompositeView addItem(Object id, int state, Object... values) {
 		Map m = new HashMap();
 		if (id != null) {

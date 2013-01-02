@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.androidx.R;
+
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.Notification;
@@ -90,6 +92,34 @@ public class AndroidUtils {
 		return 0;
 	}
 	
+	public static Drawable getAppIcon(Context ctx, String pkgName) {
+//		PackageInfo pi = ctx.getPackageManager().getPackageInfo(pkgName, PackageManager.GET_ACTIVITIES);
+		try {
+			return ctx.getPackageManager().getApplicationIcon(pkgName);
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+			return ctx.getResources().getDrawable(R.drawable.ic_launcher);
+		}
+	}
+	
+	public static String getAppName(Context ctx, String pkgName) {
+		try {
+			ApplicationInfo appinfo = ctx.getPackageManager().getApplicationInfo(pkgName, PackageManager.GET_ACTIVITIES);
+			if(appinfo == null) {
+				return pkgName;
+			}
+			return ctx.getPackageManager().getApplicationLabel(appinfo).toString();
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+			return pkgName;
+		}
+	}
+	
+	/**
+	 * Retrieve all installed APPs.
+	 * @param ctx
+	 * @return
+	 */
 	public static List getInstalledApps(Context ctx) {
 		List<PackageInfo> pkgs = ctx.getPackageManager().getInstalledPackages(PackageManager.GET_ACTIVITIES);
 		List ret = new ArrayList();

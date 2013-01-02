@@ -11,6 +11,11 @@ import androidx.SpinnerItem;
 import androidx.model.DataList;
 import androidx.model.DataRow;
 
+/**
+ * Just specify Spinner resource id other than object.
+ * @author 
+ *
+ */
 public class MoreSimpleSpinner extends SimpleSpinner{
 
 	protected Activity activity;
@@ -31,7 +36,7 @@ public class MoreSimpleSpinner extends SimpleSpinner{
 	 */
 	public Spinner initSpinner(int resId, DataList<DataRow> data, final String idkey, final String valuekey) {
 		final List<SpinnerItem> items = new ArrayList<SpinnerItem>();
-		data.traverse(new DataList.Callback<DataRow>() {
+		data.traverse(new DataList.CallbackAdapter<DataRow>() {
 
 			@Override
 			public boolean invoke(int i, DataRow row) {

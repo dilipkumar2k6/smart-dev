@@ -34,6 +34,9 @@ public class SpinnerItem<K, V> {
 
 	@Override
 	public String toString() {
+		if(value == null) {
+			return "";
+		}
 		return value.toString();
 	}
 

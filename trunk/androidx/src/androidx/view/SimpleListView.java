@@ -30,9 +30,14 @@ public class SimpleListView extends SimpleCompositeView {
 	public SimpleListView(Context context, ListView lv) {
 		super(context, lv);
 	}
+	
+	public SimpleListView(Context context, ListView lv, String defaultLabel) {
+		super(context, lv, defaultLabel);
+	}
 
 	@Override
 	protected ListAdapter getAdapter(Context context) {
+//		super.addItem(defaultLabel, "");
 		return new SimpleAdapter(context, data, android.R.layout.simple_list_item_2
         		, keys, new int[]{android.R.id.text1, android.R.id.text2});
 	}

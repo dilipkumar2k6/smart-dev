@@ -134,11 +134,13 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 	 * @param handler
 	 */
 	public void traverse(Callback handler) {
+		handler.before(this.size());
 		for (int i = 0; i < this.size(); i++) {
 //			Log.d("androidx", "Traverse DataList's items with type: " + this.get(i).getClass().toString());
 //			Log.d("androidx", this.get(i).toString());
 			handler.invoke(i, (T)this.get(i));
 		}
+		handler.after();
 	}
 	
 	/**
@@ -176,7 +178,8 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 	public static interface Callback<T extends DataRow> {
 		boolean BREAK = false;
 		boolean CONTINUE = true;
-		
+		public void before(int size);
+		public void after();
 		/**
 		 * 
 		 * @param i
@@ -184,6 +187,21 @@ public class DataList<T extends DataRow> extends ArrayList<T> {
 		 * @return true to continue; false to break the following operations.
 		 */
 		public boolean invoke(int i, T row);
+	}
+	
+	public static class CallbackAdapter<T extends DataRow> implements Callback<T>{
+
+		@Override
+		public void before(int size) {}
+
+		@Override
+		public void after() {}
+
+		@Override
+		public boolean invoke(int i, T row) {
+			return false;
+		}
+		
 	}
 
 }
