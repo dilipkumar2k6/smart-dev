@@ -33,7 +33,7 @@ public class SimpleSpinner {
 	}
 
 	/**
-	 * 
+	 * Init spinner with key-value data in Map.
 	 * @param spinner
 	 * @param map
 	 * @return
@@ -43,7 +43,7 @@ public class SimpleSpinner {
 	}
 
 	/**
-	 * 
+	 * Init spinner with data array.
 	 * @param spinner
 	 * @param data
 	 * @return
@@ -74,24 +74,24 @@ public class SimpleSpinner {
 
 	/**
 	 * Set spinner's selection directly by item object.
-	 * 
+	 * @deprecated
 	 * @param spinner
 	 * @param item
 	 */
-	public SpinnerItem setSelection(Spinner spinner, SpinnerItem item) {
-		if (spinner == null || item == null) {
-			return null;
-		}
-		int n = spinner.getAdapter().getCount();
-		for (int i = 0; i < n; i++) {
-			Object value = spinner.getItemAtPosition(i);
-			if (item.equals(value)) {
-				spinner.setSelection(i);
-				return item;
-			}
-		}
-		return null;
-	}
+//	public SpinnerItem setSelection(Spinner spinner, SpinnerItem item) {
+//		if (spinner == null || item == null) {
+//			return null;
+//		}
+//		int n = spinner.getAdapter().getCount();
+//		for (int i = 0; i < n; i++) {
+//			Object value = spinner.getItemAtPosition(i);
+//			if (item.equals(value)) {
+//				spinner.setSelection(i);
+//				return item;
+//			}
+//		}
+//		return null;
+//	}
 
 	public Object setSelection(long itemId) {
 		return setSelection(spinner, itemId);
@@ -103,17 +103,26 @@ public class SimpleSpinner {
 	 * @param spinner
 	 * @param itemId
 	 */
-	public SpinnerItem setSelection(Spinner spinner, Object itemId) {
+	public Object setSelection(Spinner spinner, Object itemId) {
 		if (spinner == null || itemId == null) {
 			return null;
 		}
 		int n = spinner.getAdapter().getCount();
 		for (int i = 0; i < n; i++) {
-			SpinnerItem si = (SpinnerItem) spinner.getItemAtPosition(i);
-			Log.d("", itemId + " -- " + si.getId());
-			if (itemId.equals(si.getId())) {
-				spinner.setSelection(i);
-				return si;
+			Object value = spinner.getItemAtPosition(i);
+			if(value instanceof SpinnerItem) {
+				SpinnerItem si = (SpinnerItem) value;
+				Log.d("", itemId + " -- " + si.getId());
+				if (itemId.equals(si.getId())) {
+					spinner.setSelection(i);
+					return si;
+				}				
+			}
+			else {
+				if (itemId.equals(value)) {
+					spinner.setSelection(i);
+					return itemId;
+				}
 			}
 		}
 		return null;

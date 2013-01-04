@@ -16,22 +16,28 @@ import android.widget.ListAdapter;
 public abstract class BaseListAdapter implements ListAdapter{
 
 	protected LayoutInflater inflater;
-	protected List<Map<String, ?>> data;
+	
 	protected String[] keys;
 	protected Context context;
 	protected int layoutResId;
 	protected int[] itemResIds;
+
+	protected List<Map<String, ?>> data;
+	
+	// Label that displayed while no data for this View.
+//	protected String defaultLabel = "";
 	
 	public BaseListAdapter(Context context, List<Map<String, ?>> data, String[] keys) {
 		this.keys = keys;
 		this.data = data;
 		this.context = context;
+		inflater = LayoutInflater.from(context);
+		this.context = context;
+//		this.resources = context.getResources();
 	}
 	
 	public BaseListAdapter(Context context, List<Map<String, ?>> data, String[] keys, int layoutResId,  int[] itemResIds) {
-		this.keys = keys;
-		this.data = data;
-		this.context = context;
+		this(context, data, keys);
 		this.layoutResId = layoutResId;
 		this.itemResIds = itemResIds;
 	}
@@ -60,6 +66,14 @@ public abstract class BaseListAdapter implements ListAdapter{
 	public int getItemViewType(int position) {
 		return 0;
 	}
+
+//	@Override
+//	public View getView(int position, View convertView, ViewGroup parent) {
+//		
+//		inflater = LayoutInflater.from(context);
+//		
+//		return null;
+//	}
 
 	@Override
 	public boolean hasStableIds() {

@@ -17,6 +17,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import androidx.Callback;
 import androidx.Utils;
+import androidx.view.SimpleListView.SimpleInfoListViewAdapter;
 
 /**
  * The base composite view. 
@@ -34,6 +35,7 @@ public abstract class SimpleCompositeView {
 				, negTarget, SimpleCompositeView.STATE_NEGATIVE);
 	}
 	
+	protected Context ctx;
 	protected AbsListView alv;
 	protected String idkey = "k_id";
 	protected String statekey = "k_state";
@@ -44,12 +46,14 @@ public abstract class SimpleCompositeView {
 	// Data of rows with k1 and k2.
 	protected List<Map<String, ?>> data;
 	
-	protected String defaultLabel = "";
+	// Label that displayed while no data for this View.
+	protected String defaultLabel = "[Not set yet]";
 	
 	// Adapter for data of view.
 	private ListAdapter adapter;
 
 	public SimpleCompositeView(Context context, AbsListView alv) {
+		this.ctx = context;
 		this.alv = alv;
 		data = new ArrayList();
 		adapter = getAdapter(context);
@@ -57,11 +61,8 @@ public abstract class SimpleCompositeView {
 	
 	public SimpleCompositeView(Context context, ListView lv, String defaultLabel) {
 		this(context, lv);
-		this.data = new ArrayList();
 		this.defaultLabel = defaultLabel;
-		addItem(defaultLabel, "");
 		adapter = getAdapter(context);
-		render();
 	}
 	
 	/**
@@ -175,7 +176,7 @@ public abstract class SimpleCompositeView {
 	 * @return
 	 */
 	public SimpleCompositeView addAllItems(List<Map> data, Object k1, Object k2) {
-		for(int i=0; i<data.size(); i++) {
+		for (int i = 0; i < data.size(); i++) {
 			Map m = data.get(i);
 			addItem(m.get(k1), m.get(k2), null);
 		}
@@ -207,17 +208,25 @@ public abstract class SimpleCompositeView {
 	 */
 	public void clear() {
 		data.clear();
-		this.render();
+		// render here will case wrong displaying.
+		// this.render();
 	}
 
 	/**
 	 * Render to display all data for this view.
 	 */
 	public void render() {
-		if(this.alv == null){
+		Log.d("androidx", "render()");
+		if (this.alv == null) {
 			throw new RuntimeException("The composite view was not init correctly.");
 		}
-		this.alv.setAdapter(adapter);
+		if (data == null || data.isEmpty()) {
+			Log.d("SR", "  No data for ListView, show info");
+			this.alv.setAdapter(new SimpleInfoListViewAdapter(ctx, defaultLabel));
+		}
+		else {
+			this.alv.setAdapter(adapter);
+		}
 	}
 	
 	/**
@@ -226,10 +235,9 @@ public abstract class SimpleCompositeView {
 	 */
 	public void onItemClick(final Callback handler) {
 		this.alv.setOnItemClickListener(new OnItemClickListener() {
-
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long itemid) {
-				Log.d("androidx", "Item at position " + pos  + " was clicked");
+				Log.d("androidx", "  Item at position " + pos + " was clicked");
 				handleClickEvent(pos, handler);
 			}
 		});
@@ -241,10 +249,9 @@ public abstract class SimpleCompositeView {
 	 */
 	public void onItemLongClick(final Callback handler) {
 		this.alv.setOnItemLongClickListener(new OnItemLongClickListener() {
-
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long itemid) {
-				Log.d("androidx", "Item at position " + pos  + " was long clicked");
+				Log.d("androidx", "  Item at position " + pos + " was long clicked");
 				handleClickEvent(pos, handler);
 				return false;
 			}
@@ -253,13 +260,16 @@ public abstract class SimpleCompositeView {
 	
 	private void handleClickEvent(int pos, Callback handler) {
 		Map item = data.get(pos);
+		if (item == null || item.isEmpty()) {
+			return;
+		}
 		Object bizid = item.get(idkey);
-		if(bizid == null) {
-			Log.d("androidx", "No business ID there, callback without anything");
+		if (bizid == null) {
+			Log.d("androidx", "  No business ID there, callback without anything");
 			handler.invoke();
 		}
 		else {
-			Log.d("androidx", "Select business ID " + bizid + "[" + bizid.getClass() + "]");
+			Log.d("androidx", "  Select business ID " + bizid + "[" + bizid.getClass() + "]");
 			handler.invoke(bizid);
 			handler.invoke(bizid, item.get(keys[0]), item.get(keys[1]));
 		}
