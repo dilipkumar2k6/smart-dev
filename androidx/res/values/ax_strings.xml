@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <color name="ax_color_black">#000000</color>
+    <color name="ax_color_white">#FFFFFF</color>
+    <color name="ax_bg_color">#BBBBBB</color>
+    <color name="ax_bg_color_header">#222222</color>
+    <color name="ax_bg_color_separator">#339999</color>
+    <color name="ax_bg_color_action_bar">#999999</color>
+    <color name="ax_bg_color_header_tab_text_on">#3399BB</color>
+    <color name="ax_bg_color_header_tab_text_off">#117799</color>
+    <color name="ax_text_color_header">#3399BB</color>
+    <color name="ax_text_color_label">#333333</color>
+    <color name="ax_text_color_hint">#666666</color>
+    
+    
     <string name="common_yes">Yes</string>
     <string name="common_no">No</string>
     <string name="common_close">Close</string>

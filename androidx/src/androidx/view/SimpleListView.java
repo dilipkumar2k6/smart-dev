@@ -3,11 +3,14 @@ package androidx.view;
 import java.util.List;
 import java.util.Map;
 
+import org.androidx.R;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -30,16 +33,55 @@ public class SimpleListView extends SimpleCompositeView {
 	public SimpleListView(Context context, ListView lv) {
 		super(context, lv);
 	}
-	
+
 	public SimpleListView(Context context, ListView lv, String defaultLabel) {
 		super(context, lv, defaultLabel);
 	}
 
 	@Override
 	protected ListAdapter getAdapter(Context context) {
-//		super.addItem(defaultLabel, "");
-		return new SimpleAdapter(context, data, android.R.layout.simple_list_item_2
-        		, keys, new int[]{android.R.id.text1, android.R.id.text2});
+		return new SimpleAdapter(context, data, android.R.layout.simple_list_item_2, keys, new int[] {
+				android.R.id.text1, android.R.id.text2 });
+	}
+	
+	/**
+	 * Show only information 
+	 * @author
+	 *
+	 */
+	public static class SimpleInfoListViewAdapter extends BaseAdapter {
+		protected Context context;
+		// Label that displayed while no data for this View.
+		protected String defaultLabel = "";
+		
+		public SimpleInfoListViewAdapter(Context context, String info) {
+			this.context = context;
+			this.defaultLabel = info;
+		}
+
+		@Override
+		public int getCount() {
+			return 1;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return defaultLabel;
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			LayoutInflater inflater = LayoutInflater.from(context);
+			LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.ax_lv_item_info, null);
+			TextView tv = (TextView) layout.findViewById(R.id.tv_alii_label);
+			tv.setText(defaultLabel);
+			return layout;
+		}
 	}
 	
 	
@@ -50,6 +92,8 @@ public class SimpleListView extends SimpleCompositeView {
 	 *
 	 */
 	public static class SimpleIconListViewAdapter extends BaseListAdapter {
+		
+		
 		public SimpleIconListViewAdapter(Context context, List<Map<String, ?>> data, String[] keys) {
 			super(context, data, keys);
 		}
@@ -71,27 +115,27 @@ public class SimpleListView extends SimpleCompositeView {
 			}
 			
 			// Icon
-			ImageView imgView = (ImageView)layout.findViewById(itemResIds[0]);
+			ImageView imgView = (ImageView) layout.findViewById(itemResIds[0]);
 			Object img = row.get(keys[0]);
-			if(img instanceof Drawable) {
-				imgView.setImageDrawable((Drawable)img);	
+			if (img instanceof Drawable) {
+				imgView.setImageDrawable((Drawable) img);
 			}
-			else if(img instanceof Integer) {
-				imgView.setImageResource((Integer)img);
+			else if (img instanceof Integer) {
+				imgView.setImageResource((Integer) img);
 			}
 			else {
 				return layout;
 			}
 			
 			// Title and Description
-			if(itemResIds.length > 1 && layout.findViewById(itemResIds[1]) != null) {
-				TextView tvTitle= (TextView)layout.findViewById(itemResIds[1]);
-				tvTitle.setText(new String(row.get(keys[1]).toString().getBytes()));				
+			if (itemResIds.length > 1 && layout.findViewById(itemResIds[1]) != null) {
+				TextView tvTitle = (TextView) layout.findViewById(itemResIds[1]);
+				tvTitle.setText(new String(row.get(keys[1]).toString().getBytes()));
 			}
 
-			if(itemResIds.length > 2 && layout.findViewById(itemResIds[2]) != null) {
-				TextView tvDesc = (TextView)layout.findViewById(itemResIds[2]);
-				tvDesc.setText(new String(row.get(keys[1]).toString().getBytes()));				
+			if (itemResIds.length > 2 && layout.findViewById(itemResIds[2]) != null) {
+				TextView tvDesc = (TextView) layout.findViewById(itemResIds[2]);
+				tvDesc.setText(new String(row.get(keys[1]).toString().getBytes()));
 			}
 			return layout;
 		}
