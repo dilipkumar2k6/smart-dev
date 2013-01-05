@@ -47,7 +47,7 @@ public abstract class SimpleCompositeView {
 	protected List<Map<String, ?>> data;
 	
 	// Label that displayed while no data for this View.
-	protected String defaultLabel = "[Not set yet]";
+	public String defaultLabel = "[Not set yet]";
 	
 	// Adapter for data of view.
 	private ListAdapter adapter;

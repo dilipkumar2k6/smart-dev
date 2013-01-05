@@ -57,10 +57,10 @@ public class SimpleSpinner {
 		}
 		this.spinner = spinner;
 		if (data == null || data.length == 0) {
-			Log.d("androidx", "Nothing to init for Spinner");
+			Log.w("androidx", "Nothing to init for Spinner");
 			return spinner;
 		}
-		Log.d("androidx", "" + data.length);
+		Log.d("androidx", "Init Spinner with " + data.length + " items");
 		ArrayAdapter adapter = new ArrayAdapter(ctx, android.R.layout.simple_spinner_item, data);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinner.setAdapter(adapter);
@@ -128,6 +128,10 @@ public class SimpleSpinner {
 		return null;
 	}
 
+	/**
+	 * Get key of selected item.
+	 * @return
+	 */
 	public Object getSelectedSpinnerKey() {
 		SpinnerItem spitem = (SpinnerItem) spinner.getSelectedItem();
 		return spitem.getId();
@@ -144,6 +148,7 @@ public class SimpleSpinner {
 		while (it.hasNext()) {
 			Object key = it.next();
 			Object value = map.get(key);
+//			Log.d("", "" + value);
 			items.add(new SpinnerItem(key, value));
 		}
 		return items;
