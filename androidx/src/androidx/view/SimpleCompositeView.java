@@ -259,6 +259,9 @@ public abstract class SimpleCompositeView {
 	}
 	
 	private void handleClickEvent(int pos, Callback handler) {
+		if(pos >= data.size()) {
+			return;
+		}
 		Map item = data.get(pos);
 		if (item == null || item.isEmpty()) {
 			return;

@@ -533,14 +533,21 @@ public abstract class BaseActivity extends Activity {
 		ckb.setOnCheckedChangeListener(listener);
 		return ckb;
 	}
-	
-	
 
-	
 	
 	protected void debug(Object log) {
 		if(log == null) log = "[null]";
-		Log.d("activity", log.toString());
+		Log.d("androidx", log.toString());
+	}
+	
+	protected void warn(Object log) {
+		if(log == null) log = "[null]";
+		Log.w("androidx", log.toString());		
+	}
+	
+	protected void error(Object log) {
+		if(log == null) log = "[null]";
+		Log.e("androidx", log.toString());
 	}
 	
 	protected View inflatView(int viewId) {
