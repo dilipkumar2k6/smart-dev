@@ -33,6 +33,7 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.model.DataList;
@@ -460,6 +461,10 @@ public abstract class BaseActivity extends Activity {
 	protected ProgressBar getProgressBar(int resId) {
 		return (ProgressBar)this.findViewById(resId);
 	}
+	
+	protected RadioGroup getRadioGroup(int resId) {
+		return (RadioGroup) this.findViewById(resId);
+	}
 
 	
 	/**
@@ -506,6 +511,29 @@ public abstract class BaseActivity extends Activity {
 		}
 	}
 	
+
+	/**
+	 * Show progress bar if long time operation will be performed.
+	 * resource "pgb_wait" is required
+	 */
+	protected void beforeLoadingData(int resId) {
+		ProgressBar wait = getProgressBar(resId);
+		if(wait == null) {
+			warn("Not set waitting progress bar in XML layout file");
+			return;
+		}
+		wait.setVisibility(View.VISIBLE);
+	}
+	
+	/**
+	 * Hide progress bar after long time operation.
+	 * resource "pgb_wait" is required 
+	 */
+	protected void afterLoadingData(int resId) {
+		ProgressBar wait = getProgressBar(resId);
+		if(wait == null) return;
+		wait.setVisibility(View.INVISIBLE);
+	}
 	
 	
 	/**

@@ -170,7 +170,8 @@ public class BaseDataSource {
 			this.connect();
 		}
 		try {
-			Cursor cursor = db.query(TABLE_NAME_USER_META, null, " META_NAME = ? ", new String[] { metaName }, null, null, null);
+			Cursor cursor = db.query(TABLE_NAME_USER_META, null, " META_NAME = ? ", new String[] { metaName }, null,
+					null, null);
 			if (cursor.moveToNext()) {
 				return cursor.getString(cursor.getColumnIndex("META_VALUE"));
 			}
@@ -183,26 +184,32 @@ public class BaseDataSource {
 		}
 	}
 	
+	/**
+	 * 取Long型值，如果小于0则返回默认值。
+	 * @param metaName
+	 * @param defaultValue
+	 * @return
+	 */
 	public long getMetaLong(String metaName, long defaultValue) {
 		long ret = getMetaLong(metaName);
-		if(ret == 0) {
+		if (ret < 0) {
 			return defaultValue;
 		}
 		else {
 			return ret;
 		}
 	}
-	
+
 	public long getMetaLong(String metaName) {
 		String meta = getMeta(metaName);
-		if(Utils.isEmpty(meta)) {
-			return 0;
+		if (Utils.isEmpty(meta)) {
+			return -1L;
 		}
 		try {
 			return Long.parseLong(meta);
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
-			return 0L;
+			return -1L;
 		}
 	}
 	
