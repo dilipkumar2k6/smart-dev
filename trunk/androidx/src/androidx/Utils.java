@@ -2,6 +2,7 @@ package androidx;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -97,6 +98,10 @@ public class Utils {
 
 	public static String stringifyDate(Calendar date) {
 		return TIME_FORMATTER_DATA.format(date.getTime());
+	}
+
+	public static String stringifyTime(Date time) {
+		return TIME_FORMATTER_TIME.format(time);
 	}
 	
 	public static String stringifyTime(Calendar time) {

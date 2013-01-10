@@ -12,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,7 +72,7 @@ public class SimpleDialog {
 	 * @param callback
 	 */
 	public void showConfirmDialog(String msg, final DialogCallback callback) {
-		Log.d("", "showConfirmDialog()");
+		Log.d("androidx", "showConfirmDialog()");
 		AlertDialog.Builder dBuilder = new Builder(context);
 		dBuilder.setMessage(msg);
 		dBuilder.setIcon(android.R.drawable.ic_menu_help);
@@ -99,7 +98,7 @@ public class SimpleDialog {
 		AlertDialog confirmDialog = dBuilder.create();
 		confirmDialog.setTitle(rs.getString(R.string.common_dialog_confirm_title));
 		confirmDialog.show();
-		Log.d("", "  show");
+		Log.d("androidx", "  show");
 		dialogStack.push(confirmDialog);
 	}
 
@@ -468,7 +467,7 @@ public class SimpleDialog {
 	 * Dismiss latest dialog showed up.
 	 */
 	public void dismissDialogOnTop() {
-		if(dialogStack == null || dialogStack.size() == 0) {
+		if(dialogStack == null || dialogStack.isEmpty()) {
 			Log.d("androidx", "No dialog on the top");
 			return;
 		}
