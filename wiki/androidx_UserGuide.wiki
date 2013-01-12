@@ -54,7 +54,7 @@ enableViews(R.id.view0, R.id.view1, R.id.view2, ...);
     view.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-        handler.invoke(v);
+        // 
       }
     });
   }
@@ -66,4 +66,28 @@ enableViews(R.id.view0, R.id.view1, R.id.view2, ...);
       //
     }
   });
+}}}
+
+4. 简化调试输出
+原来
+{{{
+Log.d("tag", "What you want to log");
+Log.w("tag", "What you want to log");
+Log.e("tag", "What you want to log");
+}}}
+
+{{{
+debug("what you want to log")
+warn("what you want to log")
+error("what you want to log")
+}}}
+
+5. 简化Toast显示
+原来
+{{{
+Toast.makeText(context, "Toast Message", Toast.LENGTH_LONG).show();
+}}}
+现在
+{{{
+showToast("Toast Message");
 }}}
