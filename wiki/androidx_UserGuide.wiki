@@ -11,3 +11,27 @@ public class MyActivity extends BaseActivity {
 
 
 =API指南=
+
+1. 获取视图组件更方便
+原来：
+{{{
+TextView tv = (TextView)findViewById(R.id.textView);
+}}}
+
+现在
+{{{
+TextView tv = getTextView(R.id.textView);
+}}}
+
+以此类推，所有组件都可以通过getXXX的方式获取，看起来有点小儿科，不过这个操作是在太频繁了，至少避免了转型。
+
+另外，TextView和EditText还可以直接设值
+原来：
+{{{
+TextView tv = (TextView)findViewById(R.id.textView);
+tv.setText("Something to display");
+}}}
+现在：
+{{{
+setTextViewText(R.id.textView, "Something to display");
+}}}
