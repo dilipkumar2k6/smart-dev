@@ -13,6 +13,7 @@ public class MyActivity extends BaseActivity {
 =API指南=
 
 1. 获取视图组件更方便
+
 原来：
 {{{
 TextView tv = (TextView)findViewById(R.id.textView);
@@ -26,6 +27,7 @@ TextView tv = getTextView(R.id.textView);
 以此类推，其他常用组件也都可以通过getXXX的方式获取，看起来有点小儿科，不过这个操作是在太频繁了，至少避免了转型。
 
 另外，TextView和EditText还可以直接设值
+
 原来：
 {{{
 TextView tv = (TextView)findViewById(R.id.textView);
@@ -35,6 +37,7 @@ tv.setText("Something to display");
 {{{
 setTextViewText(R.id.textView, "Something to display");
 }}}
+
 
 2. 批量disable或者enable多个组件
 {{{
@@ -46,7 +49,9 @@ disableViews(R.id.view0, R.id.view1, R.id.view2, ...);
 enableViews(R.id.view0, R.id.view1, R.id.view2, ...);
 }}}
 
+
 3. 单击组件的操作特别多，因此需要简化
+
 原来：
 {{{
   View view = this.findViewById(R.id.view);
@@ -59,6 +64,7 @@ enableViews(R.id.view0, R.id.view1, R.id.view2, ...);
     });
   }
 }}}
+
 现在：
 {{{
   onViewClicked(R.id.button, new CallbackAdapter() {
@@ -68,14 +74,17 @@ enableViews(R.id.view0, R.id.view1, R.id.view2, ...);
   });
 }}}
 
+
 4. 简化调试输出
-原来
+
+原来：
 {{{
 Log.d("tag", "What you want to log");
 Log.w("tag", "What you want to log");
 Log.e("tag", "What you want to log");
 }}}
 
+现在：
 {{{
 debug("what you want to log")
 warn("what you want to log")
@@ -83,11 +92,13 @@ error("what you want to log")
 }}}
 
 5. 简化Toast显示
-原来
+
+原来：
 {{{
 Toast.makeText(context, "Toast Message", Toast.LENGTH_LONG).show();
 }}}
-现在
+
+现在：
 {{{
 showToast("Toast Message");
 }}}
