@@ -10,7 +10,9 @@ public class MyActivity extends BaseActivity {
 }}}
 
 
-=API指南=
+==API指南==
+
+=== 简化基本操作 ===
 
 1. 获取视图组件更方便
 
@@ -24,9 +26,11 @@ TextView tv = (TextView)findViewById(R.id.textView);
 TextView tv = getTextView(R.id.textView);
 }}}
 
-以此类推，其他常用组件也都可以通过getXXX的方式获取，看起来有点小儿科，不过这个操作是在太频繁了，至少避免了转型。
+以此类推，其他常用组件（包括Layout）也都可以通过getXXX的方式获取，看起来有点小儿科，不过这个操作是在太频繁了，至少避免了转型。
 
-另外，TextView和EditText还可以直接设值
+
+
+2. TextView和EditText还可以直接设值，无需繁琐的操作
 
 原来：
 {{{
@@ -39,7 +43,7 @@ setTextViewText(R.id.textView, "Something to display");
 }}}
 
 
-2. 批量disable或者enable多个组件
+3. 批量disable或者enable多个组件
 {{{
 // 直接
 disableViews(view0, view1, view2, ...);
@@ -50,7 +54,7 @@ enableViews(R.id.view0, R.id.view1, R.id.view2, ...);
 }}}
 
 
-3. 单击组件的操作特别多，因此需要简化
+4. 单击组件的操作特别多，因此需要简化
 
 原来：
 {{{
@@ -75,7 +79,7 @@ enableViews(R.id.view0, R.id.view1, R.id.view2, ...);
 }}}
 
 
-4. 简化调试输出
+5. 简化调试输出
 
 原来：
 {{{
@@ -91,7 +95,7 @@ warn("what you want to log")
 error("what you want to log")
 }}}
 
-5. 简化Toast显示
+6. 简化Toast显示
 
 原来：
 {{{
