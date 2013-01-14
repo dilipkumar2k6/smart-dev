@@ -1,5 +1,6 @@
 package androidx;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,6 +15,7 @@ import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,7 +23,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.PhoneLookup;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
@@ -32,8 +37,6 @@ import android.widget.Toast;
  *
  */
 public class AndroidUtils {
-	
-	private static final String GLOBAL_SETTING = "org.androidx";
 
 	public static int getProcessId(Context ctx, String pkgName) {
 		ActivityManager actManager = (ActivityManager)ctx.getSystemService(Context.ACTIVITY_SERVICE);
@@ -102,6 +105,12 @@ public class AndroidUtils {
 		}
 	}
 	
+	/**
+	 * Retrieve APP displaying name by it's package name.
+	 * @param ctx
+	 * @param pkgName
+	 * @return
+	 */
 	public static String getAppName(Context ctx, String pkgName) {
 		try {
 			ApplicationInfo appinfo = ctx.getPackageManager().getApplicationInfo(pkgName, PackageManager.GET_ACTIVITIES);
@@ -164,6 +173,12 @@ public class AndroidUtils {
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @param ctx
+	 * @param packageName
+	 * @return
+	 */
 	public static String getAppVersionString(Context ctx, String packageName) {
 		List<PackageInfo> pkgs = ctx.getPackageManager().getInstalledPackages(0);
 		for (Iterator it = pkgs.iterator(); it.hasNext();) {
@@ -243,7 +258,7 @@ public class AndroidUtils {
 	 * @param value
 	 */
 	public static void saveGlobalSetting(Context ctx, String name, Object value) {
-		SharedPreferences setting = ctx.getSharedPreferences(GLOBAL_SETTING, 0);
+		SharedPreferences setting = ctx.getSharedPreferences(ctx.getPackageName(), 0);
 		setting.edit().putString(name, value.toString()).commit();
 	}
 
@@ -256,7 +271,7 @@ public class AndroidUtils {
 	 * @return
 	 */
 	public static String getGlobalSetting(Context ctx, String name, Object defaultValue) {
-		SharedPreferences setting = ctx.getSharedPreferences(GLOBAL_SETTING, 0);
+		SharedPreferences setting = ctx.getSharedPreferences(ctx.getPackageName(), 0);
 		if (setting == null) {
 			return defaultValue.toString();
 		}
@@ -275,7 +290,7 @@ public class AndroidUtils {
 	 * @return
 	 */
 	public static String getGlobalSetting(Context ctx, String name) {
-		SharedPreferences setting = ctx.getSharedPreferences(GLOBAL_SETTING, 0);
+		SharedPreferences setting = ctx.getSharedPreferences(ctx.getPackageName(), 0);
 		if(setting.getString(name, null) == null) {
 			return null;
 		}
@@ -291,7 +306,7 @@ public class AndroidUtils {
 	 * @return
 	 */
 	public static Map<String, Object> getGlobalSettingsWithPrefix(Context ctx, String prefix) {
-		SharedPreferences setting = ctx.getSharedPreferences(GLOBAL_SETTING, 0);
+		SharedPreferences setting = ctx.getSharedPreferences(ctx.getPackageName(), 0);
 		Map result = new HashMap<String, Object>();
 		Map m = setting.getAll();
 		for (Iterator it = m.keySet().iterator(); it.hasNext();) {
@@ -311,7 +326,7 @@ public class AndroidUtils {
 	 */
 	public static boolean removeGlobalSetting(Context ctx, String key) {
 		Log.d("", "Try to remove setting: " + key);
-		SharedPreferences setting = ctx.getSharedPreferences(GLOBAL_SETTING, 0);
+		SharedPreferences setting = ctx.getSharedPreferences(ctx.getPackageName(), 0);
 		return setting.edit().remove(key).commit();
 	}
 
@@ -359,9 +374,69 @@ public class AndroidUtils {
 	public static void showToast(Context context,String msg) {
 		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
 	}
-	
-	public static void showToast(Context context,String msg, Object... params) {
+
+	public static void showToast(Context context, String msg, Object... params) {
 		// TODO
-		
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public static boolean isSDCardAvailable() {
+		File sdcard = new File("/sdcard/");
+		return sdcard.exists() && sdcard.canWrite();
+	}
+	
+	public static String getContactName(Context context, String phone) {
+		ContentResolver cr = context.getContentResolver();
+		Cursor cursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+				ContactsContract.CommonDataKinds.Phone.NUMBER + " = " + phone, null, null);
+		if (cursor == null)
+			return null;
+		while (cursor.moveToNext()) {
+			String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+
+			Cursor cursor2 = cr.query(ContactsContract.Contacts.CONTENT_URI, null, ContactsContract.Contacts._ID + "="
+					+ contactId, null, null);
+			if (cursor2 == null)
+				return null;
+			while (cursor2.moveToNext()) {
+				return cursor2.getString(cursor2.getColumnIndex(PhoneLookup.DISPLAY_NAME));
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Read contacts names from device storage.
+	 * @param context
+	 * @return Map with phone number to contact name.
+	 */
+	public static Map<String, String> getContactsNamesFromDevice(Context context) {
+		Map<String, String> ret = new HashMap();
+		ContentResolver cr = context.getContentResolver();
+		Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+		while (cursor.moveToNext()) {
+			int idxName = cursor.getColumnIndex(PhoneLookup.DISPLAY_NAME);
+			String contact = cursor.getString(idxName);
+			if(Utils.isEmpty(contact)) {
+				continue;
+			}
+			Log.d("", "" + contact);
+
+			String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+			Cursor phoneNums = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+			ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = "	+ contactId, null, null);// 第一个参数是确定查询电话号，第三个参数是查询具体某个人的过滤值
+
+			while (phoneNums.moveToNext()) {
+				String phoneNum = phoneNums.getString(phoneNums.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+				ret.put(phoneNum.trim(), contact);
+			}
+			phoneNums.close();
+		}
+		cursor.close();
+		return ret;
 	}
 }

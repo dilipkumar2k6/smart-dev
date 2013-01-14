@@ -322,6 +322,9 @@ public class SimpleDialog {
 	 *            列表选中一项时调用，参数为选项位置。
 	 */
 	public void showListSelectDialog(final String title, final String[] items, final DialogCallback callback) {
+		if(items == null || items.length == 0) {
+			Log.w("androidsx", "Invalid items");
+		}
 		View fileActionView = LayoutInflater.from(context).inflate(R.layout.common_dialog_list_select, null);
 		ListView listSelect = (ListView) fileActionView.findViewById(R.id.cdl_list);
 		listSelect.setAdapter(new ArrayAdapter(context, android.R.layout.simple_list_item_1, items));
@@ -340,7 +343,7 @@ public class SimpleDialog {
 		dBuilder.setNegativeButton(tagCancel, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				callback.onNegative(dialog);
+				callback.onNegative(which);
 				dismissDialogOnTop();
 			}
 		});

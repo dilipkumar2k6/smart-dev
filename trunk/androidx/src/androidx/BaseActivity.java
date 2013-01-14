@@ -29,13 +29,25 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
+import android.widget.FrameLayout;
+import android.widget.Gallery;
 import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RatingBar;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 import androidx.model.DataList;
 import androidx.model.DataRow;
 import androidx.view.SimpleDialog;
@@ -364,11 +376,11 @@ public abstract class BaseActivity extends Activity {
 	protected void showListSelectDialog(final String title, final String[] items, final DialogCallback callback) {
 		simpleDialog.showListSelectDialog(title, items, callback);
 	}
-	
+
 	public void dismissDialogOnTop() {
 		simpleDialog.dismissDialogOnTop();
 	}
-	
+
 	protected void showToast(String msg) {
 		AndroidUtils.showToast(context, msg);
 	}
@@ -380,11 +392,23 @@ public abstract class BaseActivity extends Activity {
 
 	/**
 	 * 获取LinearLayout
-	 * @param resourceId
+	 * @param resId
 	 * @return
 	 */
-	protected LinearLayout getLinearyLayout(int resourceId) {
-		return (LinearLayout)this.findViewById(resourceId);
+	protected LinearLayout getLinearyLayout(int resId) {
+		return (LinearLayout)this.findViewById(resId);
+	}
+	
+	protected RelativeLayout getRelativeLayout(int resId) {
+		return (RelativeLayout)this.findViewById(resId);
+	}
+	
+	protected FrameLayout getFrameLayout(int resId) {
+		return (FrameLayout)this.findViewById(resId);
+	}
+	
+	protected TableLayout getTableLayout(int resId) {
+		return (TableLayout)this.findViewById(resId);
 	}
 	
 	/**
@@ -402,15 +426,15 @@ public abstract class BaseActivity extends Activity {
 	
 	/**
 	 * 
-	 * @param resourceId
+	 * @param resId
 	 * @return
 	 */
-	protected TextView getTextView(int resourceId) {
-		return (TextView)this.findViewById(resourceId);
+	protected TextView getTextView(int resId) {
+		return (TextView)this.findViewById(resId);
 	}
 	
-	protected TextView setTextViewText(int resourceId, String str) {
-		TextView tv = this.getTextView(resourceId);
+	protected TextView setTextViewText(int resId, String str) {
+		TextView tv = this.getTextView(resId);
 		if (tv != null) {
 			tv.setText(str);
 		}
@@ -419,7 +443,7 @@ public abstract class BaseActivity extends Activity {
 	
 	/**
 	 * 
-	 * @param resourceId
+	 * @param resId
 	 * @return
 	 */
 	protected Button getButton(int resId) {
@@ -454,16 +478,52 @@ public abstract class BaseActivity extends Activity {
 		return (GridView)this.findViewById(resId);
 	}
 	
-	protected ListView getListView(int resourceId) {
-		return (ListView)this.findViewById(resourceId);
+	protected ListView getListView(int resId) {
+		return (ListView)this.findViewById(resId);
 	}
 	
 	protected ProgressBar getProgressBar(int resId) {
 		return (ProgressBar)this.findViewById(resId);
 	}
 	
+	protected RadioButton getRadioButton(int resId) {
+		return (RadioButton)this.findViewById(resId);
+	}
+	
 	protected RadioGroup getRadioGroup(int resId) {
 		return (RadioGroup) this.findViewById(resId);
+	}
+	
+	protected SeekBar getSeekBar(int resId) {
+		return (SeekBar) this.findViewById(resId);
+	}
+	
+	protected ToggleButton getToggleButton(int resId) {
+		return (ToggleButton)this.findViewById(resId);
+	}
+	
+	protected RatingBar getRatingBar(int resId) {
+		return (RatingBar) this.findViewById(resId);
+	}
+	
+	protected ExpandableListView getExpandableListView(int resId) {
+		return (ExpandableListView)this.findViewById(resId);
+	}
+	
+	protected ScrollView getScrollView(int resId) {
+		return (ScrollView)this.findViewById(resId);
+	}
+	
+	protected ImageView getImageView(int resId) {
+		return (ImageView)this.findViewById(resId);
+	}
+	
+	protected ImageButton getImageButton(int resId) {
+		return (ImageButton) this.findViewById(resId);
+	}
+	
+	protected Gallery getGallery(int resId) {
+		return (Gallery)this.findViewById(resId);
 	}
 
 	
@@ -487,24 +547,40 @@ public abstract class BaseActivity extends Activity {
 		return resource;
 	}
 	
-	
+	/**
+	 * Make views disabled by resource ids.
+	 * @param ids
+	 */
 	protected void disableViews(int... ids) {
 		for(int i=0;i<ids.length;i++) {
 			findViewById(ids[i]).setEnabled(false);
 		}
 	}
 	
+	/**
+	 * Make views disabled.
+	 * @param views
+	 */
 	protected void disableViews(View... views) {
 		for(int i=0;i<views.length;i++) {
 			views[i].setEnabled(false);
 		}
 	}
 	
+	/**
+	 * Make views enabled by resource ids.
+	 * @param ids
+	 */
 	protected void enableViews(int... ids) {
 		for(int i=0;i<ids.length;i++) {
 			findViewById(ids[i]).setEnabled(true);
 		}
 	}
+	
+	/**
+	 * Make view enabled.
+	 * @param views
+	 */
 	protected void enableViews(View... views) {
 		for(int i=0;i<views.length;i++) {
 			views[i].setEnabled(true);
@@ -583,8 +659,8 @@ public abstract class BaseActivity extends Activity {
 	}
 	
 	
-	public void tileBackground(View view, int resourceId) {
-		Bitmap bitmap = BitmapFactory.decodeResource(rs, resourceId);
+	public void tileBackground(View view, int resId) {
+		Bitmap bitmap = BitmapFactory.decodeResource(rs, resId);
 		BitmapDrawable bd = new BitmapDrawable(bitmap);
 		bd.setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
 		bd.setDither(true);
@@ -592,8 +668,8 @@ public abstract class BaseActivity extends Activity {
 	}
 	
 	
-	public void mirrorBackground(View view, int resourceId) {
-		Bitmap bmHead = BitmapFactory.decodeResource(rs, resourceId);
+	public void mirrorBackground(View view, int resId) {
+		Bitmap bmHead = BitmapFactory.decodeResource(rs, resId);
 		BitmapDrawable bdHead = new BitmapDrawable(bmHead);
 		bdHead.setTileModeXY(TileMode.MIRROR , TileMode.MIRROR);
 		bdHead.setDither(true);		
