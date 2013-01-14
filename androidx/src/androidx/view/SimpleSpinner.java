@@ -113,11 +113,11 @@ public class SimpleSpinner {
 			if(value instanceof SpinnerItem) {
 				SpinnerItem si = (SpinnerItem) value;
 				Log.d("", itemId + " -- " + si.getId());
-				if (itemId.equals(si.getId())) {
-					spinner.setSelection(i);
-					return si;
-				}				
+			if (itemId.equals(si.getId())) {
+				spinner.setSelection(i);
+				return si;
 			}
+		}
 			else {
 				if (itemId.equals(value)) {
 					spinner.setSelection(i);
