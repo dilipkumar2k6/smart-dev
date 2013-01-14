@@ -14,6 +14,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import androidx.AndroidUtils;
 import androidx.Utils;
 
 /**
@@ -71,7 +72,7 @@ public class BaseDataSource {
 	protected SQLiteDatabase getDB() {
 		Log.d("db", "Try to get Database instance");
 		// 如果有SDCARD則存在SD卡上面
-		if(!Utils.isEmpty(dbFilePath) && isSDCardAvailable()) {
+		if(!Utils.isEmpty(dbFilePath) && AndroidUtils.isSDCardAvailable()) {
 			Log.d("db", "Access database from SD card");
 			File dbFile = null;
 			dbFile = new File(dbFilePath + dbName + ".db");
@@ -113,15 +114,7 @@ public class BaseDataSource {
 			return dbHelper.getWritableDatabase();
 		}
 	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean isSDCardAvailable() {
-		File sdcard = new File("/sdcard/");
-		return sdcard.exists() && sdcard.canWrite();
-	}
+
 	
 	/**
 	 * Connect to DB file, create it if not exist.
