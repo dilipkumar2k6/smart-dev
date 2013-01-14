@@ -414,7 +414,7 @@ public class SimpleDialog {
 				if (init[i] instanceof CustomDialogInit) {
 					CustomDialogInit h = (CustomDialogInit) init[i];
 					int size = h.init(layout, resIds[i]);
-					v.setEnabled(size==0? false: true);
+					v.setEnabled(size == 0 ? false : true);
 					new SimpleSpinner((Spinner) v).setSelection(h.setValue());
 				}
 			}
@@ -427,7 +427,7 @@ public class SimpleDialog {
 		dBuilder.setPositiveButton(android.R.string.ok, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				Log.d("showInfoDialog", "Cancel clicked");
+				Log.d("showCustomizedDialog", "Positive Button Clicked");
 				dismissDialogOnTop();
 				Object[] ret = new Object[resIds.length];
 				for (int i = 0; i < resIds.length; i++) {

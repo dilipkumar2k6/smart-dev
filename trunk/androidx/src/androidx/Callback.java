@@ -1,5 +1,11 @@
 package androidx;
 
+/**
+ * Callback for any delayed invoking.
+ * @author Administrator
+ *
+ * @param <T>
+ */
 public interface Callback<T> {
 
 	public void invoke();
@@ -8,6 +14,12 @@ public interface Callback<T> {
 
 	public void invoke(Object... args);
 
+	/**
+	 * Adapter for Callback interface.
+	 * @author Administrator
+	 *
+	 * @param <T>
+	 */
 	public static class CallbackAdapter<T> implements Callback<T> {
 		@Override
 		public void invoke() {

@@ -19,10 +19,10 @@ import androidx.Utils;
 /**
  * Access SQLite database from local file system(usually SDCard) or system storage.
  * Extend me to do more works on database.
- * 1. Override initTables() method to create database schema.
- * 2. Override getDB() if you want to provide other ways to SQLite database like system built-in.
- * 2. Call connect() before invoking any database operation method.
- * 3. Don't forget init table schema before everything.
+ *   1. Override initTables() method to create database schema.
+ *   2. Override getDB() if you want to provide other ways to SQLite database like system built-in.
+ *   3. Call connect() before invoking any database operation method.
+ *   4. Don't forget init table schema before everything.
  * @author 
  *
  */
@@ -41,7 +41,9 @@ public class BaseDataSource {
 	
 	private static final String USER_META_SCHEMA_VERSION = "SCHEMA.VERSION"; 
 
+	// Inject by setter
 	protected Context context;
+	
 	protected String dbFilePath;
 	protected String dbName;
 	
@@ -55,9 +57,13 @@ public class BaseDataSource {
 	// 是否自动关闭连接，默认是true；如果启用事务则设为false，所有方法实现时根据这个标识来决定是否在操作结束时关闭连接。
 	protected boolean isAutoDisconnect = true;
 
+	/**
+	 * 
+	 * @param filePath Path of DB file if SDCard available, set null or empty to force use internal storage.
+	 * @param dbName Database name
+	 */
 	public BaseDataSource(String filePath, String dbName) {
 		super();
-//		this.context = context;
 		this.dbFilePath = filePath;
 		this.dbName = dbName;
 	}	
@@ -65,7 +71,7 @@ public class BaseDataSource {
 	protected SQLiteDatabase getDB() {
 		Log.d("db", "Try to get Database instance");
 		// 如果有SDCARD則存在SD卡上面
-		if(isSDCardAvailable()) {
+		if(!Utils.isEmpty(dbFilePath) && isSDCardAvailable()) {
 			Log.d("db", "Access database from SD card");
 			File dbFile = null;
 			dbFile = new File(dbFilePath + dbName + ".db");
