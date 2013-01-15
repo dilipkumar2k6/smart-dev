@@ -191,8 +191,6 @@ public class SimpleDialog {
 		dialogStack.push(searchDialog);
 		return searchDialog;
 	}
-	
-
 
 	/**
 	 * Show radio group dialog, return selected index in group.
@@ -292,17 +290,27 @@ public class SimpleDialog {
 	}
 
 	/**
-	 * 显示信息对话框。
 	 * 
 	 * @param msg
 	 */
 	public void showInfoDialog(final String msg) {
+		showInfoDialog(msg, null);
+	}
+	
+	/**
+	 * 显示信息对话框。
+	 * 
+	 * @param msg
+	 */
+	public void showInfoDialog(final String msg, final DialogCallback callback) {
 		AlertDialog.Builder dBuilder = new Builder(context);
 		dBuilder.setMessage(msg);
 		dBuilder.setPositiveButton(android.R.string.ok, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				Log.d("showInfoDialog", "Cancel clicked");
+				Log.d("showInfoDialog", "Positive Clicked");
+				if (callback != null)
+					callback.onPositive();
 				dismissDialogOnTop();
 			}
 		});
@@ -509,6 +517,11 @@ public class SimpleDialog {
 	 * 
 	 */
 	public static class DialogCallback<T> {
+		/**
+		 * 
+		 */
+		public void onPositive(){};
+		
 		/**
 		 * Positive button clicked.
 		 * @param value
