@@ -27,6 +27,7 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.PhoneLookup;
+import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
@@ -37,6 +38,19 @@ import android.widget.Toast;
  *
  */
 public class AndroidUtils {
+	
+	private static final String GLOBAL_SETTING = "org.androidx";
+	
+	/**
+	 * 
+	 * @param ctx
+	 * @return
+	 */
+	public static String getIMEI(Context ctx) {
+		TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE);
+		String imei = tm.getDeviceId();
+		return imei;
+	}
 
 	public static int getProcessId(Context ctx, String pkgName) {
 		ActivityManager actManager = (ActivityManager)ctx.getSystemService(Context.ACTIVITY_SERVICE);
@@ -155,7 +169,7 @@ public class AndroidUtils {
 	 * 获取应用程序的版本号
 	 * @param ctx
 	 * @param packageName
-	 * @return 版本数组（长度取决于版本信息）
+	 * @return 版本数组（长度取决于版本信息�?
 	 */
 	public static int[] getAppVersion(Context ctx, String packageName) {
 		List<PackageInfo> pkgs = ctx.getPackageManager().getInstalledPackages(0);
@@ -333,7 +347,7 @@ public class AndroidUtils {
 	
 	
 	/**
-	 * 在状态栏显示提示消息。
+	 * 在状态栏显示提示消息�?
 	 * @param context
 	 * @param id Notification ID
 	 * @param icon
@@ -363,7 +377,7 @@ public class AndroidUtils {
 	
 	
 	/**
-	 * 取消状态栏提示消息。
+	 * 取消状态栏提示消息�?
 	 * @param id
 	 */
 	public static void cancelNotification(Context context, int id) {
@@ -374,8 +388,8 @@ public class AndroidUtils {
 	public static void showToast(Context context,String msg) {
 		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
 	}
-
-	public static void showToast(Context context, String msg, Object... params) {
+	
+	public static void showToast(Context context,String msg, Object... params) {
 		// TODO
 		throw new UnsupportedOperationException();
 	}
@@ -388,7 +402,7 @@ public class AndroidUtils {
 		File sdcard = new File("/sdcard/");
 		return sdcard.exists() && sdcard.canWrite();
 	}
-	
+		
 	public static String getContactName(Context context, String phone) {
 		ContentResolver cr = context.getContentResolver();
 		Cursor cursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
@@ -428,7 +442,7 @@ public class AndroidUtils {
 
 			String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
 			Cursor phoneNums = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-			ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = "	+ contactId, null, null);// 第一个参数是确定查询电话号，第三个参数是查询具体某个人的过滤值
+			ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = "	+ contactId, null, null);// 第一个参数是确定查询电话号，第三个参数是查询具体某个人的过滤�
 
 			while (phoneNums.moveToNext()) {
 				String phoneNum = phoneNums.getString(phoneNums.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
