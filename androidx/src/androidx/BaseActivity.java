@@ -369,11 +369,15 @@ public abstract class BaseActivity extends Activity {
 		return simpleDialog.showCheckBoxsDialog(title, checkboxListViewAdapter, callback);
 	}
 
-	protected void showInfoDialog(final String msg) {
+	protected void showInfoDialog(String msg) {
 		simpleDialog.showInfoDialog(msg);
 	}
+	
+	protected void showInfoDialog(String msg, DialogCallback callback) {
+		simpleDialog.showInfoDialog(msg, callback);
+	}
 
-	protected void showListSelectDialog(final String title, final String[] items, final DialogCallback callback) {
+	protected void showListSelectDialog(String title, String[] items, DialogCallback callback) {
 		simpleDialog.showListSelectDialog(title, items, callback);
 	}
 
@@ -460,6 +464,14 @@ public abstract class BaseActivity extends Activity {
 	
 	protected String getEditTextString(int resId) {
 		return getEditText(resId).getText().toString();
+	}
+	
+	protected EditText setEditTextString(int resId, String str) {
+		EditText et = getEditText(resId);
+		if (et != null) {
+			et.setText(str);
+		}
+		return et;
 	}
 	
 //	protected int getEditTextInt(int resId) {
@@ -626,6 +638,7 @@ public abstract class BaseActivity extends Activity {
 		view.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				handler.invoke();
 				handler.invoke(v);
 			}
 		});
