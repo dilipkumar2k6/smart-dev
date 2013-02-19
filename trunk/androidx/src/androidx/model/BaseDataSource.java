@@ -110,7 +110,7 @@ public class BaseDataSource {
 				Log.e("androidx.db", "System Context didn't set properly.");
 				return null;
 			}
-			DefaultSQLiteOpenHelper dbHelper = new DefaultSQLiteOpenHelper(context, "androidx");
+			DefaultSQLiteOpenHelper dbHelper = new DefaultSQLiteOpenHelper(context, dbName);
 			return dbHelper.getWritableDatabase();
 		}
 	}
